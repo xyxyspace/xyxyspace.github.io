@@ -969,6 +969,12 @@ for reference
   padding-top: 9rem;
 }
 
+[grid-pad="31"] {
+  padding-left: 9rem;
+  padding-right: 0rem;
+  padding-top: 1rem;
+}
+
 /**
 Gutters
 **/

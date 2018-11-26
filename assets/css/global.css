@@ -975,6 +975,22 @@ for reference
   padding-top: 0rem;
 }
 
+[grid-pad="32"] {
+  padding-top: 3.5rem;
+  padding-left: 6rem;
+  padding-bottom: 4rem;
+}
+
+[grid-pad="33"] {
+  padding-left: 8rem;
+  padding-right: 0rem;
+  padding-top: 2.5rem;
+}
+
+[grid-pad="34"] {
+  padding-bottom: 5rem;
+}
+
 /**
 Gutters
 **/
@@ -1075,7 +1091,6 @@ Gutters
   margin-left: -7rem;
   margin-top: -3rem;
   margin-right: 1rem;
-  margin-bottom: 3rem;
 }
 
 /* Clearfix */

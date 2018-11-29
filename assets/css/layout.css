@@ -9,6 +9,7 @@
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 	text-shadow: none;
+	font-family: Verdana, Geneva, sans-serif;
 }
 customhtml > * {
     position: relative;
@@ -428,106 +429,6 @@ img[data-align="right"] {
 
 body.mobile #site_menu_wrapper.mobile_only:not(.disabled) #site_menu_button:not(.active) {
     display: block;
-}
-
-/* Site Menu */
-
-#site_menu_panel_container[data-type="cargo_menu"] #site_menu_panel {
-    display: block;
-    position: fixed;
-    top: 0; right: 0; bottom: 0; left: 0;
-    z-index: 10;
-    cursor: default;
-}
-
-.site_menu {
-
-    pointer-events: auto;
-    position: absolute;
-    z-index: 11;
-    top: 0;
-    bottom: 0;
-    line-height: 0;
-    max-width: 400px;
-    min-width: 300px;
-    font-size: 20px;
-    text-align: left;
-
-    background: rgba(20, 20, 20, 0.95);
-    padding: 20px 30px 90px 30px;
-    overflow-y: scroll;
-
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
-    justify-content: flex-start
-}
-
-body.mobile #site_menu_wrapper .site_menu {
-    overflow-x: scroll;
-    -webkit-overflow-scrolling: touch;
-    min-width: auto;
-    max-width: 100%;
-    width: 100%;
-    padding: 20px;
-}
-
-#site_menu_wrapper[data-sitemenu-position="top-left"] #site_menu,
-#site_menu_wrapper[data-sitemenu-position="bottom-left"] #site_menu{
-    left: 0;
-}
-
-#site_menu_wrapper[data-sitemenu-position="top-right"] #site_menu,
-#site_menu_wrapper[data-sitemenu-position="bottom-right"] #site_menu{
-    right: 0;
-}
-
-#site_menu_wrapper[data-type="page"] .site_menu {
-    right: 0; left: 0;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    background: transparent;
-}
-
-.site_menu_wrapper.open .site_menu {
-    display: block;
-}
-
-.site_menu div {
-    display: block;
-}
-
-.site_menu a {
-    text-decoration: none;
-    display: inline-block;
-    color: rgba(255, 255, 255, 0.75);
-    max-width: 100%;
-    overflow:hidden;
-    white-space:nowrap;
-    text-overflow: ellipsis;
-    line-height: 1.4;
-}
-
-.site_menu div a.active {
-    color: rgba(255,255,255,.4);
-}
-
-.site_menu div.set-link > a {
-    font-weight: bold;
-}
-
-.site_menu div.hidden {
-    display: none;
 }
 
 /*#site_menu div.set-link a + [data-set-wrapper] {*/

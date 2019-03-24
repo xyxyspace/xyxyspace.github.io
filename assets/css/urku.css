@@ -1537,6 +1537,25 @@ body {
   }
 }
 
+.post-inside-11 {
+  background-image: url("../img/post-11.jpg");
+}
+.item-inside-11 {
+  background-image: url("../img/project-11.jpg");
+  background-position: 50% 100%;
+  background-size: 350%;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5) {
+  .item-inside-11 {
+    background-image: url("../img/project-11.jpg");
+  }
+}
+@media (min-width: 40em) {
+  .item-inside-11 {
+    background-size: 120%;
+  }
+}
+
 #layout-grid:checked ~ .rk-portfolio,
 #layout-grid:checked ~ .rk-blog {
   -webkit-animation: op2 .5s;

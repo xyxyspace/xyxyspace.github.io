@@ -1252,6 +1252,10 @@ body {
   background-image: url("../img/project-15.jpg");
 }
 
+.item-16 {
+  background-image: url("../img/project-15.png");
+}
+
 @media (min-width: 40em) {
   #layout-grid:checked ~ .rk-portfolio .rk-items-cont {
     display: -webkit-box;
@@ -1576,6 +1580,22 @@ body {
 @media (min-width: 40em) {
   .item-inside-12 {
     background-size: 120%;
+  }
+}
+
+.item-inside-15 {
+  background-image: url("../img/project-15.png");
+  background-position: 100% 100%;
+  background-size: 100%;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5) {
+  .item-inside-15 {
+    background-image: url("../img/project-15.png");
+  }
+}
+@media (min-width: 40em) {
+  .item-inside-15 {
+    background-size: 100%;
   }
 }
 

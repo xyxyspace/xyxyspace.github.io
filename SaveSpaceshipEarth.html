@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="assets/css/aurora-pack.min.css">
     <link rel="stylesheet" href="assets/css/aurora-theme-base.min.css">
     <link rel="stylesheet" href="assets/css/urku.css">
+    <style>
+     body{ margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:12px; }
+     #Mouse{ position:absolute; z-index: 100; display:none;color:blue;}
+     #Mouse strong{ color:blue;}
+     </style>
     <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-134998086-1"></script>
 <script>
@@ -37,26 +42,15 @@
         <h1 class="rk-logo"><a href="index.html">(x,y)</a></h1>
         <nav class="rk-navigation">
           <ul class="rk-menu">
-            <li class="rk-menu__item"><a href="index.html" class="rk-menu__link">Home</a>
+            <li class="rk-menu__item"><a href="about.html" class="rk-menu__link">xyxy</a>
             </li>
-            <li class="active rk-menu__item"><a href="portfolio.html" class="rk-menu__link">Portfolio</a>
-              <nav class="rk-menu__sub">
-                <ul class="rk-container">
-                  <li class="rk-menu__item"><a href="ServiceDesign.html" class="rk-menu__link">Service design</a></li>
-                  <li class="rk-menu__item"><a href="GraphicDesign.html" class="rk-menu__link">Graphic design</a></li>
-                  <li class="active rk-menu__item"><a href="CuratingDesign.html" class="rk-menu__link">Curating design</a></li>
-                  <li class="rk-menu__item"><a href="PersonalProjects.html" class="rk-menu__link">Personal projects</a></li>
-                </ul>
-              </nav>
+            <li class="rk-menu__item"><a href="works.html" class="rk-menu__link">Works</a>
             </li>
-            <li class="rk-menu__item"><a href="concept.html" class="rk-menu__link">Concept</a>
-            </li>
-            <li class="rk-menu__item"><a href="about.html" class="rk-menu__link">About</a>
+            <li class="rk-menu__item"><a href="concept.html" class="rk-menu__link">For dreams,</a>
             </li>
             <li class="rk-menu__item"><a href="contact.html" class="rk-menu__link">High five?</a>
             </li>
           </ul>
-
         </nav>
       </div>
     </header>
@@ -165,6 +159,31 @@
         </div>
       </div>
     </footer>
+    <div id="Mouse">(<strong id="XXX"></strong>, <strong id="YYY"></strong>)</div>
+    <div id="x_div"></div>
+    <div id="y_div"></div>
+    <script>
+    function mouseMove(event){
+       var event = window.event || event;
+        var x_div = document.getElementById("x_div"),
+            y_div = document.getElementById("y_div"),
+            Mouse = document.getElementById("Mouse"),
+            top = event.clientY > (window.screen.availHeight/2) ? -30 : 10,
+            left = event.clientX > (window.screen.availWidth/2) ? -100 : 20;
+
+        document.getElementById("XXX").innerHTML = event.clientX;
+        document.getElementById("YYY").innerHTML = event.clientY;
+
+        Mouse.style.top = event.clientY + top + "px";
+        Mouse.style.left = event.clientX + left + "px";
+        Mouse.style.display = "block";
+
+        //x_div.style.top = event.clientY + "px";
+        //y_div.style.left = event.clientX + "px";
+    }
+
+    document.onmousemove = mouseMove;
+    </script>
     <script src="assets/js/svg4everybody.min.js"></script>
     <script>svg4everybody();</script>
   </body>

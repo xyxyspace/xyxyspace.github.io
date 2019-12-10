@@ -1173,6 +1173,14 @@ body {
     background-position: center left;
   }
 }
+.item-1-1 {
+  background-image: url("../img/acmi-gif-2.gif");
+}
+@media (min-width: 40em) {
+  #layout-grid:checked ~ .rk-portfolio .item-1-1 {
+    background-position: center left;
+  }
+}
 
 .item-2 {
   background-image: url("../img/project-2.jpg");
@@ -1180,6 +1188,9 @@ body {
 
 .item-3 {
   background-image: url("../img/project-3.jpg");
+}
+.item-3-1 {
+  background-image: url("../img/sse.gif");
 }
 
 .item-4 {
@@ -1195,11 +1206,28 @@ body {
   }
 }
 
+.item-5-1 {
+  background-image: url("../img/project-5-1.gif");
+}
+@media (min-width: 40em) {
+  #layout-grid:checked ~ .rk-portfolio .item-5-1 {
+    background-position: center left;
+  }
+}
+
 .item-6 {
   background-image: url("../img/project-6.jpg");
 }
 @media (min-width: 40em) {
   #layout-grid:checked ~ .rk-portfolio .item-6 {
+    background-position: top center;
+  }
+}
+.item-6-1 {
+  background-image: url("../img/Rehabilitation.gif");
+}
+@media (min-width: 40em) {
+  #layout-grid:checked ~ .rk-portfolio .item-6-1 {
     background-position: top center;
   }
 }
@@ -1213,11 +1241,11 @@ body {
 }
 
 .item-9 {
-  background-image: url("../img/project-9.jpg");
+  background-image: url("../img/shareorg.jpg");
 }
 
 .item-10 {
-  background-image: url("../img/project-10.jpg");
+  background-image: url("../img/project-10-0.jpg");
 }
 
 .item-11 {
@@ -1254,6 +1282,10 @@ body {
 
 .item-16 {
   background-image: url("../img/project-15.png");
+}
+
+.item-17 {
+  background-image: url("../img/floodprojects.jpg");
 }
 
 @media (min-width: 40em) {

@@ -1296,6 +1296,10 @@ body {
   background-image: url("../img/kite1.gif");
 }
 
+.item-20 {
+  background-image: url("../img/2501.jpg");
+}
+
 @media (min-width: 40em) {
   #layout-grid:checked ~ .rk-portfolio .rk-items-cont {
     display: -webkit-box;
@@ -1718,6 +1722,22 @@ body {
 @media (min-width: 40em) {
   .item-inside-20 {
     background-size: 100%;
+  }
+}
+
+.item-inside-21 {
+  background-image: url("../img/2501.jpg");
+  background-position: 50% 100%;
+  background-size: 350%;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5) {
+  .item-inside-21 {
+    background-image: url("../img/2501.jpg");
+  }
+}
+@media (min-width: 40em) {
+  .item-inside-21 {
+    background-size: 120%;
   }
 }
 

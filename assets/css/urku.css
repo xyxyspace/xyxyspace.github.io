@@ -1241,7 +1241,7 @@ body {
 }
 
 .item-9 {
-  background-image: url("../img/shareorg.jpg");
+  background-image: url("../img/tiger.jpg");
 }
 
 .item-10 {
@@ -1781,6 +1781,22 @@ body {
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5) {
   .item-inside-24 {
     background-image: url("../img/mv.gif");
+  }
+}
+@media (min-width: 40em) {
+  .item-inside-23 {
+    background-size: 120%;
+  }
+}
+
+.item-inside-25 {
+  background-image: url("../img/Jin25.jpg");
+  background-position: 50% 60%;
+  background-size: 100%;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5) {
+  .item-inside-25 {
+    background-image: url("../img/Jin25.jpg");
   }
 }
 @media (min-width: 40em) {

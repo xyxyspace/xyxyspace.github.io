@@ -567,7 +567,7 @@ body {
   font-weight: 800;
 }
 .item-meta p {
-  font-size: 1.5em;
+  font-size: 2em;
   margin-bottom: 0;
 }
 @media (min-width: 64em) {
@@ -1784,7 +1784,7 @@ body {
   }
 }
 @media (min-width: 40em) {
-  .item-inside-23 {
+  .item-inside-24 {
     background-size: 120%;
   }
 }
@@ -1800,10 +1800,44 @@ body {
   }
 }
 @media (min-width: 40em) {
-  .item-inside-23 {
+  .item-inside-25 {
     background-size: 120%;
   }
 }
+
+.item-inside-26 {
+  background-image: url("../img/elephant.008.jpeg");
+  background-position: 50% 60%;
+  background-size: 100%;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5) {
+  .item-inside-26 {
+    background-image: url("../img/elephant.008.jpeg");
+  }
+}
+@media (min-width: 40em) {
+  .item-inside-26 {
+    background-size: 120%;
+  }
+}
+
+
+.item-inside-27 {
+  background-image: url("../img/vans-0.jpg");
+  background-position: 50% 60%;
+  background-size: 100%;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5) {
+  .item-inside-27 {
+    background-image: url("../img/vans-0.jpg");
+  }
+}
+@media (min-width: 40em) {
+  .item-inside-27 {
+    background-size: 120%;
+  }
+}
+
 
 #layout-grid:checked ~ .rk-portfolio,
 #layout-grid:checked ~ .rk-blog {

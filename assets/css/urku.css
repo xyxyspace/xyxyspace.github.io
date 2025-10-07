@@ -1174,7 +1174,7 @@ body {
   }
 }
 .item-1-1 {
-  background-image: url("../img/acmi-gif-2.gif");
+  background-image: url("../img/vans-9.gif");
 }
 @media (min-width: 40em) {
   #layout-grid:checked ~ .rk-portfolio .item-1-1 {
@@ -1207,7 +1207,7 @@ body {
 }
 
 .item-5-1 {
-  background-image: url("../img/project-5-1.gif");
+  background-image: url("../img/enhance.007.jpeg");
 }
 @media (min-width: 40em) {
   #layout-grid:checked ~ .rk-portfolio .item-5-1 {
@@ -1224,7 +1224,7 @@ body {
   }
 }
 .item-6-1 {
-  background-image: url("../img/Rehabilitation.gif");
+  background-image: url("../img/elephant.013.jpeg");
 }
 @media (min-width: 40em) {
   #layout-grid:checked ~ .rk-portfolio .item-6-1 {
@@ -1245,7 +1245,7 @@ body {
 }
 
 .item-10 {
-  background-image: url("../img/project-10-0.jpg");
+  background-image: url("../img/pink.gif");
 }
 
 .item-11 {
@@ -1293,11 +1293,11 @@ body {
 }
 
 .item-19 {
-  background-image: url("../img/kite1.gif");
+  background-image: url("../img/slim5.png");
 }
 
 .item-20 {
-  background-image: url("../img/2501.jpg");
+  background-image: url("../img/summer.jpeg");
 }
 
 @media (min-width: 40em) {
@@ -1867,6 +1867,38 @@ body {
 }
 @media (min-width: 40em) {
   .item-inside-29 {
+    background-size: 120%;
+  }
+}
+
+.item-inside-30 {
+  background-image: url("../img/slim0.webp");
+  background-position: 50% 60%;
+  background-size: 100%;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5) {
+  .item-inside-30 {
+    background-image: url("../img/slim0.webp");
+  }
+}
+@media (min-width: 40em) {
+  .item-inside-30 {
+    background-size: 120%;
+  }
+}
+
+.item-inside-31 {
+  background-image: url("../img/bang0.avif");
+  background-position: 50% 60%;
+  background-size: 100%;
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5) {
+  .item-inside-31 {
+    background-image: url("../img/bang0.avif");
+  }
+}
+@media (min-width: 40em) {
+  .item-inside-31 {
     background-size: 120%;
   }
 }

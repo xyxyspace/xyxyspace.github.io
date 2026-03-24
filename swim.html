@@ -525,7 +525,7 @@
                 for (let x = 0; x < width; x += config.bodyParticleSpacing) {
                     const index = y * width + x;
                     if (data[index] === 1) {
-                        const canvasX = (x / width) * canvas.width;
+                        const canvasX = canvas.width - (x / width) * canvas.width;
                         const canvasY = (y / height) * canvas.height;
                         bodyParticles.push(new BodyParticle(canvasX, canvasY, id++));
                     }
@@ -543,7 +543,7 @@
                 for (let x = 0; x < width; x += config.bodyParticleSpacing) {
                     const index = y * width + x;
                     if (data[index] === 1) {
-                        const canvasX = (x / width) * canvas.width;
+                        const canvasX = canvas.width - (x / width) * canvas.width;
                         const canvasY = (y / height) * canvas.height;
                         bodyPixels.push({ x: canvasX, y: canvasY });
                     }
@@ -584,7 +584,7 @@
             try {
                 // 人体识别
                 const segmentation = await bodyPixNet.segmentPerson(video, {
-                    flipHorizontal: true,
+                    flipHorizontal: false,
                     internalResolution: 'medium',
                     segmentationThreshold: 0.7
                 });

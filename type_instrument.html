@@ -17,10 +17,11 @@ erase a word if it feels too clear.
 press Enter when the thought needs air.
 
 i was going to say your name
-but the room was still listening"></textarea><div class="row"><span class="pill">A–Z = harmony</span><span class="pill">1–7 = melody</span><span class="pill">Space = breath</span><span class="pill">Erase = trace</span><span class="pill">Enter = new line</span><span class="pill">Edits keep their place</span></div><div class="timeline-title"><span>Writing trace</span><span id="stateLabel">ready</span></div><div class="score" id="score"></div><p class="footer-note">Share Letter copies a link you can send. For short letters, the music and hidden writing are stored inside the URL.</p></div><aside class="card"><div class="panel"><h2>How it works</h2><p>Tap Begin once. Then write normally. You can go back and add a word; the letter remembers where that edit happened.</p></div><div class="control"><label for="soundSelect">Sound</label><select id="soundSelect"><option value="warm" selected>Warm synth</option><option value="bell">Soft bell</option><option value="toy">Tiny 8-bit</option><option value="felt">Felt / muted</option></select></div><div class="control"><label for="densitySelect">Harmony</label><select id="densitySelect"><option value="light">Light</option><option value="medium" selected>Medium</option><option value="rich">Rich</option></select></div><div class="control"><label for="echoRange">Echo / memory</label><input id="echoRange" type="range" min="0" max="100" value="42"></div><div class="control"><label for="volumeRange">Volume</label><input id="volumeRange" type="range" min="30" max="130" value="100"></div><div class="control"><label>Chord colour</label><div class="map" id="chordMap"></div></div><p class="status" id="status">Tap Begin, then write in the box.</p></aside></section></main>
+but the room was still listening"></textarea><div class="row"><span class="pill">A–Z = harmony</span><span class="pill">1–7 = melody</span><span class="pill">Space = breath</span><span class="pill">Erase = trace</span><span class="pill">Enter = new line</span><span class="pill">Edits keep their place</span></div><div class="timeline-title"><span>Writing trace</span><span id="stateLabel">ready</span></div><div class="score" id="score"></div><p class="footer-note">Share Letter saves the letter and copies a short link you can send.</p></div><aside class="card"><div class="panel"><h2>How it works</h2><p>Tap Begin once. Then write normally. You can go back and add a word; the letter remembers where that edit happened.</p></div><div class="control"><label for="soundSelect">Sound</label><select id="soundSelect"><option value="warm" selected>Warm synth</option><option value="bell">Soft bell</option><option value="toy">Tiny 8-bit</option><option value="felt">Felt / muted</option></select></div><div class="control"><label for="densitySelect">Harmony</label><select id="densitySelect"><option value="light">Light</option><option value="medium" selected>Medium</option><option value="rich">Rich</option></select></div><div class="control"><label for="echoRange">Echo / memory</label><input id="echoRange" type="range" min="0" max="100" value="42"></div><div class="control"><label for="volumeRange">Volume</label><input id="volumeRange" type="range" min="30" max="130" value="100"></div><div class="control"><label>Chord colour</label><div class="map" id="chordMap"></div></div><p class="status" id="status">Tap Begin, then write in the box.</p></aside></section></main>
 <main id="letterView"><div class="letter-wrap"><header><section><h1>Slow Reveal Letter</h1><div class="subtitle">Listen first. The words will hold themselves back until the end.</div></section><div class="badge">✦ a letter in music</div></header><div class="card"><div class="row"><button id="playLetterBtn" class="primary">Play Letter</button><button id="resetLetterBtn">Reset</button><a id="writeBackBtn" class="link-button" href="./">Write back</a></div><div class="timeline-title"><span id="letterMeta">ready</span><span>slow reveal</span></div><div class="letter-stage" id="letterStage"><span class="cursor">|</span></div><p class="letter-note">This letter was written with Type Instrument. Its sound and hidden text come from the same writing trace.</p></div></div></main>
 <script>
 const $=id=>document.getElementById(id),composerView=$('composerView'),letterView=$('letterView'),input=$('input'),beginBtn=$('beginBtn'),shareLetterBtn=$('shareLetterBtn'),startOverBtn=$('startOverBtn'),score=$('score'),statusEl=$('status'),stateLabel=$('stateLabel'),shareBox=$('shareBox'),soundSelect=$('soundSelect'),densitySelect=$('densitySelect'),echoRange=$('echoRange'),volumeRange=$('volumeRange'),chordMap=$('chordMap'),playLetterBtn=$('playLetterBtn'),resetLetterBtn=$('resetLetterBtn'),letterStage=$('letterStage'),letterMeta=$('letterMeta'),writeBackBtn=$('writeBackBtn');
+const SUPABASE_URL='https://jpwmsukdlsmgajiteejp.supabase.co',SUPABASE_KEY='sb_publishable_aiggzLya-rjiyn3H-0rxpg_7P9AyVif';
 let audioCtx,master,compressor,delayNode,feedbackGain,delayWetGain,syllableBuffer='',lastActionPerf=performance.now(),perfEvents=[],perfStart=null,lastPerfTime=0,prevValue='',currentLetterURL='',replayTimeouts=[],replaySyllable='',replayNodes=[],replayEditCursor=null,composing=false,processing=false,queued=false;
 const chordNames=['Am','Bdim','C','Dm','Em','F','G','Cmaj7','Dm7','Em7','Fmaj7','G7','Am7','Cadd9','Csus4','Gsus4','F6','Am9','C6','Gadd9','Dm9','D7','E7','Fm','B♭','A♭'];
 const chordNotes=[['A3','C4','E4'],['B3','D4','F4'],['C4','E4','G4'],['D4','F4','A4'],['E4','G4','B4'],['F4','A4','C5'],['G3','B3','D4'],['C4','E4','G4','B4'],['D4','F4','A4','C5'],['E4','G4','B4','D5'],['F4','A4','C5','E5'],['G3','B3','D4','F4'],['A3','C4','E4','G4'],['C4','E4','G4','D5'],['C4','F4','G4'],['G3','C4','D4'],['F4','A4','C5','D5'],['A3','C4','E4','G4','B4'],['C4','E4','G4','A4'],['G3','B3','D4','A4'],['D4','F4','A4','C5','E5'],['D4','F#4','A4','C5'],['E4','G#4','B4','D5'],['F3','Ab3','C4'],['Bb3','D4','F4'],['Ab3','C4','Eb4']];
@@ -35,7 +36,38 @@ function commonDiff(oldVal,newVal){let start=0;while(start<oldVal.length&&start<
 function playInsertedText(text,pos,oldLen){const endEditing=pos>=oldLen;[...text].forEach((ch,i)=>setTimeout(()=>{if(ch==='\n'){releaseSyllable('line');token('enter','space','new line');stateLabel.textContent='new line';return}if(ch===' '){playSpace();stateLabel.textContent='breath';return}if(/[1-7]/.test(ch)){playDigit(ch);stateLabel.textContent='melody';return}if(/[,.;:!?，。！？、…]/.test(ch)){const p=ch==='。'?'.':ch==='，'?',':ch==='？'?'?':ch==='！'?'!':ch;playPunct(p);stateLabel.textContent='cadence';return}const idx=chordIndex(ch);if(idx!==null){if(endEditing)syllableBuffer+=ch.toLowerCase();playChord(idx,1);stateLabel.textContent=endEditing?'harmony':'edit'}else{noise(.025,.018,{freq:1600,q:3});token('letter','chord',ch);stateLabel.textContent='writing'}},i*34))}
 function scheduleProcess(){if(processing){queued=true;return}processing=true;requestAnimationFrame(async()=>{try{await processCurrentValue()}finally{processing=false;if(queued){queued=false;scheduleProcess()}}})}async function processCurrentValue(){const oldVal=prevValue,newVal=input.value;if(oldVal===newVal)return;ensure();if(audioCtx.state==='suspended')await audioCtx.resume();maybePause();const {pos,removed,added}=commonDiff(oldVal,newVal);if(removed.length){playDelete(true);if(removed.length>1)token('erase','delete',removed.length+' chars');mark('d',pos,removed.length);syllableBuffer=''}if(added.length){playInsertedText(added,pos,oldVal.length);mark('i',pos,added);if(pos<oldVal.length)token('edit','export','at '+pos)}prevValue=newVal;statusEl.textContent='Writing is being recorded into this page.'}
 input.addEventListener('compositionstart',()=>{composing=true});input.addEventListener('compositionend',()=>{composing=false;scheduleProcess()});input.addEventListener('input',()=>{if(!composing)scheduleProcess()});
-function encodePayload(payload){const json=JSON.stringify(payload),bytes=new TextEncoder().encode(json);let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}function decodePayload(str){const b64=str.replace(/-/g,'+').replace(/_/g,'/'),pad=b64.length%4?'='.repeat(4-b64.length%4):'',bin=atob(b64+pad),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return JSON.parse(new TextDecoder().decode(bytes))}function makeLetterURL(){const payload={v:2,created:new Date().toISOString(),settings:settings(),events:perfEvents,duration:lastPerfTime};return location.href.split('#')[0]+'#letter='+encodePayload(payload)}function isProbablyMobile(){
+function encodePayload(payload){const json=JSON.stringify(payload),bytes=new TextEncoder().encode(json);let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}function decodePayload(str){const b64=str.replace(/-/g,'+').replace(/_/g,'/'),pad=b64.length%4?'='.repeat(4-b64.length%4):'',bin=atob(b64+pad),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return JSON.parse(new TextDecoder().decode(bytes))}function makeLetterPayload(){return{v:3,created:new Date().toISOString(),settings:settings(),events:perfEvents,duration:lastPerfTime}}
+function basePageURL(){return location.href.split('?')[0].split('#')[0]}
+async function supabaseRequest(path,options={}){
+ const res=await fetch(SUPABASE_URL+path,{
+   ...options,
+   headers:{
+     apikey:SUPABASE_KEY,
+     Authorization:'Bearer '+SUPABASE_KEY,
+     'Content-Type':'application/json',
+     ...(options.headers||{})
+   }
+ });
+ const text=await res.text();
+ let json=null;
+ try{json=text?JSON.parse(text):null}catch(e){json=text}
+ if(!res.ok){
+   const msg=(json&&json.message)||text||('Supabase request failed: '+res.status);
+   throw new Error(msg);
+ }
+ return json;
+}
+async function saveLetterToSupabase(payload){
+ const rows=await supabaseRequest('/rest/v1/letters',{
+   method:'POST',
+   headers:{Prefer:'return=representation'},
+   body:JSON.stringify({payload})
+ });
+ if(!rows||!rows[0]||!rows[0].id)throw new Error('Letter saved, but no id was returned.');
+ return rows[0].id;
+}
+async function makeLetterURL(){const payload=makeLetterPayload(),id=await saveLetterToSupabase(payload);return basePageURL()+'?letter='+encodeURIComponent(id)}
+function isProbablyMobile(){
  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.maxTouchPoints&&navigator.maxTouchPoints>1&&Math.min(screen.width,screen.height)<900);
 }
 function esc(s){
@@ -52,24 +84,70 @@ function showShareResult(url,copyState='copied'){
  const title=copyState==='copied'?'Letter link copied.':'Your letter is ready.';
  const body=copyState==='copied'?'The link is ready to send. Open it here to test the slow reveal, or close this card to keep writing.':'Copy the link below, or open it here to test the slow reveal.';
  shareBox.style.display='block';
- shareBox.innerHTML=`<button class="share-close" type="button" onclick="hideSharePanel()" aria-label="Close">×</button><h3>${title}</h3><p>${body}</p><div class="share-actions"><a class="primary-action" href="${esc(url)}" target="_blank" rel="noopener">Open Letter</a><button type="button" onclick="copyCurrentLetterLink()">Copy Again</button></div><div class="link-preview">${esc(preview)}</div>${tooLong?'<p style="margin-top:10px">This letter is long, so some apps may not like the link. A future short-link/database version would fix this.</p>':''}`;
+ shareBox.innerHTML=`<button class="share-close" type="button" onclick="hideSharePanel()" aria-label="Close">×</button><h3>${title}</h3><p>${body}</p><div class="share-actions"><a class="primary-action" href="${esc(url)}" target="_blank" rel="noopener">Open Letter</a><button type="button" onclick="copyCurrentLetterLink()">Copy Again</button></div><div class="link-preview">${esc(preview)}</div>${tooLong?'<p style="margin-top:10px">This link should be short enough for most apps.</p>':''}`;
 }
 async function shareLetter(){
  if(!perfEvents.length){statusEl.textContent='Write something first, then share the letter.';return}
- const url=makeLetterURL();
- currentLetterURL=url;
+ shareLetterBtn.disabled=true;
+ shareLetterBtn.textContent='Saving...';
+ statusEl.textContent='Saving the letter...';
  try{
-   await navigator.clipboard.writeText(url);
-   statusEl.textContent='Copied. The letter is ready to send.';
-   showShareResult(url,'copied');
+   const url=await makeLetterURL();
+   currentLetterURL=url;
+   try{
+     await navigator.clipboard.writeText(url);
+     statusEl.textContent='Copied. The letter is ready to send.';
+     showShareResult(url,'copied');
+   }catch(copyErr){
+     statusEl.textContent='Copy did not work automatically. Select the link from the card.';
+     showShareResult(url,'manual');
+   }
  }catch(err){
-   statusEl.textContent='Copy did not work automatically. Select the link from the card.';
-   showShareResult(url,'manual');
+   console.error(err);
+   statusEl.textContent='Could not save the letter. Check Supabase table / RLS settings or local network access.';
+   shareBox.style.display='block';
+   shareBox.innerHTML=`<button class="share-close" type="button" onclick="hideSharePanel()" aria-label="Close">×</button><h3>Could not save.</h3><p>${esc(err.message||err)}</p>`;
+ }finally{
+   shareLetterBtn.disabled=false;
+   shareLetterBtn.textContent='Share Letter';
  }
 }
 function startOver(){currentLetterURL='';input.value='';prevValue='';score.innerHTML='';shareBox.style.display='none';syllableBuffer='';perfEvents=[];perfStart=null;lastPerfTime=0;stateLabel.textContent='ready';token('start over','export','fresh page');statusEl.textContent='Started over. Write a fresh letter.';input.focus()}beginBtn.onclick=begin;shareLetterBtn.onclick=shareLetter;startOverBtn.onclick=startOver;
 let LETTER=null;function showLetter(payload){LETTER=payload;composerView.style.display='none';letterView.style.display='block';writeBackBtn.href=(payload.settings&&payload.settings.replyUrl)||location.href.split('#')[0];letterMeta.textContent=`${((payload.duration||0)/1000).toFixed(1)}s · ${(payload.events||[]).length} gestures`}function resetLetter(){replayTimeouts.forEach(clearTimeout);replayTimeouts=[];letterStage.innerHTML='';replaySyllable='';replayNodes=[];replayEditCursor=document.createElement('span');replayEditCursor.className='cursor';replayEditCursor.textContent='|';letterStage.appendChild(replayEditCursor)}function nodeAt(pos){return replayNodes[pos]||replayEditCursor}function moveCursor(pos){letterStage.insertBefore(replayEditCursor,nodeAt(pos))}function makeMaskedNode(ch){if(ch==='\n'){const br=document.createElement('br');br.className='line-break';br.dataset.secret='\n';return br}const span=document.createElement('span');span.className='char masked slow-hidden';span.dataset.secret=ch;span.textContent=/\s/.test(ch)?ch:'•';return span}function insertReplayText(pos,text){let p=clamp(pos,0,replayNodes.length);moveCursor(p);[...text].forEach((ch,i)=>{const doIt=()=>{const node=makeMaskedNode(ch);letterStage.insertBefore(node,replayEditCursor);replayNodes.splice(p,0,node);p++;moveCursor(p);playReplayChar(ch)};if(i===0)doIt();else replayTimeouts.push(setTimeout(doIt,i*38))})}function deleteReplayText(pos,count){let p=clamp(pos,0,replayNodes.length);moveCursor(p);for(let i=0;i<count;i++){const target=replayNodes[p];if(!target)break;replayNodes.splice(p,1);if(target.tagName==='BR')target.remove();else{target.classList.add('deleted');target.textContent='×';replayTimeouts.push(setTimeout(()=>{if(target.parentNode)target.remove()},620))}}playDelete(false)}function playReplayChar(ch){if(ch==='\n'){replayRelease();return}if(ch===' '){replayRelease();noise(.06,.035,{freq:2000,q:5});return}if(/[1-7]/.test(ch)){playDigit(ch,false);return}if(/[,.;:!?，。！？、…]/.test(ch)){const p=ch==='。'?'.':ch==='，'?',':ch==='？'?'?':ch==='！'?'!':ch;replayRelease();playPunct(p,false);return}const idx=chordIndex(ch);if(idx!==null){replaySyllable+=ch.toLowerCase();playChord(idx,1,false)}else noise(.025,.018,{freq:1600,q:3})}function replayRelease(){const s=replaySyllable.toLowerCase().replace(/[^a-zv]/g,'');if(!s)return;const deg=degreeFromSyllable(s),freq=nf(scale[deg-1]);tone(freq,.52+Math.min(.35,s.length*.035),{gain:.24,type:'sine',filter:2800,glideTo:s.length>4?1.06:1,attack:.018});if(s.length>=4)tone(freq*2,.35,{gain:.055,type:'sine',filter:3600,delay:.055,noPartial:true});replaySyllable=''}function replayEvent(ev){const code=ev[1],pos=Number(ev[2]||0),val=ev[3];if(code==='i')insertReplayText(pos,String(val||''));else if(code==='d')deleteReplayText(pos,Number(val||1));else if(code==='z')tone(nf('C4')*.5,.55,{gain:.055,type:'sine',filter:900,glideTo:.97})}function finalReveal(){const chars=[...letterStage.querySelectorAll('.char[data-secret]')];chars.forEach((el,i)=>replayTimeouts.push(setTimeout(()=>{el.textContent=el.dataset.secret;el.classList.remove('masked','slow-hidden','deleted');el.classList.add('revealed')},i*26)))}async function playLetter(){if(!LETTER)return;ensure();if(audioCtx.state==='suspended')await audioCtx.resume();resetLetter();playLetterBtn.textContent='Playing...';const events=LETTER.events||[];events.forEach(ev=>replayTimeouts.push(setTimeout(()=>replayEvent(ev),ev[0])));replayTimeouts.push(setTimeout(()=>{finalReveal();playLetterBtn.textContent='Replay Letter'},(LETTER.duration||0)+1200))}playLetterBtn.onclick=playLetter;resetLetterBtn.onclick=resetLetter;
-function init(){const hash=location.hash||'';if(hash.startsWith('#letter=')){try{showLetter(decodePayload(hash.slice(8)));resetLetter()}catch(err){composerView.style.display='block';letterView.style.display='none';statusEl.textContent='This letter link could not be opened.'}}else{composerView.style.display='block';letterView.style.display='none'}}window.addEventListener('hashchange',()=>location.reload());init();
+async function loadLetterById(id){
+ const rows=await supabaseRequest('/rest/v1/letters?select=payload&id=eq.'+encodeURIComponent(id)+'&limit=1',{method:'GET'});
+ const row=Array.isArray(rows)?rows[0]:null;
+ if(!row||!row.payload)throw new Error('Letter not found.');
+ showLetter(row.payload);
+ resetLetter();
+}
+async function init(){
+ const params=new URLSearchParams(location.search),id=params.get('letter');
+ if(id){
+   try{
+     composerView.style.display='none';
+     letterView.style.display='block';
+     letterMeta.textContent='loading letter...';
+     await loadLetterById(id);
+   }catch(err){
+     console.error(err);
+     composerView.style.display='block';
+     letterView.style.display='none';
+     statusEl.textContent='This letter could not be opened. Check the link, Supabase settings, or local network access.';
+   }
+   return;
+ }
+ const hash=location.hash||'';
+ if(hash.startsWith('#letter=')){
+   try{showLetter(decodePayload(hash.slice(8)));resetLetter()}
+   catch(err){composerView.style.display='block';letterView.style.display='none';statusEl.textContent='This letter link could not be opened.'}
+ }else{
+   composerView.style.display='block';
+   letterView.style.display='none';
+ }
+}
+window.addEventListener('hashchange',()=>location.reload());
+init();
 </script>
 </body>
 </html>

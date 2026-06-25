@@ -3,17 +3,127 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Type Instrument v3.11 — Reply Loop</title>
+<title>Type Instrument</title>
 <style>
-:root{--bg:#f8f3e8;--ink:#18231f;--muted:#6c6b63;--line:#2d3a33;--accent:#e4b23c;--soft:#dfe8d4;--cream:#fffefa;--blue:#dfeeff;--warm:#fff2c8;--pink:#ffe2d2}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 10% 10%,rgba(228,178,60,.22),transparent 28%),radial-gradient(circle at 88% 18%,rgba(130,160,110,.18),transparent 28%),var(--bg);color:var(--ink)}main{max-width:1160px;margin:0 auto;padding:34px 22px 48px}header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:22px}h1{margin:0 0 8px;font-size:clamp(34px,5vw,68px);line-height:.88;letter-spacing:-.065em}.subtitle{max-width:820px;color:var(--muted);font-size:16px;line-height:1.5}.badge{border:2px solid var(--line);border-radius:22px 30px 18px 34px;padding:11px 16px;background:var(--accent);font-weight:850;transform:rotate(-4deg);white-space:nowrap;box-shadow:4px 4px 0 var(--line);display:inline-flex;align-items:center;gap:8px}.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(285px,.78fr);gap:18px}@media(max-width:900px){header,.grid{display:grid;grid-template-columns:1fr}.badge{width:fit-content}}.card{background:rgba(255,250,240,.94);border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:8px 8px 0 rgba(25,35,31,.18)}textarea{width:100%;min-height:335px;resize:vertical;border:2px solid var(--line);border-radius:18px;background:var(--cream);color:var(--ink);padding:18px;font-size:24px;line-height:1.45;outline:none;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}textarea:focus{box-shadow:0 0 0 4px rgba(228,178,60,.35)}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}button,select,input{font:inherit}button,select{border:2px solid var(--line);border-radius:999px;background:var(--cream);color:var(--ink);padding:10px 14px;cursor:pointer;font-weight:780}button.primary{background:var(--ink);color:white}button.accent{background:var(--accent);color:var(--ink)}button:active{transform:translate(2px,2px)}label{font-weight:850;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.control{display:grid;gap:8px;margin-bottom:16px}select{width:100%;border-radius:18px;padding:12px 14px}input[type=range]{width:100%;accent-color:#e4b23c}.panel{border:2px solid var(--line);border-radius:20px;padding:16px;background:var(--soft);margin-bottom:16px}.panel h2{margin:0 0 8px;font-size:28px;line-height:1;letter-spacing:-.04em}.panel p{margin:0;line-height:1.45;color:#29352f}.score{min-height:118px;max-height:230px;overflow:auto;border:2px dashed rgba(25,35,31,.38);border-radius:16px;padding:12px;background:rgba(223,232,212,.35);font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px}.timeline-title{margin:15px 0 8px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}.token{display:inline-flex;gap:6px;align-items:center;padding:6px 9px;border:1.8px solid var(--line);border-radius:999px;background:var(--cream);font-size:13px;font-weight:850}.token.chord{background:var(--accent)}.token.note{background:#f5ead0}.token.release{background:var(--soft)}.token.space{background:var(--blue)}.token.delete{background:#ffdeda;color:#6d1e14}.token.export{background:var(--warm)}.token.pause{background:#eee0ff}.pill{display:inline-block;padding:3px 8px;border:1.5px solid var(--line);border-radius:999px;background:var(--cream);font-weight:850;color:var(--ink)}.map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:12px;color:var(--muted)}.map span{border:1.5px solid rgba(25,35,31,.32);background:rgba(255,255,255,.48);border-radius:999px;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.footer-note,.status{color:var(--muted);font-size:13px;line-height:1.5}.status{min-height:22px;margin-top:12px}
+:root{
+  --bg:#f8f3e8;--ink:#18231f;--muted:#6c6b63;--line:#2d3a33;--accent:#e4b23c;
+  --soft:#dfe8d4;--cream:#fffefa;--blue:#dfeeff;--warm:#fff2c8;--pink:#ffe2d2;--ghost:#c86d62;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;
+  font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 10% 10%,rgba(228,178,60,.22),transparent 28%),
+    radial-gradient(circle at 88% 18%,rgba(130,160,110,.18),transparent 28%),
+    radial-gradient(circle at 50% 92%,rgba(130,120,180,.12),transparent 32%),
+    var(--bg);
+  color:var(--ink)
+}
+main{max-width:1120px;margin:0 auto;padding:34px 22px 48px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:22px}
+h1{margin:0 0 8px;font-size:clamp(40px,6vw,76px);line-height:.88;letter-spacing:-.07em}
+.subtitle{max-width:760px;color:var(--muted);font-size:16px;line-height:1.55}
+.badge{
+  border:2px solid var(--line);border-radius:22px 30px 18px 34px;
+  padding:11px 16px;background:var(--accent);font-weight:850;transform:rotate(-4deg);
+  white-space:nowrap;box-shadow:4px 4px 0 var(--line);display:inline-flex;align-items:center;gap:8px
+}
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.78fr);gap:18px}
+.card{background:rgba(255,250,240,.94);border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:8px 8px 0 rgba(25,35,31,.18)}
+textarea{
+  width:100%;min-height:335px;resize:vertical;border:2px solid var(--line);border-radius:18px;
+  background:var(--cream);color:var(--ink);padding:18px;font-size:23px;line-height:1.48;outline:none;
+  font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace
+}
+textarea:focus{box-shadow:0 0 0 4px rgba(228,178,60,.35)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
+button,select,input{font:inherit}
+button,select{
+  border:2px solid var(--line);border-radius:999px;background:var(--cream);color:var(--ink);
+  padding:10px 14px;cursor:pointer;font-weight:780
+}
+button.primary{background:var(--ink);color:white}
+button.accent{background:var(--accent);color:var(--ink)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:active:not(:disabled){transform:translate(2px,2px)}
+label{font-weight:850;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.control{display:grid;gap:8px;margin-bottom:16px}
+select{width:100%;border-radius:18px;padding:12px 14px}
+input[type=range]{width:100%;accent-color:#e4b23c}
+.panel{border:2px solid var(--line);border-radius:20px;padding:16px;background:var(--soft);margin-bottom:16px}
+.panel h2{margin:0 0 8px;font-size:28px;line-height:1;letter-spacing:-.04em}
+.panel p{margin:0;line-height:1.45;color:#29352f}
+.score{min-height:112px;max-height:220px;overflow:auto;border:2px dashed rgba(25,35,31,.38);border-radius:16px;padding:12px;background:rgba(223,232,212,.35);font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px}
+.timeline-title{margin:15px 0 8px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
+.token{display:inline-flex;gap:6px;align-items:center;padding:6px 9px;border:1.8px solid var(--line);border-radius:999px;background:var(--cream);font-size:13px;font-weight:850;max-width:100%}
+.token.chord{background:var(--accent)}
+.token.note{background:#f5ead0}
+.token.release{background:var(--soft)}
+.token.space{background:var(--blue)}
+.token.delete{background:#ffdeda;color:#6d1e14}
+.token.export{background:var(--warm)}
+.token.pause{background:#eee0ff}
+.pill{display:inline-block;padding:3px 8px;border:1.5px solid var(--line);border-radius:999px;background:var(--cream);font-weight:850;color:var(--ink)}
+.map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:12px;color:var(--muted)}
+.map span{border:1.5px solid rgba(25,35,31,.32);background:rgba(255,255,255,.48);border-radius:999px;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status,.footer-note,.hint{color:var(--muted);font-size:13px;line-height:1.5}
+.status{min-height:22px;margin-top:12px}
+.share-box{display:none;margin-top:12px;border:2px solid var(--line);border-radius:16px;background:var(--warm);padding:12px;word-break:break-all;font-size:13px}
+.share-box a{color:var(--ink);font-weight:850}
+#letterView{display:none}
+.letter-wrap{max-width:900px;margin:0 auto}
+.letter-stage{
+  min-height:320px;border:2px solid var(--line);border-radius:20px;background:var(--cream);
+  padding:22px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  font-size:28px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:18px
+}
+.char{display:inline-block}
+.deleted{color:var(--ghost);text-decoration:line-through;opacity:.42;animation:fade .7s forwards}
+.masked{opacity:.72}
+.revealed{opacity:1;color:var(--ink)}
+.cursor{display:inline-block;width:.6em;color:var(--accent);animation:blink 1s infinite}
+.line-break{display:block;content:'';margin-bottom:.2em}
+.letter-note{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.5}
+.link-button{
+  display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:999px;
+  background:var(--cream);color:var(--ink);padding:10px 14px;cursor:pointer;font-weight:850;text-decoration:none
+}
+@keyframes blink{50%{opacity:.15}}
+@keyframes fade{to{opacity:.12;transform:translateY(2px)}}
+@media(max-width:900px){
+  main{padding:24px 14px 38px}
+  header,.grid{display:grid;grid-template-columns:1fr}
+  .badge{width:fit-content;font-size:13px;padding:9px 12px}
+  textarea{font-size:17px;line-height:1.5;min-height:300px;padding:15px}
+  button,select{font-size:15px;padding:10px 12px}
+  .row{gap:8px}
+  .letter-stage{font-size:19px;line-height:1.65;padding:16px;min-height:300px}
+  h1{font-size:48px}
+}
 </style>
 </head>
 <body>
-<main>
-<header><section><h1>Type Instrument</h1><div class="subtitle">v3.6 adds a performance export. It records every key, deletion, space, pause, and synth setting, then exports a standalone HTML replay: music plays while the text appears, disappears, and rewrites itself.</div></section><div class="badge">✦ write a letter in music</div></header>
+<main id="composerView">
+<header>
+<section>
+<h1>Type Instrument</h1>
+<div class="subtitle">
+  Write a letter that can be heard. Your typing becomes harmony, your pauses become air,
+  and your erased words leave a trace. Send it as a slow-reveal letter.
+</div>
+</section>
+<div class="badge">✦ write a letter in music</div>
+</header>
+
 <section class="grid">
 <div class="card">
-<div class="row"><button id="startBtn" class="primary">Start Audio</button><button id="shareMusicBtn">Share Music</button><button id="shareLetterBtn" class="accent">Share Letter</button><button id="clearBtn">Start Over</button></div>
+<div class="row">
+<button id="beginBtn" class="primary">Begin</button>
+<button id="shareLetterBtn" class="accent">Share Letter</button>
+<button id="startOverBtn">Start Over</button>
+</div>
+
 <textarea id="input" spellcheck="false" placeholder="Try this:
 
 write as if you are almost saying it.
@@ -21,183 +131,481 @@ leave a pause where your hand hesitates.
 erase a word if it feels too clear.
 press Enter when the thought needs air.
 
-for example:
-
 i was going to say your name
-but the room was still listening
+but the room was still listening"></textarea>
 
-1234 can become a small melody
-letters can become the colour around it"></textarea>
-<div class="row"><span class="pill">A–Z = chords</span><span class="pill">1–7 = melody</span><span class="pill">space = release</span><span class="pill">backspace is recorded</span><span class="pill">export = cipher / ghost / reveal</span></div>
-<div class="timeline-title"><span>Performance timeline</span><span id="stateLabel">ready</span></div><div class="score" id="score"></div><p class="footer-note">The exported HTML stores the key-event score, not just audio. The message can be replayed as full text, ghost text, cipher score, or slow reveal.</p>
+<div class="row">
+<span class="pill">A–Z = harmony</span>
+<span class="pill">1–7 = melody</span>
+<span class="pill">Space = breath</span>
+<span class="pill">Erase = trace</span>
+<span class="pill">Enter = new line</span>
+<span class="pill">Share = slow reveal</span>
 </div>
-<aside class="card">
-<div class="panel"><h2>V3.7</h2><p>Direct playable harmony, plus a cipher replay export. The author keeps the full event score; the audience may only see traces.</p></div>
-<div class="control"><label for="soundSelect">Sound character</label><select id="soundSelect"><option value="warm" selected>Warm synth</option><option value="bell">Soft bell</option><option value="toy">Tiny 8-bit</option><option value="felt">Felt / muted</option></select></div>
-<div class="control"><label for="densitySelect">Harmony density</label><select id="densitySelect"><option value="light">Light</option><option value="medium" selected>Medium</option><option value="rich">Rich</option></select></div>
-<div class="control"><label for="echoRange">Echo / memory</label><input id="echoRange" type="range" min="0" max="100" value="42"></div>
-<div class="control"><label for="volumeRange">Volume</label><input id="volumeRange" type="range" min="30" max="130" value="100"></div>
 
-<div class="control"><label>Chord palette</label><div class="map" id="chordMap"></div></div>
-<p class="status" id="status">Press “Start Audio”, or just type in the box.</p>
+<div class="timeline-title"><span>Writing trace</span><span id="stateLabel">ready</span></div>
+<div class="score" id="score"></div>
+<div class="share-box" id="shareBox"></div>
+<p class="footer-note">A shared letter is a link. For short letters, the music and hidden writing are stored inside the URL. Longer letters will need a tiny database later.</p>
+</div>
+
+<aside class="card">
+<div class="panel">
+<h2>How it works</h2>
+<p>Tap Begin once. Then write normally. When you share, the page creates a slow-reveal link that someone can open, play, and reply to.</p>
+</div>
+
+<div class="control">
+<label for="soundSelect">Sound</label>
+<select id="soundSelect">
+<option value="warm" selected>Warm synth</option>
+<option value="bell">Soft bell</option>
+<option value="toy">Tiny 8-bit</option>
+<option value="felt">Felt / muted</option>
+</select>
+</div>
+
+<div class="control">
+<label for="densitySelect">Harmony</label>
+<select id="densitySelect">
+<option value="light">Light</option>
+<option value="medium" selected>Medium</option>
+<option value="rich">Rich</option>
+</select>
+</div>
+
+<div class="control">
+<label for="echoRange">Echo / memory</label>
+<input id="echoRange" type="range" min="0" max="100" value="42">
+</div>
+
+<div class="control">
+<label for="volumeRange">Volume</label>
+<input id="volumeRange" type="range" min="30" max="130" value="100">
+</div>
+
+<div class="control">
+<label>Chord colour</label>
+<div class="map" id="chordMap"></div>
+</div>
+
+<p class="status" id="status">Tap Begin, then write in the box.</p>
 </aside>
 </section>
 </main>
+
+<main id="letterView">
+<div class="letter-wrap">
+<header>
+<section>
+<h1>Slow Reveal Letter</h1>
+<div class="subtitle">Listen first. The words will hold themselves back until the end.</div>
+</section>
+<div class="badge">✦ a letter in music</div>
+</header>
+<div class="card">
+<div class="row">
+<button id="playLetterBtn" class="primary">Play Letter</button>
+<button id="resetLetterBtn">Reset</button>
+<a id="writeBackBtn" class="link-button" href="./">Write back</a>
+</div>
+<div class="timeline-title"><span id="letterMeta">ready</span><span>slow reveal</span></div>
+<div class="letter-stage" id="letterStage"><span class="cursor">|</span></div>
+<p class="letter-note">This letter was written with Type Instrument. Its sound and hidden text come from the same writing trace.</p>
+</div>
+</div>
+</main>
+
 <script>
-const $=id=>document.getElementById(id),input=$('input'),startBtn=$('startBtn'),shareMusicBtn=$('shareMusicBtn'),shareLetterBtn=$('shareLetterBtn'),clearBtn=$('clearBtn'),score=$('score'),statusEl=$('status'),stateLabel=$('stateLabel'),soundSelect=$('soundSelect'),densitySelect=$('densitySelect'),echoRange=$('echoRange'),volumeRange=$('volumeRange'),chordMap=$('chordMap');
-let audioCtx,master,compressor,delayNode,feedbackGain,delayWetGain,mediaDest,recorder,recordedChunks=[],lastAudioFile=null,lastAudioURL=null,pendingStopResolve=null,autoRecordAttempted=false,syllableBuffer='',lastKeyPerf=performance.now(),lastActionPerf=performance.now(),perfEvents=[],perfStart=null,lastPerfTime=0;
+const $=id=>document.getElementById(id);
+const composerView=$('composerView'),letterView=$('letterView');
+const input=$('input'),beginBtn=$('beginBtn'),shareLetterBtn=$('shareLetterBtn'),startOverBtn=$('startOverBtn');
+const score=$('score'),statusEl=$('status'),stateLabel=$('stateLabel'),shareBox=$('shareBox');
+const soundSelect=$('soundSelect'),densitySelect=$('densitySelect'),echoRange=$('echoRange'),volumeRange=$('volumeRange'),chordMap=$('chordMap');
+const playLetterBtn=$('playLetterBtn'),resetLetterBtn=$('resetLetterBtn'),letterStage=$('letterStage'),letterMeta=$('letterMeta'),writeBackBtn=$('writeBackBtn');
+
+let audioCtx,master,compressor,delayNode,feedbackGain,delayWetGain;
+let syllableBuffer='',lastActionPerf=performance.now(),perfEvents=[],perfStart=null,lastPerfTime=0,prevValue='';
+let replayTimeouts=[],replaySyllable='',replayStack=[];
+
 const chordNames=['Am','Bdim','C','Dm','Em','F','G','Cmaj7','Dm7','Em7','Fmaj7','G7','Am7','Cadd9','Csus4','Gsus4','F6','Am9','C6','Gadd9','Dm9','D7','E7','Fm','B♭','A♭'];
-const chordNotes=[['A3','C4','E4'],['B3','D4','F4'],['C4','E4','G4'],['D4','F4','A4'],['E4','G4','B4'],['F4','A4','C5'],['G3','B3','D4'],['C4','E4','G4','B4'],['D4','F4','A4','C5'],['E4','G4','B4','D5'],['F4','A4','C5','E5'],['G3','B3','D4','F4'],['A3','C4','E4','G4'],['C4','E4','G4','D5'],['C4','F4','G4'],['G3','C4','D4'],['F4','A4','C5','D5'],['A3','C4','E4','G4','B4'],['C4','E4','G4','A4'],['G3','B3','D4','A4'],['D4','F4','A4','C5','E5'],['D4','F#4','A4','C5'],['E4','G#4','B4','D5'],['F3','Ab3','C4'],['Bb3','D4','F4'],['Ab3','C4','Eb4']];
+const chordNotes=[
+ ['A3','C4','E4'],['B3','D4','F4'],['C4','E4','G4'],['D4','F4','A4'],['E4','G4','B4'],['F4','A4','C5'],['G3','B3','D4'],
+ ['C4','E4','G4','B4'],['D4','F4','A4','C5'],['E4','G4','B4','D5'],['F4','A4','C5','E5'],['G3','B3','D4','F4'],['A3','C4','E4','G4'],
+ ['C4','E4','G4','D5'],['C4','F4','G4'],['G3','C4','D4'],['F4','A4','C5','D5'],['A3','C4','E4','G4','B4'],['C4','E4','G4','A4'],
+ ['G3','B3','D4','A4'],['D4','F4','A4','C5','E5'],['D4','F#4','A4','C5'],['E4','G#4','B4','D5'],['F3','Ab3','C4'],['Bb3','D4','F4'],['Ab3','C4','Eb4']
+];
 const scale=['C4','D4','E4','F4','G4','A4','B4'];
 const finals=[['iang',6],['uang',5],['iong',6],['ang',5],['eng',3],['ing',3],['ian',6],['iao',5],['ong',5],['ai',2],['ei',3],['ao',5],['ou',6],['an',4],['en',2],['in',3],['un',2],['er',7],['a',1],['o',1],['e',3],['i',3],['u',5],['v',6]];
-for(let i=0;i<26;i++){const s=document.createElement('span');s.textContent=String.fromCharCode(97+i)+' = '+chordNames[i];chordMap.appendChild(s)}
-function midi(note){const m=/^([A-Ga-g])([#b]?)(-?\d)$/.exec(note);if(!m)return null;const base={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1].toUpperCase()],acc=m[2]=='#'?1:m[2]=='b'?-1:0;return 12*(Number(m[3])+1)+base+acc}function nf(note){const m=midi(note);return m==null?440:440*Math.pow(2,(m-69)/12)}function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-function mark(type,data={}){const now=performance.now();if(perfStart===null)perfStart=now;const t=Math.max(0,Math.round(now-perfStart));perfEvents.push({t,type,...data});lastPerfTime=t}
-function settings(){return{sound:soundSelect.value,density:densitySelect.value,echo:Number(echoRange.value),volume:Number(volumeRange.value),exportMode:'slow',replyUrl:location.href.split('#')[0]}}
-function pickMime(){if(typeof MediaRecorder==='undefined')return'';return['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'].find(t=>MediaRecorder.isTypeSupported(t))||''}
-function extFromMime(m){return m.includes('ogg')?'ogg':m.includes('mp4')?'m4a':'webm'}
-async function shareOrDownloadFile(file,downloadName,label){
-  try{
-    if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file],title:label,text:label});
-      statusEl.textContent='Shared '+label+'.';
-      return;
-    }
-  }catch(err){
-    console.warn(err);
+
+function renderMap(){
+  chordMap.innerHTML='';
+  for(let i=0;i<26;i++){
+    const s=document.createElement('span');
+    s.textContent=String.fromCharCode(97+i)+' = '+chordNames[i];
+    chordMap.appendChild(s);
   }
-  const url=URL.createObjectURL(file);
-  const a=document.createElement('a');
-  a.href=url;a.download=downloadName;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1200);
-  statusEl.textContent='Sharing files is not available here, so I downloaded '+downloadName+' instead.';
+}
+renderMap();
+
+function midi(note){
+ const m=/^([A-Ga-g])([#b]?)(-?\d)$/.exec(note);
+ if(!m)return null;
+ const base={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1].toUpperCase()],acc=m[2]=='#'?1:m[2]=='b'?-1:0;
+ return 12*(Number(m[3])+1)+base+acc;
+}
+function nf(note){const m=midi(note);return m==null?440:440*Math.pow(2,(m-69)/12)}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function chordIndex(ch){const c=(ch||'').toLowerCase();const i=c.charCodeAt(0)-97;return i>=0&&i<26?i:null}
+function settings(){return{sound:soundSelect.value,density:densitySelect.value,echo:Number(echoRange.value),volume:Number(volumeRange.value),replyUrl:location.href.split('#')[0]}}
+
+function ensure(){
+ if(audioCtx)return;
+ audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+ master=audioCtx.createGain();
+ compressor=audioCtx.createDynamicsCompressor();
+ compressor.threshold.value=-12;compressor.knee.value=18;compressor.ratio.value=3.8;compressor.attack.value=.004;compressor.release.value=.15;
+ delayNode=audioCtx.createDelay(1.4);delayNode.delayTime.value=.27;
+ feedbackGain=audioCtx.createGain();delayWetGain=audioCtx.createGain();
+ delayNode.connect(feedbackGain);feedbackGain.connect(delayNode);delayNode.connect(delayWetGain);delayWetGain.connect(master);
+ master.connect(compressor);compressor.connect(audioCtx.destination);
+ applyMix();
+}
+async function begin(){
+ ensure();
+ if(audioCtx.state==='suspended')await audioCtx.resume();
+ beginBtn.textContent='Begin';
+ input.focus();
+ statusEl.textContent='Write. The page is listening.';
+}
+function applyMix(){
+ if(!audioCtx)return;
+ const echo=Number(echoRange.value)/100;
+ master.gain.setTargetAtTime(Number(volumeRange.value)/100,audioCtx.currentTime,.06);
+ delayWetGain.gain.setTargetAtTime(echo*.42,audioCtx.currentTime,.08);
+ feedbackGain.gain.setTargetAtTime(echo*.48,audioCtx.currentTime,.08);
+}
+echoRange.oninput=applyMix;volumeRange.oninput=applyMix;
+
+function env(d,peak,t=audioCtx.currentTime,attack=.012){
+ const g=audioCtx.createGain();
+ g.gain.setValueAtTime(.0001,t);
+ g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak),t+attack);
+ g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak*.62),t+d*.35);
+ g.gain.exponentialRampToValueAtTime(.0001,t+d);
+ return g;
+}
+function tone(freq,d=.25,o={}){
+ ensure();applyMix();
+ const t=audioCtx.currentTime+(o.delay||0),osc=audioCtx.createOscillator(),g=env(d,o.gain||.15,t,o.attack||.012),f=audioCtx.createBiquadFilter();
+ const sound=soundSelect?soundSelect.value:'warm';
+ osc.type=o.type||(sound==='bell'?'sine':sound==='toy'?'square':sound==='felt'?'triangle':'sine');
+ f.type='lowpass';
+ f.frequency.value=o.filter||(sound==='felt'?1300:sound==='toy'?1800:sound==='bell'?3200:2300);
+ f.Q.value=o.q||1.2;
+ osc.frequency.setValueAtTime(freq*(o.startRatio||1),t);
+ if(o.glideTo)osc.frequency.exponentialRampToValueAtTime(freq*o.glideTo,t+d*.75);
+ osc.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);
+ osc.start(t);osc.stop(t+d+.05);
+ if(sound==='bell'&&!o.noPartial){
+   const osc2=audioCtx.createOscillator(),g2=env(d*.72,(o.gain||.15)*.28,t+.01,.006),f2=audioCtx.createBiquadFilter();
+   osc2.type='sine';osc2.frequency.setValueAtTime(freq*2.01,t+.01);f2.type='lowpass';f2.frequency.value=4400;
+   osc2.connect(f2);f2.connect(g2);g2.connect(master);g2.connect(delayNode);osc2.start(t+.01);osc2.stop(t+d*.75);
+ }
+}
+function noise(d=.07,gain=.05,o={}){
+ ensure();applyMix();
+ const t=audioCtx.currentTime+(o.delay||0),size=Math.floor(audioCtx.sampleRate*d),buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate),data=buf.getChannelData(0);
+ for(let i=0;i<size;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/size,o.curve||2);
+ const src=audioCtx.createBufferSource(),g=env(d,gain,t,.006),f=audioCtx.createBiquadFilter();
+ f.type=o.type||'bandpass';f.frequency.value=o.freq||1800;f.Q.value=o.q||6;
+ src.buffer=buf;src.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);src.start(t);src.stop(t+d+.02);
+}
+function token(main,cls,sub){
+ const el=document.createElement('span');el.className='token '+cls;el.textContent=sub?`${main} · ${sub}`:main;
+ score.appendChild(el);while(score.children.length>120)score.removeChild(score.firstChild);score.scrollTop=score.scrollHeight;
+}
+function densityCount(){const v=densitySelect.value;return v==='light'?2:v==='rich'?4:3}
+function playChord(idx,velocity=1,show=true){
+ if(idx==null)return;
+ const notes=chordNotes[idx].slice(0,densityCount());
+ const dur=densitySelect.value==='rich'?.72:.58;
+ const gain=(.15*velocity)/(Math.sqrt(notes.length));
+ notes.forEach((n,j)=>tone(nf(n),dur,{gain,delay:j*0.012,filter:2200+j*220,attack:.012}));
+ if(show)token(String.fromCharCode(97+idx),'chord',chordNames[idx]);
+}
+function playDigit(d,show=true){
+ const deg=Number(d);if(deg<1||deg>7)return;
+ tone(nf(scale[deg-1]),.42,{gain:.28,type:'sine',filter:3200,attack:.008});
+ if(show)token(d,'note',['do','re','mi','fa','sol','la','ti'][deg-1]);
+}
+function degreeFromSyllable(s){
+ s=s.toLowerCase().replace(/[^a-zv]/g,'');
+ for(const [fin,d] of finals)if(s.endsWith(fin))return d;
+ const v=s.match(/[aeiouv]/g);if(!v)return((s.charCodeAt(0)||99)%7)+1;
+ return{a:1,e:3,i:3,o:1,u:5,v:6}[v[v.length-1]]||4;
+}
+function releaseSyllable(reason='space',show=true){
+ const s=syllableBuffer.toLowerCase().replace(/[^a-zv]/g,'');
+ if(!s)return;
+ const deg=degreeFromSyllable(s),freq=nf(scale[deg-1]);
+ tone(freq,.52+Math.min(.35,s.length*.035),{gain:.24,type:'sine',filter:2800,glideTo:s.length>4?1.06:1,attack:.018});
+ if(s.length>=4)tone(freq*2,.35,{gain:.055,type:'sine',filter:3600,delay:.055,noPartial:true});
+ if(show)token(s,'release',reason);
+ syllableBuffer='';
+}
+function playSpace(show=true){
+ releaseSyllable('breath',show);
+ noise(.06,.035,{freq:2000,q:5});
+ if(show)token('space','space','breath');
+}
+function playDelete(show=true){
+ syllableBuffer=syllableBuffer.slice(0,-1);
+ noise(.08,.06,{freq:900,q:9,curve:1.3});
+ tone(nf('E4'),.16,{gain:.055,type:'triangle',filter:1000,glideTo:.68,noPartial:true});
+ if(show)token('erase','delete','trace');
+}
+function playPunct(ch,show=true){
+ releaseSyllable(ch,show);
+ if(ch==='.'){['C4','E4','G4'].forEach((n,j)=>tone(nf(n),.55,{gain:.075,delay:j*.015,filter:2200+j*240}));if(show)token('.','space','cadence')}
+ else if(ch===','){tone(nf('G4'),.42,{gain:.11,glideTo:1.04});if(show)token(',','space','hold')}
+ else if(ch==='?'){tone(nf('D4'),.36,{gain:.13,type:'triangle',glideTo:1.38});if(show)token('?','space','lift')}
+ else if(ch==='!'){noise(.12,.13,{freq:1600,q:4});tone(nf('C3'),.18,{gain:.14,type:'square',filter:900});if(show)token('!','space','hit')}
 }
 
-function ensure(){if(audioCtx)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();master=audioCtx.createGain();compressor=audioCtx.createDynamicsCompressor();compressor.threshold.value=-12;compressor.knee.value=18;compressor.ratio.value=3.8;compressor.attack.value=.004;compressor.release.value=.15;delayNode=audioCtx.createDelay(1.4);delayNode.delayTime.value=.27;feedbackGain=audioCtx.createGain();delayWetGain=audioCtx.createGain();delayNode.connect(feedbackGain);feedbackGain.connect(delayNode);delayNode.connect(delayWetGain);delayWetGain.connect(master);master.connect(compressor);compressor.connect(audioCtx.destination);mediaDest=audioCtx.createMediaStreamDestination();compressor.connect(mediaDest);applyMix();statusEl.textContent='Audio is on. Start typing — music recording will begin automatically.'}
-async function start(){ensure();if(audioCtx.state==='suspended')await audioCtx.resume();input.focus();startBtn.textContent='Audio On'}
-function applyMix(){if(!audioCtx)return;const echo=Number(echoRange.value)/100;master.gain.setTargetAtTime(Number(volumeRange.value)/100,audioCtx.currentTime,.06);delayWetGain.gain.setTargetAtTime(echo*.42,audioCtx.currentTime,.08);feedbackGain.gain.setTargetAtTime(echo*.48,audioCtx.currentTime,.08)}echoRange.oninput=applyMix;volumeRange.oninput=applyMix;
-function env(d,peak,t=audioCtx.currentTime,a=.012){const g=audioCtx.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak),t+a);g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak*.62),t+d*.35);g.gain.exponentialRampToValueAtTime(.0001,t+d);return g}
-function tone(freq,d=.25,o={}){ensure();applyMix();const t=audioCtx.currentTime+(o.delay||0),osc=audioCtx.createOscillator(),g=env(d,o.gain||.15,t,o.attack||.012),f=audioCtx.createBiquadFilter(),sound=soundSelect.value;osc.type=o.type||(sound==='bell'?'sine':sound==='toy'?'square':sound==='felt'?'triangle':'sine');f.type='lowpass';f.frequency.value=o.filter||(sound==='felt'?1300:sound==='toy'?1800:sound==='bell'?3200:2300);f.Q.value=o.q||1.2;osc.frequency.setValueAtTime(freq,t);if(o.glideTo)osc.frequency.exponentialRampToValueAtTime(freq*o.glideTo,t+d*.75);osc.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);osc.start(t);osc.stop(t+d+.05);if(sound==='bell'&&!o.noPartial){const osc2=audioCtx.createOscillator(),g2=env(d*.72,(o.gain||.15)*.28,t+.01,.006),f2=audioCtx.createBiquadFilter();osc2.type='sine';osc2.frequency.setValueAtTime(freq*2.01,t+.01);f2.type='lowpass';f2.frequency.value=4400;osc2.connect(f2);f2.connect(g2);g2.connect(master);g2.connect(delayNode);osc2.start(t+.01);osc2.stop(t+d*.75)}}
-function noise(d=.07,gain=.05,o={}){ensure();applyMix();const t=audioCtx.currentTime+(o.delay||0),size=Math.floor(audioCtx.sampleRate*d),buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<size;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/size,o.curve||2);const src=audioCtx.createBufferSource(),g=env(d,gain,t,.006),f=audioCtx.createBiquadFilter();f.type=o.type||'bandpass';f.frequency.value=o.freq||1800;f.Q.value=o.q||6;src.buffer=buf;src.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);src.start(t);src.stop(t+d+.02)}
-function token(main,cls,sub){const el=document.createElement('span');el.className='token '+cls;el.textContent=sub?`${main} · ${sub}`:main;score.appendChild(el);while(score.children.length>130)score.removeChild(score.firstChild);score.scrollTop=score.scrollHeight}
-function chordIndex(ch){const i=ch.toLowerCase().charCodeAt(0)-97;return i>=0&&i<26?i:null}function densityCount(){const v=densitySelect.value;return v==='light'?2:v==='rich'?4:3}function playChord(idx,vel=1){if(idx==null)return;const notes=chordNotes[idx].slice(0,densityCount()),gain=(.15*vel)/Math.sqrt(notes.length);notes.forEach((n,j)=>tone(nf(n),.58,{gain,delay:j*.012,filter:2200+j*220,attack:.012}));token(String.fromCharCode(97+idx),'chord',chordNames[idx])}function playDigit(d){const deg=Number(d);if(deg<1||deg>7)return;tone(nf(scale[deg-1]),.42,{gain:.28,type:'sine',filter:3200,attack:.008});token(d,'note',['do','re','mi','fa','sol','la','ti'][deg-1])}
-function degreeFromSyllable(s){s=s.toLowerCase().replace(/[^a-zv]/g,'');for(const [fin,d] of finals)if(s.endsWith(fin))return d;const v=s.match(/[aeiouv]/g);if(!v)return((s.charCodeAt(0)||99)%7)+1;return{a:1,e:3,i:3,o:1,u:5,v:6}[v[v.length-1]]||4}function releaseSyllable(reason='space'){const s=syllableBuffer.toLowerCase().replace(/[^a-zv]/g,'');if(!s)return;const deg=degreeFromSyllable(s),freq=nf(scale[deg-1]);tone(freq,.52+Math.min(.35,s.length*.035),{gain:.24,type:'sine',filter:2800,glideTo:s.length>4?1.06:1,attack:.018});if(s.length>=4)tone(freq*2,.35,{gain:.055,type:'sine',filter:3600,delay:.055,noPartial:true});token(s,'release',reason);syllableBuffer=''}
-function spaceKey(){releaseSyllable('space');noise(.06,.035,{freq:2000,q:5});token('space','space','breath')}function pauseTail(gap){const amount=clamp((gap-650)/1800,0,1);if(amount<=0)return;tone(nf('C4')*.5,.45+amount*.4,{gain:.05+amount*.04,type:'sine',filter:900,glideTo:.97});token('pause','pause',Math.round(gap)+'ms');mark('pause',{gap:Math.round(gap)})}function backspace(){syllableBuffer=syllableBuffer.slice(0,-1);noise(.08,.06,{freq:900,q:9,curve:1.3});tone(nf('E4'),.16,{gain:.055,type:'triangle',filter:1000,glideTo:.68,noPartial:true});token('⌫','delete','withdraw')}
-function punctuation(ch){releaseSyllable(ch);if(ch==='.'){['C4','E4','G4'].forEach((n,j)=>tone(nf(n),.55,{gain:.075,delay:j*.015,filter:2200+j*240}));token('.','space','cadence')}else if(ch===','){tone(nf('G4'),.42,{gain:.11,glideTo:1.04});token(',','space','hold')}else if(ch==='?'){tone(nf('D4'),.36,{gain:.13,type:'triangle',glideTo:1.38});token('?','space','lift')}else if(ch==='!'){noise(.12,.13,{freq:1600,q:4});tone(nf('C3'),.18,{gain:.14,type:'square',filter:900});token('!','space','hit')}}
-async function keydown(e){if(!audioCtx)ensure();if(audioCtx.state==='suspended')await audioCtx.resume();startAutoMusicRecording();const key=e.key,now=performance.now(),delta=now-lastKeyPerf,gap=now-lastActionPerf;lastKeyPerf=now;lastActionPerf=now;if(gap>700&&key.length===1)pauseTail(gap);if(/^[1-7]$/.test(key)){playDigit(key);mark('digit',{char:key});stateLabel.textContent='melody';return}if(/^[a-zA-Z]$/.test(key)&&!e.ctrlKey&&!e.metaKey&&!e.altKey){syllableBuffer+=key.toLowerCase();const idx=chordIndex(key);playChord(idx,delta<120?.82:1);mark('char',{char:key,chordIdx:idx});stateLabel.textContent='harmony';return}if(key===' '){spaceKey();mark('space',{});stateLabel.textContent='breath';return}if(key==='Backspace'){backspace();mark('delete',{});stateLabel.textContent='withdraw';return}if(/^[,.;:!?，。！？、…]$/.test(key)){const ch=key==='。'?'.':key==='，'?',':key==='？'?'?':key==='！'?'!':key;punctuation(ch);mark('punct',{char:ch});stateLabel.textContent='cadence';return}if(key==='Enter'){releaseSyllable('enter');mark('enter',{});token('enter','space','line');stateLabel.textContent='line';return}}
-function buildReplayHTML(payload){
-const data=JSON.stringify(payload).replace(/</g,'\\u003c'),cnotes=JSON.stringify(chordNotes),cnames=JSON.stringify(chordNames),sc=JSON.stringify(scale),fin=JSON.stringify(finals);
-return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Type Instrument Cipher Replay</title><style>
-:root{--bg:#f8f3e8;--ink:#18231f;--muted:#6c6b63;--line:#2d3a33;--accent:#e4b23c;--cream:#fffefa;--ghost:#c86d62;--cipher:#dfe8d4;--warm:#fff2c8}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 10% 10%,rgba(228,178,60,.24),transparent 28%),radial-gradient(circle at 90% 15%,rgba(130,160,110,.16),transparent 30%),var(--bg);color:var(--ink)}
-main{max-width:980px;margin:0 auto;padding:36px 22px}h1{font-size:clamp(34px,6vw,72px);line-height:.88;letter-spacing:-.065em;margin:0 0 10px}p{color:var(--muted);line-height:1.5}.card{background:rgba(255,250,240,.94);border:2px solid var(--line);border-radius:24px;padding:20px;box-shadow:8px 8px 0 rgba(25,35,31,.18)}button{border:2px solid var(--line);border-radius:999px;background:var(--accent);color:var(--ink);padding:11px 16px;cursor:pointer;font-weight:850;font:inherit}.stage{min-height:330px;border:2px solid var(--line);border-radius:20px;background:var(--cream);padding:22px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:28px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:18px}.char{display:inline-block;transition:opacity .35s,filter .35s,transform .35s}.masked{color:var(--ghost);opacity:.45;filter:blur(.6px)}.ghosted{color:var(--ghost);opacity:.32;filter:blur(.8px)}.revealed{color:var(--ink);opacity:1;filter:none}.deleted{color:var(--ghost);text-decoration:line-through;opacity:.35;animation:fade .8s forwards}.cipher{display:inline-block;background:var(--cipher);border:1.5px solid rgba(25,35,31,.32);border-radius:999px;padding:0 .35em;margin:0 .08em;font-size:.72em;vertical-align:middle}.breath{color:#597;opacity:.65}.erase{color:var(--ghost);font-weight:900}.cursor{display:inline-block;width:.6em;color:var(--accent);animation:blink 1s infinite}.line-break{display:block;content:'';margin-bottom:.18em}.timeline{margin-top:12px;color:var(--muted);font-size:13px}.note{margin-top:10px;color:var(--muted);font-size:13px}@keyframes blink{50%{opacity:.15}}@keyframes fade{to{opacity:.12;transform:translateY(2px)}}
-</style></head><body><main><h1>Slow Reveal Letter</h1><p>This page replays a Type Instrument performance. The sound knows the whole letter; the screen only reveals the text at the end.</p><div class="card"><button id="playBtn">Play letter</button><button id="resetBtn" style="background:var(--cream);margin-left:8px">Reset</button><a id="replyBtn" href="#" style="display:inline-flex;align-items:center;justify-content:center;margin-left:8px;border:2px solid var(--line);border-radius:999px;background:var(--cream);color:var(--ink);padding:11px 16px;cursor:pointer;font-weight:850;font:inherit;text-decoration:none">Write back</a><div class="timeline" id="meta"></div><div class="stage" id="stage"><span class="cursor">|</span></div><div class="note" id="modeNote"></div></div></main>
-<script>
-const PERFORMANCE=${data};
-const chordNotes=${cnotes};
-const chordNames=${cnames};
-const scale=${sc};
-const finals=${fin};
-const mode='slow';
-let audioCtx,master,delayNode,feedbackGain,delayWetGain,compressor,timeouts=[],syllableBuffer='',charStack=[],hiddenText='';
-const stage=document.getElementById('stage'),playBtn=document.getElementById('playBtn'),resetBtn=document.getElementById('resetBtn'),meta=document.getElementById('meta'),modeNote=document.getElementById('modeNote');
-meta.textContent=PERFORMANCE.events.length+' events · '+(PERFORMANCE.duration/1000).toFixed(1)+'s · '+PERFORMANCE.settings.sound+' / '+PERFORMANCE.settings.density+' · slow reveal';const replyBtn=document.getElementById('replyBtn');if(replyBtn){replyBtn.href=PERFORMANCE.settings.replyUrl||'#';if(!(PERFORMANCE.settings.replyUrl||'')){replyBtn.style.display='none';}}
-modeNote.textContent={full:'Author replay: the letter is visible.',ghost:'Ghost text: letters flicker, then become traces.',cipher:'Cipher score: chords, breath marks, erasures. No plain text.',slow:'Slow reveal: the text withholds itself before revealing near the end.'}[mode]||'';
-function midi(note){const m=/^([A-Ga-g])([#b]?)(-?\\d)$/.exec(note);if(!m)return null;const base={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1].toUpperCase()],acc=m[2]=='#'?1:m[2]=='b'?-1:0;return 12*(Number(m[3])+1)+base+acc}
-function nf(note){const m=midi(note);return m==null?440:440*Math.pow(2,(m-69)/12)}
-function ensure(){if(audioCtx)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();master=audioCtx.createGain();master.gain.value=PERFORMANCE.settings.volume/100;compressor=audioCtx.createDynamicsCompressor();compressor.threshold.value=-12;compressor.knee.value=18;compressor.ratio.value=3.8;compressor.attack.value=.004;compressor.release.value=.15;delayNode=audioCtx.createDelay(1.4);delayNode.delayTime.value=.27;feedbackGain=audioCtx.createGain();delayWetGain=audioCtx.createGain();const echo=PERFORMANCE.settings.echo/100;feedbackGain.gain.value=echo*.48;delayWetGain.gain.value=echo*.42;delayNode.connect(feedbackGain);feedbackGain.connect(delayNode);delayNode.connect(delayWetGain);delayWetGain.connect(master);master.connect(compressor);compressor.connect(audioCtx.destination)}
-function env(d,peak,t,attack=.012){const g=audioCtx.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak),t+attack);g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak*.62),t+d*.35);g.gain.exponentialRampToValueAtTime(.0001,t+d);return g}
-function tone(freq,d=.25,o={}){ensure();const t=audioCtx.currentTime+(o.delay||0),osc=audioCtx.createOscillator(),g=env(d,o.gain||.15,t,o.attack||.012),f=audioCtx.createBiquadFilter(),sound=PERFORMANCE.settings.sound;osc.type=o.type||(sound==='bell'?'sine':sound==='toy'?'square':sound==='felt'?'triangle':'sine');f.type='lowpass';f.frequency.value=o.filter||(sound==='felt'?1300:sound==='toy'?1800:sound==='bell'?3200:2300);f.Q.value=o.q||1.2;osc.frequency.setValueAtTime(freq,t);if(o.glideTo)osc.frequency.exponentialRampToValueAtTime(freq*o.glideTo,t+d*.75);osc.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);osc.start(t);osc.stop(t+d+.05);if(sound==='bell'&&!o.noPartial){const osc2=audioCtx.createOscillator(),g2=env(d*.72,(o.gain||.15)*.28,t+.01,.006),f2=audioCtx.createBiquadFilter();osc2.type='sine';osc2.frequency.setValueAtTime(freq*2.01,t+.01);f2.type='lowpass';f2.frequency.value=4400;osc2.connect(f2);f2.connect(g2);g2.connect(master);g2.connect(delayNode);osc2.start(t+.01);osc2.stop(t+d*.75)}}
-function noise(d=.07,gain=.05,o={}){ensure();const t=audioCtx.currentTime+(o.delay||0),size=Math.floor(audioCtx.sampleRate*d),buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<size;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/size,o.curve||2);const src=audioCtx.createBufferSource(),g=env(d,gain,t,.006),f=audioCtx.createBiquadFilter();f.type=o.type||'bandpass';f.frequency.value=o.freq||1800;f.Q.value=o.q||6;src.buffer=buf;src.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);src.start(t);src.stop(t+d+.02)}
-function densityCount(){const v=PERFORMANCE.settings.density;return v==='light'?2:v==='rich'?4:3}
-function playChord(idx,velocity=1){if(idx==null)return;const notes=chordNotes[idx].slice(0,densityCount()),gain=(.15*velocity)/Math.sqrt(notes.length);notes.forEach((n,j)=>tone(nf(n),.58,{gain,delay:j*.012,filter:2200+j*220,attack:.012}))}
-function playDigit(d){const deg=Number(d);if(deg<1||deg>7)return;tone(nf(scale[deg-1]),.42,{gain:.28,type:'sine',filter:3200,attack:.008})}
-function degreeFromSyllable(s){s=s.toLowerCase().replace(/[^a-zv]/g,'');for(const [fin,d] of finals)if(s.endsWith(fin))return d;const v=s.match(/[aeiouv]/g);if(!v)return((s.charCodeAt(0)||99)%7)+1;return{a:1,e:3,i:3,o:1,u:5,v:6}[v[v.length-1]]||4}
-function releaseSyllable(){const s=syllableBuffer.toLowerCase().replace(/[^a-zv]/g,'');if(!s)return;const deg=degreeFromSyllable(s),freq=nf(scale[deg-1]);tone(freq,.52+Math.min(.35,s.length*.035),{gain:.24,type:'sine',filter:2800,glideTo:s.length>4?1.06:1,attack:.018});if(s.length>=4)tone(freq*2,.35,{gain:.055,type:'sine',filter:3600,delay:.055,noPartial:true});syllableBuffer=''}
-function renderCursor(){const c=document.createElement('span');c.className='cursor';c.textContent='|';stage.appendChild(c)}
-function resetStage(){timeouts.forEach(clearTimeout);timeouts=[];stage.innerHTML='';syllableBuffer='';charStack=[];hiddenText='';renderCursor()}
-function addBeforeCursor(el){const cursor=stage.querySelector('.cursor');stage.insertBefore(el,cursor)}
-function cipherToken(text,cls='cipher'){const span=document.createElement('span');span.className=cls;span.textContent=text;addBeforeCursor(span);return span}
-function visibleChar(ch,ev){const span=document.createElement('span');span.className='char';span.dataset.secret=ch;if(mode==='full'){span.textContent=ch}else if(mode==='ghost'){span.textContent=ch;span.classList.add('masked');if(/[^\\s]/.test(ch))timeouts.push(setTimeout(()=>{if(span.parentNode){span.textContent='·';span.classList.add('ghosted')}},520))}else if(mode==='slow'){span.textContent=/\\s/.test(ch)?ch:'•';span.classList.add('masked','slow-hidden')}else{span.textContent=ch}addBeforeCursor(span);if(ch.charCodeAt(0)!==10)charStack.push(span);hiddenText+=ch;return span}function visibleLineBreak(){const br=document.createElement('br');br.className='line-break';addBeforeCursor(br);hiddenText+=String.fromCharCode(10);return br}
-function insertChar(ev){if(mode==='cipher'){cipherToken(chordNames[ev.chordIdx]||'key');hiddenText+=ev.char;syllableBuffer+=ev.char.toLowerCase();playChord(ev.chordIdx,.95);return}visibleChar(ev.char,ev);syllableBuffer+=ev.char.toLowerCase();playChord(ev.chordIdx,.95)}
-function insertDigit(ev){if(mode==='cipher'){cipherToken(['do','re','mi','fa','sol','la','ti'][Number(ev.char)-1]||ev.char);hiddenText+=ev.char;playDigit(ev.char);return}visibleChar(ev.char,ev);playDigit(ev.char)}
-function insertSpace(ev){releaseSyllable();if(mode==='cipher')cipherToken('breath','cipher breath');else visibleChar(' ',ev);noise(.06,.035,{freq:2000,q:5})}
-function deleteChar(){syllableBuffer=syllableBuffer.slice(0,-1);hiddenText=hiddenText.slice(0,-1);if(mode==='cipher'){cipherToken('⌫','cipher erase')}else{const target=charStack.pop();if(target){target.classList.add('deleted');timeouts.push(setTimeout(()=>{if(target.parentNode)target.remove()},720))}}noise(.08,.06,{freq:900,q:9,curve:1.3});tone(nf('E4'),.16,{gain:.055,type:'triangle',filter:1000,glideTo:.68,noPartial:true})}
-function insertPunct(ev){releaseSyllable();if(mode==='cipher'){const map={'.':'cadence',',':'hold','?':'lift','!':'hit',':':'turn',';':'turn'};cipherToken(map[ev.char]||ev.char)}else visibleChar(ev.char,ev);if(ev.char==='.')['C4','E4','G4'].forEach((n,j)=>tone(nf(n),.55,{gain:.075,delay:j*.015,filter:2200+j*240}));else if(ev.char===',')tone(nf('G4'),.42,{gain:.11,glideTo:1.04});else if(ev.char==='?')tone(nf('D4'),.36,{gain:.13,type:'triangle',glideTo:1.38});else if(ev.char==='!'){noise(.12,.13,{freq:1600,q:4});tone(nf('C3'),.18,{gain:.14,type:'square',filter:900})}}
-function finalReveal(){if(mode!=='slow')return;const chars=[...stage.querySelectorAll('.char[data-secret]')];chars.forEach((el,i)=>{setTimeout(()=>{el.textContent=el.dataset.secret;el.classList.remove('masked','ghosted','slow-hidden');el.classList.add('revealed')},i*28)})}
-function applyEvent(ev){if(ev.type==='char')insertChar(ev);else if(ev.type==='digit')insertDigit(ev);else if(ev.type==='space')insertSpace(ev);else if(ev.type==='delete')deleteChar();else if(ev.type==='punct')insertPunct(ev);else if(ev.type==='enter'){releaseSyllable();if(mode==='cipher')cipherToken('line');else visibleLineBreak()}else if(ev.type==='pause'){if(mode==='cipher')cipherToken('—','cipher breath');tone(nf('C4')*.5,.55,{gain:.055,type:'sine',filter:900,glideTo:.97})}}
-async function play(){try{ensure();if(audioCtx.state==='suspended')await audioCtx.resume();resetStage();playBtn.textContent='Playing...';PERFORMANCE.events.forEach(ev=>{timeouts.push(setTimeout(()=>applyEvent(ev),ev.t))});timeouts.push(setTimeout(()=>{finalReveal();playBtn.textContent='Replay letter'},PERFORMANCE.duration+900))}catch(err){playBtn.textContent='Replay error';console.error(err);alert('Replay error: '+err.message)}}
-playBtn.addEventListener('click',play);resetBtn.addEventListener('click',resetStage);resetStage();
-<\/script></body></html>`}
-function makeLetterFile(){
-  if(!perfEvents.length){statusEl.textContent='No performance recorded yet. Type something first.';return null}
-  const payload={title:'Type Instrument Slow Reveal Letter',created:new Date().toISOString(),settings:settings(),events:perfEvents,duration:lastPerfTime};
-  return new File([buildReplayHTML(payload)],'type-instrument-slow-reveal-letter.html',{type:'text/html'});
+function mark(code,value=''){
+ const now=performance.now();
+ if(perfStart===null)perfStart=now;
+ const t=Math.max(0,Math.round(now-perfStart));
+ perfEvents.push([t,code,value]);
+ lastPerfTime=t;
 }
-function downloadLetter(){
-  const file=makeLetterFile(); if(!file)return;
-  const url=URL.createObjectURL(file),a=document.createElement('a');
-  a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1200);
-  token('letter','export',perfEvents.length+' events');
-  statusEl.textContent='Downloaded Slow Reveal Letter HTML.';
+function maybePause(){
+ const now=performance.now(),gap=now-lastActionPerf;
+ if(gap>850){
+   const amount=clamp((gap-650)/1800,0,1);
+   tone(nf('C4')*.5,.45+amount*.4,{gain:.05+amount*.04,type:'sine',filter:900,glideTo:.97});
+   token('pause','pause',Math.round(gap)+'ms');
+   mark('z',Math.round(gap));
+ }
+ lastActionPerf=now;
+}
+async function processInsertedChar(ch){
+ ensure();if(audioCtx.state==='suspended')await audioCtx.resume();
+ maybePause();
+ if(ch==='\n'){releaseSyllable('line');token('enter','space','new line');mark('e','');stateLabel.textContent='new line';return}
+ if(ch===' '){playSpace();mark('s','');stateLabel.textContent='breath';return}
+ if(/[1-7]/.test(ch)){playDigit(ch);mark('d',ch);stateLabel.textContent='melody';return}
+ if(/[,.;:!?，。！？、…]/.test(ch)){
+   const p=ch==='。'?'.':ch==='，'?',':ch==='？'?'?':ch==='！'?'!':ch;
+   playPunct(p);mark('p',p);stateLabel.textContent='cadence';return;
+ }
+ const idx=chordIndex(ch);
+ if(idx!==null){
+   syllableBuffer+=ch.toLowerCase();
+   playChord(idx,1);
+   mark('c',ch);
+   stateLabel.textContent='harmony';
+ }else{
+   noise(.025,.018,{freq:1600,q:3});
+   mark('c',ch);
+   token('letter','chord',ch);
+   stateLabel.textContent='writing';
+ }
+}
+async function processDelete(count=1){
+ ensure();if(audioCtx.state==='suspended')await audioCtx.resume();
+ maybePause();
+ for(let i=0;i<count;i++){playDelete();mark('b','')}
+ stateLabel.textContent='erase';
+}
+
+function diffText(oldVal,newVal){
+ let start=0;
+ while(start<oldVal.length&&start<newVal.length&&oldVal[start]===newVal[start])start++;
+ let oldEnd=oldVal.length-1,newEnd=newVal.length-1;
+ while(oldEnd>=start&&newEnd>=start&&oldVal[oldEnd]===newVal[newEnd]){oldEnd--;newEnd--}
+ const removed=oldEnd>=start?oldVal.slice(start,oldEnd+1):'';
+ const added=newEnd>=start?newVal.slice(start,newEnd+1):'';
+ return {removed,added};
+}
+let composing=false;
+input.addEventListener('compositionstart',()=>{composing=true});
+input.addEventListener('compositionend',async()=>{composing=false;await handleInputChange()});
+input.addEventListener('input',async()=>{if(!composing)await handleInputChange()});
+async function handleInputChange(){
+ const oldVal=prevValue,newVal=input.value;
+ const {removed,added}=diffText(oldVal,newVal);
+ if(removed.length)await processDelete(removed.length);
+ for(const ch of added)await processInsertedChar(ch);
+ prevValue=newVal;
+ statusEl.textContent='Writing is being recorded into this page.';
+}
+
+function encodePayload(payload){
+ const json=JSON.stringify(payload);
+ const bytes=new TextEncoder().encode(json);
+ let bin='';
+ for(let i=0;i<bytes.length;i+=0x8000){
+   bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
+ }
+ return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decodePayload(str){
+ const b64=str.replace(/-/g,'+').replace(/_/g,'/');
+ const pad=b64.length%4?'='.repeat(4-b64.length%4):'';
+ const bin=atob(b64+pad);
+ const bytes=new Uint8Array(bin.length);
+ for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+ return JSON.parse(new TextDecoder().decode(bytes));
+}
+function makeLetterURL(){
+ const payload={v:1,created:new Date().toISOString(),settings:settings(),events:perfEvents,duration:lastPerfTime};
+ const data=encodePayload(payload);
+ return location.href.split('#')[0]+'#letter='+data;
+}
+function isProbablyMobile(){
+ return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints>1 && Math.min(screen.width,screen.height)<900);
+}
+function showLetterLink(url,tooLong,message){
+ shareBox.style.display='block';
+ const preview=url.length>900?url.slice(0,900)+'…':url;
+ shareBox.innerHTML=`<strong>Letter link</strong><br><a href="${url}">${preview}</a>${tooLong?'<br><br>This link is long. For longer letters, this project will need a tiny database / short-link storage later.':''}`;
+ if(message)statusEl.textContent=message;
+}
+async function copyLetterLink(url,tooLong){
+ try{
+   await navigator.clipboard.writeText(url);
+   showLetterLink(url,tooLong,tooLong?'Copied the letter link, but it is quite long.':'Copied the letter link.');
+ }catch(err){
+   showLetterLink(url,tooLong,'Copy the link below.');
+ }
 }
 async function shareLetter(){
-  const file=makeLetterFile(); if(!file)return;
-  token('letter','export',perfEvents.length+' events');
-  await shareOrDownloadFile(file,file.name,'Slow Reveal Letter');
+ if(!perfEvents.length){statusEl.textContent='Write something first, then share the letter.';return}
+ const url=makeLetterURL();
+ const tooLong=url.length>5200;
+ const safeForNativeShare=url.length<3200;
+ showLetterLink(url,tooLong,'Preparing letter link...');
+ if(isProbablyMobile() && safeForNativeShare && navigator.share){
+   try{
+     await navigator.share({title:'A letter in music',text:'I wrote you a letter in music.',url});
+     statusEl.textContent='Shared the letter link.';
+     return;
+   }catch(err){
+     // Fall back to copy/display. Some browsers reject long hash URLs or file/sandbox contexts.
+   }
+ }
+ await copyLetterLink(url,tooLong);
 }
-function startAutoMusicRecording(){
-  if(!audioCtx || autoRecordAttempted && recorder && recorder.state!=='inactive')return;
-  if(typeof MediaRecorder==='undefined'){
-    autoRecordAttempted=true;
-    statusEl.textContent='This browser does not support audio recording, but the letter can still be shared.';
-    return;
-  }
-  const mt=pickMime();
-  if(!mt){
-    autoRecordAttempted=true;
-    statusEl.textContent='No supported audio recording format found, but the letter can still be shared.';
-    return;
-  }
-  recordedChunks=[];
-  lastAudioFile=null;
-  if(lastAudioURL)URL.revokeObjectURL(lastAudioURL);
-  lastAudioURL=null;
-  try{recorder=new MediaRecorder(mediaDest.stream,{mimeType:mt})}catch(err){recorder=new MediaRecorder(mediaDest.stream)}
-  recorder.ondataavailable=e=>{if(e.data&&e.data.size>0)recordedChunks.push(e.data)};
-  recorder.onstop=()=>{
-    const type=recorder.mimeType||mt||'audio/webm',ex=extFromMime(type);
-    const blob=new Blob(recordedChunks,{type});
-    lastAudioFile=new File([blob],'type-instrument-music.'+ex,{type});
-    lastAudioURL=URL.createObjectURL(lastAudioFile);
-    token('music','export','ready');
-    statusEl.textContent='Music recording ready to share.';
-    if(pendingStopResolve){pendingStopResolve(lastAudioFile);pendingStopResolve=null}
-  };
-  recorder.start();
-  autoRecordAttempted=true;
-  token('music','export','auto recording');
-  statusEl.textContent='Auto-recording music...';
+function startOver(){
+ input.value='';prevValue='';score.innerHTML='';shareBox.style.display='none';
+ syllableBuffer='';perfEvents=[];perfStart=null;lastPerfTime=0;stateLabel.textContent='ready';
+ token('start over','export','fresh page');
+ statusEl.textContent='Started over. Write a fresh letter.';
+ input.focus();
 }
-function stopAutoMusicRecording(){
-  if(recorder&&recorder.state!=='inactive'){
-    return new Promise(resolve=>{pendingStopResolve=resolve;recorder.stop()});
-  }
-  return Promise.resolve(lastAudioFile);
+beginBtn.onclick=begin;shareLetterBtn.onclick=shareLetter;startOverBtn.onclick=startOver;
+
+/* Letter replay */
+let LETTER=null;
+function showLetter(payload){
+ LETTER=payload;
+ composerView.style.display='none';
+ letterView.style.display='block';
+ writeBackBtn.href=(payload.settings&&payload.settings.replyUrl)||location.href.split('#')[0];
+ letterMeta.textContent=`${(payload.duration/1000).toFixed(1)}s · ${payload.events.length} gestures`;
 }
-async function shareMusic(){
-  if(recorder&&recorder.state!=='inactive'){
-    statusEl.textContent='Finishing music recording...';
-    await stopAutoMusicRecording();
-  }
-  if(!lastAudioFile){
-    statusEl.textContent='No music recorded yet. Start Audio, type or play something, then Share Music.';
-    return;
-  }
-  await shareOrDownloadFile(lastAudioFile,lastAudioFile.name,'Type Instrument music');
+function resetLetter(){
+ replayTimeouts.forEach(clearTimeout);replayTimeouts=[];
+ letterStage.innerHTML='';replaySyllable='';replayStack=[];
+ const c=document.createElement('span');c.className='cursor';c.textContent='|';letterStage.appendChild(c);
 }
-startBtn.onclick=start;input.addEventListener('keydown',keydown);shareMusicBtn.onclick=shareMusic;shareLetterBtn.onclick=shareLetter;clearBtn.onclick=()=>{if(recorder&&recorder.state!=='inactive'){recorder.ondataavailable=null;recorder.onstop=null;try{recorder.stop()}catch(err){}}input.value='';score.innerHTML='';syllableBuffer='';perfEvents=[];perfStart=null;lastPerfTime=0;lastAudioFile=null;if(lastAudioURL)URL.revokeObjectURL(lastAudioURL);lastAudioURL=null;autoRecordAttempted=false;recordedChunks=[];pendingStopResolve=null;stateLabel.textContent='ready';token('start over','export','fresh page');statusEl.textContent=audioCtx?'Started over. Type to auto-record a fresh take.':'Started over. Press Start Audio, or just type in the box.';input.focus()};
+function addBeforeCursor(el){
+ const cursor=letterStage.querySelector('.cursor');
+ letterStage.insertBefore(el,cursor);
+}
+function visibleChar(ch){
+ if(ch==='\n'){const br=document.createElement('br');br.className='line-break';addBeforeCursor(br);return br}
+ const span=document.createElement('span');
+ span.className='char masked slow-hidden';
+ span.dataset.secret=ch;
+ span.textContent=/\s/.test(ch)?ch:'•';
+ addBeforeCursor(span);
+ if(!/\s/.test(ch))replayStack.push(span);
+ return span;
+}
+function replayDelete(){
+ const target=replayStack.pop();
+ if(target){
+   target.classList.add('deleted');
+   target.textContent='×';
+   setTimeout(()=>{if(target.parentNode)target.remove()},620);
+ }
+ noise(.08,.06,{freq:900,q:9,curve:1.3});
+ tone(nf('E4'),.16,{gain:.055,type:'triangle',filter:1000,glideTo:.68,noPartial:true});
+}
+function replayRelease(){
+ const s=replaySyllable.toLowerCase().replace(/[^a-zv]/g,'');
+ if(!s)return;
+ const deg=degreeFromSyllable(s),freq=nf(scale[deg-1]);
+ tone(freq,.52+Math.min(.35,s.length*.035),{gain:.24,type:'sine',filter:2800,glideTo:s.length>4?1.06:1,attack:.018});
+ if(s.length>=4)tone(freq*2,.35,{gain:.055,type:'sine',filter:3600,delay:.055,noPartial:true});
+ replaySyllable='';
+}
+function replayEvent(ev){
+ const code=ev[1],val=ev[2];
+ if(code==='c'){
+   visibleChar(val);
+   const idx=chordIndex(val);
+   if(idx!==null){replaySyllable+=val.toLowerCase();playChord(idx,1,false)}else noise(.025,.018,{freq:1600,q:3});
+ }else if(code==='d'){
+   visibleChar(val);playDigit(val,false);
+ }else if(code==='s'){
+   replayRelease();visibleChar(' ');noise(.06,.035,{freq:2000,q:5});
+ }else if(code==='b'){
+   replayDelete();
+ }else if(code==='p'){
+   replayRelease();visibleChar(val);playPunct(val,false);
+ }else if(code==='e'){
+   replayRelease();visibleChar('\n');
+ }else if(code==='z'){
+   tone(nf('C4')*.5,.55,{gain:.055,type:'sine',filter:900,glideTo:.97});
+ }
+}
+function finalReveal(){
+ const chars=[...letterStage.querySelectorAll('.char[data-secret]')];
+ chars.forEach((el,i)=>setTimeout(()=>{
+   el.textContent=el.dataset.secret;
+   el.classList.remove('masked','slow-hidden','deleted');
+   el.classList.add('revealed');
+ },i*28));
+}
+async function playLetter(){
+ if(!LETTER)return;
+ ensure();if(audioCtx.state==='suspended')await audioCtx.resume();
+ resetLetter();
+ playLetterBtn.textContent='Playing...';
+ const events=LETTER.events||[];
+ events.forEach(ev=>replayTimeouts.push(setTimeout(()=>replayEvent(ev),ev[0])));
+ replayTimeouts.push(setTimeout(()=>{
+   finalReveal();
+   playLetterBtn.textContent='Replay Letter';
+ },(LETTER.duration||0)+900));
+}
+playLetterBtn.onclick=playLetter;resetLetterBtn.onclick=resetLetter;
+
+function init(){
+ const hash=location.hash||'';
+ if(hash.startsWith('#letter=')){
+   try{showLetter(decodePayload(hash.slice(8)));resetLetter();}
+   catch(err){composerView.style.display='block';letterView.style.display='none';statusEl.textContent='This letter link could not be opened.';}
+ }else{
+   composerView.style.display='block';letterView.style.display='none';
+ }
+}
+window.addEventListener('hashchange',()=>location.reload());
+init();
 </script>
 </body>
 </html>

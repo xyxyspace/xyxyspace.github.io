@@ -5,126 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Type Instrument</title>
 <style>
-:root{
-  --bg:#f8f3e8;--ink:#18231f;--muted:#6c6b63;--line:#2d3a33;--accent:#e4b23c;
-  --soft:#dfe8d4;--cream:#fffefa;--blue:#dfeeff;--warm:#fff2c8;--pink:#ffe2d2;--ghost:#c86d62;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;min-height:100vh;
-  font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:
-    radial-gradient(circle at 10% 10%,rgba(228,178,60,.22),transparent 28%),
-    radial-gradient(circle at 88% 18%,rgba(130,160,110,.18),transparent 28%),
-    radial-gradient(circle at 50% 92%,rgba(130,120,180,.12),transparent 32%),
-    var(--bg);
-  color:var(--ink)
-}
-main{max-width:1120px;margin:0 auto;padding:34px 22px 48px}
-header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:22px}
-h1{margin:0 0 8px;font-size:clamp(40px,6vw,76px);line-height:.88;letter-spacing:-.07em}
-.subtitle{max-width:760px;color:var(--muted);font-size:16px;line-height:1.55}
-.badge{
-  border:2px solid var(--line);border-radius:22px 30px 18px 34px;
-  padding:11px 16px;background:var(--accent);font-weight:850;transform:rotate(-4deg);
-  white-space:nowrap;box-shadow:4px 4px 0 var(--line);display:inline-flex;align-items:center;gap:8px
-}
-.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.78fr);gap:18px}
-.card{background:rgba(255,250,240,.94);border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:8px 8px 0 rgba(25,35,31,.18)}
-textarea{
-  width:100%;min-height:335px;resize:vertical;border:2px solid var(--line);border-radius:18px;
-  background:var(--cream);color:var(--ink);padding:18px;font-size:23px;line-height:1.48;outline:none;
-  font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace
-}
-textarea:focus{box-shadow:0 0 0 4px rgba(228,178,60,.35)}
-.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
-button,select,input{font:inherit}
-button,select{
-  border:2px solid var(--line);border-radius:999px;background:var(--cream);color:var(--ink);
-  padding:10px 14px;cursor:pointer;font-weight:780
-}
-button.primary{background:var(--ink);color:white}
-button.accent{background:var(--accent);color:var(--ink)}
-button:disabled{opacity:.45;cursor:not-allowed}
-button:active:not(:disabled){transform:translate(2px,2px)}
-label{font-weight:850;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.control{display:grid;gap:8px;margin-bottom:16px}
-select{width:100%;border-radius:18px;padding:12px 14px}
-input[type=range]{width:100%;accent-color:#e4b23c}
-.panel{border:2px solid var(--line);border-radius:20px;padding:16px;background:var(--soft);margin-bottom:16px}
-.panel h2{margin:0 0 8px;font-size:28px;line-height:1;letter-spacing:-.04em}
-.panel p{margin:0;line-height:1.45;color:#29352f}
-.score{min-height:112px;max-height:220px;overflow:auto;border:2px dashed rgba(25,35,31,.38);border-radius:16px;padding:12px;background:rgba(223,232,212,.35);font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px}
-.timeline-title{margin:15px 0 8px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
-.token{display:inline-flex;gap:6px;align-items:center;padding:6px 9px;border:1.8px solid var(--line);border-radius:999px;background:var(--cream);font-size:13px;font-weight:850;max-width:100%}
-.token.chord{background:var(--accent)}
-.token.note{background:#f5ead0}
-.token.release{background:var(--soft)}
-.token.space{background:var(--blue)}
-.token.delete{background:#ffdeda;color:#6d1e14}
-.token.export{background:var(--warm)}
-.token.pause{background:#eee0ff}
-.pill{display:inline-block;padding:3px 8px;border:1.5px solid var(--line);border-radius:999px;background:var(--cream);font-weight:850;color:var(--ink)}
-.map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:12px;color:var(--muted)}
-.map span{border:1.5px solid rgba(25,35,31,.32);background:rgba(255,255,255,.48);border-radius:999px;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.status,.footer-note,.hint{color:var(--muted);font-size:13px;line-height:1.5}
-.status{min-height:22px;margin-top:12px}
-.share-box{display:none;margin-top:12px;border:2px solid var(--line);border-radius:16px;background:var(--warm);padding:12px;word-break:break-all;font-size:13px}
-.share-box a{color:var(--ink);font-weight:850}
-#letterView{display:none}
-.letter-wrap{max-width:900px;margin:0 auto}
-.letter-stage{
-  min-height:320px;border:2px solid var(--line);border-radius:20px;background:var(--cream);
-  padding:22px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
-  font-size:28px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:18px
-}
-.char{display:inline-block}
-.deleted{color:var(--ghost);text-decoration:line-through;opacity:.42;animation:fade .7s forwards}
-.masked{opacity:.72}
-.revealed{opacity:1;color:var(--ink)}
-.cursor{display:inline-block;width:.6em;color:var(--accent);animation:blink 1s infinite}
-.line-break{display:block;content:'';margin-bottom:.2em}
-.letter-note{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.5}
-.link-button{
-  display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:999px;
-  background:var(--cream);color:var(--ink);padding:10px 14px;cursor:pointer;font-weight:850;text-decoration:none
-}
-@keyframes blink{50%{opacity:.15}}
-@keyframes fade{to{opacity:.12;transform:translateY(2px)}}
-@media(max-width:900px){
-  main{padding:24px 14px 38px}
-  header,.grid{display:grid;grid-template-columns:1fr}
-  .badge{width:fit-content;font-size:13px;padding:9px 12px}
-  textarea{font-size:17px;line-height:1.5;min-height:300px;padding:15px}
-  button,select{font-size:15px;padding:10px 12px}
-  .row{gap:8px}
-  .letter-stage{font-size:19px;line-height:1.65;padding:16px;min-height:300px}
-  h1{font-size:48px}
-}
+:root{--bg:#f8f3e8;--ink:#18231f;--muted:#6c6b63;--line:#2d3a33;--accent:#e4b23c;--soft:#dfe8d4;--cream:#fffefa;--blue:#dfeeff;--warm:#fff2c8;--pink:#ffe2d2;--ghost:#c86d62}*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 10% 10%,rgba(228,178,60,.22),transparent 28%),radial-gradient(circle at 88% 18%,rgba(130,160,110,.18),transparent 28%),radial-gradient(circle at 50% 92%,rgba(130,120,180,.12),transparent 32%),var(--bg);color:var(--ink)}main{max-width:1120px;margin:0 auto;padding:34px 22px 48px}header{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:22px}h1{margin:0 0 8px;font-size:clamp(40px,6vw,76px);line-height:.88;letter-spacing:-.07em}.subtitle{max-width:760px;color:var(--muted);font-size:16px;line-height:1.55}.badge{border:2px solid var(--line);border-radius:22px 30px 18px 34px;padding:11px 16px;background:var(--accent);font-weight:850;transform:rotate(-4deg);white-space:nowrap;box-shadow:4px 4px 0 var(--line);display:inline-flex;align-items:center;gap:8px}.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.78fr);gap:18px}.card{background:rgba(255,250,240,.94);border:2px solid var(--line);border-radius:24px;padding:18px;box-shadow:8px 8px 0 rgba(25,35,31,.18)}textarea{width:100%;min-height:335px;resize:vertical;border:2px solid var(--line);border-radius:18px;background:var(--cream);color:var(--ink);padding:18px;font-size:23px;line-height:1.48;outline:none;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace}textarea:focus{box-shadow:0 0 0 4px rgba(228,178,60,.35)}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}button,select,input{font:inherit}button,select{border:2px solid var(--line);border-radius:999px;background:var(--cream);color:var(--ink);padding:10px 14px;cursor:pointer;font-weight:780}button.primary{background:var(--ink);color:white}button.accent{background:var(--accent);color:var(--ink)}button:disabled{opacity:.45;cursor:not-allowed}button:active:not(:disabled){transform:translate(2px,2px)}label{font-weight:850;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}.control{display:grid;gap:8px;margin-bottom:16px}select{width:100%;border-radius:18px;padding:12px 14px}input[type=range]{width:100%;accent-color:#e4b23c}.panel{border:2px solid var(--line);border-radius:20px;padding:16px;background:var(--soft);margin-bottom:16px}.panel h2{margin:0 0 8px;font-size:28px;line-height:1;letter-spacing:-.04em}.panel p{margin:0;line-height:1.45;color:#29352f}.score{min-height:112px;max-height:220px;overflow:auto;border:2px dashed rgba(25,35,31,.38);border-radius:16px;padding:12px;background:rgba(223,232,212,.35);font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px}.timeline-title{margin:15px 0 8px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}.token{display:inline-flex;gap:6px;align-items:center;padding:6px 9px;border:1.8px solid var(--line);border-radius:999px;background:var(--cream);font-size:13px;font-weight:850;max-width:100%}.token.chord{background:var(--accent)}.token.note{background:#f5ead0}.token.release{background:var(--soft)}.token.space{background:var(--blue)}.token.delete{background:#ffdeda;color:#6d1e14}.token.export{background:var(--warm)}.token.pause{background:#eee0ff}.pill{display:inline-block;padding:3px 8px;border:1.5px solid var(--line);border-radius:999px;background:var(--cream);font-weight:850;color:var(--ink)}.map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:12px;color:var(--muted)}.map span{border:1.5px solid rgba(25,35,31,.32);background:rgba(255,255,255,.48);border-radius:999px;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status,.footer-note,.hint{color:var(--muted);font-size:13px;line-height:1.5}.status{min-height:22px;margin-top:12px}.composer-card{position:relative}.share-box{display:none;position:absolute;z-index:20;left:18px;right:18px;top:72px;border:2px solid var(--line);border-radius:24px;background:rgba(255,242,200,.98);padding:18px;font-size:14px;box-shadow:8px 8px 0 rgba(25,35,31,.22);backdrop-filter:blur(8px)}.share-box h3{margin:0 34px 6px 0;font-size:26px;letter-spacing:-.05em}.share-box p{margin:0 0 12px;color:var(--muted);line-height:1.45}.share-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 10px}.share-actions button,.share-actions a{border:2px solid var(--line);border-radius:999px;background:var(--cream);color:var(--ink);padding:9px 12px;cursor:pointer;font-weight:850;text-decoration:none;font:inherit}.share-actions .primary-action{background:var(--accent)}.link-preview{border:1.5px dashed rgba(25,35,31,.45);border-radius:12px;background:rgba(255,255,255,.42);padding:9px;word-break:break-all;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:12px;color:var(--muted);max-height:74px;overflow:auto}.share-box a{color:var(--ink);font-weight:850}.share-close{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:999px;padding:0;display:inline-flex;align-items:center;justify-content:center;background:var(--cream)}#letterView{display:none}.letter-wrap{max-width:900px;margin:0 auto}.letter-stage{min-height:320px;border:2px solid var(--line);border-radius:20px;background:var(--cream);padding:22px;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:28px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:18px}.char{display:inline-block}.deleted{color:var(--ghost);text-decoration:line-through;opacity:.42;animation:fade .7s forwards}.masked{opacity:.72}.revealed{opacity:1;color:var(--ink)}.cursor{display:inline-block;width:.6em;color:var(--accent);animation:blink 1s infinite}.line-break{display:block;content:'';margin-bottom:.2em}.letter-note{margin-top:12px;color:var(--muted);font-size:13px;line-height:1.5}.link-button{display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:999px;background:var(--cream);color:var(--ink);padding:10px 14px;cursor:pointer;font-weight:850;text-decoration:none}@keyframes blink{50%{opacity:.15}}@keyframes fade{to{opacity:.12;transform:translateY(2px)}}@media(max-width:900px){main{padding:24px 14px 38px}header,.grid{display:grid;grid-template-columns:1fr}.badge{width:fit-content;font-size:13px;padding:9px 12px}textarea{font-size:17px;line-height:1.5;min-height:300px;padding:15px}button,select{font-size:15px;padding:10px 12px}.row{gap:8px}.letter-stage{font-size:19px;line-height:1.65;padding:16px;min-height:300px}h1{font-size:48px}.share-box{left:12px;right:12px;top:66px;padding:16px}.share-box h3{font-size:22px}.link-preview{max-height:60px}}
 </style>
 </head>
 <body>
-<main id="composerView">
-<header>
-<section>
-<h1>Type Instrument</h1>
-<div class="subtitle">
-  Write a letter that can be heard. Your typing becomes harmony, your pauses become air,
-  and your erased words leave a trace. Send it as a slow-reveal letter.
-</div>
-</section>
-<div class="badge">✦ write a letter in music</div>
-</header>
-
-<section class="grid">
-<div class="card">
-<div class="row">
-<button id="beginBtn" class="primary">Begin</button>
-<button id="shareLetterBtn" class="accent">Share Letter</button>
-<button id="startOverBtn">Start Over</button>
-</div>
-
-<textarea id="input" spellcheck="false" placeholder="Try this:
+<main id="composerView"><header><section><h1>Type Instrument</h1><div class="subtitle">Write a letter that can be heard. Your typing becomes harmony, your pauses become air, and your erased words leave a trace. Send it as a slow-reveal letter.</div></section><div class="badge">✦ write a letter in music</div></header><section class="grid"><div class="card composer-card"><div class="row"><button id="beginBtn" class="primary">Begin</button><button id="shareLetterBtn" class="accent">Share Letter</button><button id="startOverBtn">Start Over</button></div><div class="share-box" id="shareBox"></div><textarea id="input" spellcheck="false" placeholder="Try this:
 
 write as if you are almost saying it.
 leave a pause where your hand hesitates.
@@ -132,480 +17,59 @@ erase a word if it feels too clear.
 press Enter when the thought needs air.
 
 i was going to say your name
-but the room was still listening"></textarea>
-
-<div class="row">
-<span class="pill">A–Z = harmony</span>
-<span class="pill">1–7 = melody</span>
-<span class="pill">Space = breath</span>
-<span class="pill">Erase = trace</span>
-<span class="pill">Enter = new line</span>
-<span class="pill">Share = slow reveal</span>
-</div>
-
-<div class="timeline-title"><span>Writing trace</span><span id="stateLabel">ready</span></div>
-<div class="score" id="score"></div>
-<div class="share-box" id="shareBox"></div>
-<p class="footer-note">A shared letter is a link. For short letters, the music and hidden writing are stored inside the URL. Longer letters will need a tiny database later.</p>
-</div>
-
-<aside class="card">
-<div class="panel">
-<h2>How it works</h2>
-<p>Tap Begin once. Then write normally. When you share, the page creates a slow-reveal link that someone can open, play, and reply to.</p>
-</div>
-
-<div class="control">
-<label for="soundSelect">Sound</label>
-<select id="soundSelect">
-<option value="warm" selected>Warm synth</option>
-<option value="bell">Soft bell</option>
-<option value="toy">Tiny 8-bit</option>
-<option value="felt">Felt / muted</option>
-</select>
-</div>
-
-<div class="control">
-<label for="densitySelect">Harmony</label>
-<select id="densitySelect">
-<option value="light">Light</option>
-<option value="medium" selected>Medium</option>
-<option value="rich">Rich</option>
-</select>
-</div>
-
-<div class="control">
-<label for="echoRange">Echo / memory</label>
-<input id="echoRange" type="range" min="0" max="100" value="42">
-</div>
-
-<div class="control">
-<label for="volumeRange">Volume</label>
-<input id="volumeRange" type="range" min="30" max="130" value="100">
-</div>
-
-<div class="control">
-<label>Chord colour</label>
-<div class="map" id="chordMap"></div>
-</div>
-
-<p class="status" id="status">Tap Begin, then write in the box.</p>
-</aside>
-</section>
-</main>
-
-<main id="letterView">
-<div class="letter-wrap">
-<header>
-<section>
-<h1>Slow Reveal Letter</h1>
-<div class="subtitle">Listen first. The words will hold themselves back until the end.</div>
-</section>
-<div class="badge">✦ a letter in music</div>
-</header>
-<div class="card">
-<div class="row">
-<button id="playLetterBtn" class="primary">Play Letter</button>
-<button id="resetLetterBtn">Reset</button>
-<a id="writeBackBtn" class="link-button" href="./">Write back</a>
-</div>
-<div class="timeline-title"><span id="letterMeta">ready</span><span>slow reveal</span></div>
-<div class="letter-stage" id="letterStage"><span class="cursor">|</span></div>
-<p class="letter-note">This letter was written with Type Instrument. Its sound and hidden text come from the same writing trace.</p>
-</div>
-</div>
-</main>
-
+but the room was still listening"></textarea><div class="row"><span class="pill">A–Z = harmony</span><span class="pill">1–7 = melody</span><span class="pill">Space = breath</span><span class="pill">Erase = trace</span><span class="pill">Enter = new line</span><span class="pill">Edits keep their place</span></div><div class="timeline-title"><span>Writing trace</span><span id="stateLabel">ready</span></div><div class="score" id="score"></div><p class="footer-note">Share Letter copies a link you can send. For short letters, the music and hidden writing are stored inside the URL.</p></div><aside class="card"><div class="panel"><h2>How it works</h2><p>Tap Begin once. Then write normally. You can go back and add a word; the letter remembers where that edit happened.</p></div><div class="control"><label for="soundSelect">Sound</label><select id="soundSelect"><option value="warm" selected>Warm synth</option><option value="bell">Soft bell</option><option value="toy">Tiny 8-bit</option><option value="felt">Felt / muted</option></select></div><div class="control"><label for="densitySelect">Harmony</label><select id="densitySelect"><option value="light">Light</option><option value="medium" selected>Medium</option><option value="rich">Rich</option></select></div><div class="control"><label for="echoRange">Echo / memory</label><input id="echoRange" type="range" min="0" max="100" value="42"></div><div class="control"><label for="volumeRange">Volume</label><input id="volumeRange" type="range" min="30" max="130" value="100"></div><div class="control"><label>Chord colour</label><div class="map" id="chordMap"></div></div><p class="status" id="status">Tap Begin, then write in the box.</p></aside></section></main>
+<main id="letterView"><div class="letter-wrap"><header><section><h1>Slow Reveal Letter</h1><div class="subtitle">Listen first. The words will hold themselves back until the end.</div></section><div class="badge">✦ a letter in music</div></header><div class="card"><div class="row"><button id="playLetterBtn" class="primary">Play Letter</button><button id="resetLetterBtn">Reset</button><a id="writeBackBtn" class="link-button" href="./">Write back</a></div><div class="timeline-title"><span id="letterMeta">ready</span><span>slow reveal</span></div><div class="letter-stage" id="letterStage"><span class="cursor">|</span></div><p class="letter-note">This letter was written with Type Instrument. Its sound and hidden text come from the same writing trace.</p></div></div></main>
 <script>
-const $=id=>document.getElementById(id);
-const composerView=$('composerView'),letterView=$('letterView');
-const input=$('input'),beginBtn=$('beginBtn'),shareLetterBtn=$('shareLetterBtn'),startOverBtn=$('startOverBtn');
-const score=$('score'),statusEl=$('status'),stateLabel=$('stateLabel'),shareBox=$('shareBox');
-const soundSelect=$('soundSelect'),densitySelect=$('densitySelect'),echoRange=$('echoRange'),volumeRange=$('volumeRange'),chordMap=$('chordMap');
-const playLetterBtn=$('playLetterBtn'),resetLetterBtn=$('resetLetterBtn'),letterStage=$('letterStage'),letterMeta=$('letterMeta'),writeBackBtn=$('writeBackBtn');
-
-let audioCtx,master,compressor,delayNode,feedbackGain,delayWetGain;
-let syllableBuffer='',lastActionPerf=performance.now(),perfEvents=[],perfStart=null,lastPerfTime=0,prevValue='';
-let replayTimeouts=[],replaySyllable='',replayStack=[];
-
+const $=id=>document.getElementById(id),composerView=$('composerView'),letterView=$('letterView'),input=$('input'),beginBtn=$('beginBtn'),shareLetterBtn=$('shareLetterBtn'),startOverBtn=$('startOverBtn'),score=$('score'),statusEl=$('status'),stateLabel=$('stateLabel'),shareBox=$('shareBox'),soundSelect=$('soundSelect'),densitySelect=$('densitySelect'),echoRange=$('echoRange'),volumeRange=$('volumeRange'),chordMap=$('chordMap'),playLetterBtn=$('playLetterBtn'),resetLetterBtn=$('resetLetterBtn'),letterStage=$('letterStage'),letterMeta=$('letterMeta'),writeBackBtn=$('writeBackBtn');
+let audioCtx,master,compressor,delayNode,feedbackGain,delayWetGain,syllableBuffer='',lastActionPerf=performance.now(),perfEvents=[],perfStart=null,lastPerfTime=0,prevValue='',currentLetterURL='',replayTimeouts=[],replaySyllable='',replayNodes=[],replayEditCursor=null,composing=false,processing=false,queued=false;
 const chordNames=['Am','Bdim','C','Dm','Em','F','G','Cmaj7','Dm7','Em7','Fmaj7','G7','Am7','Cadd9','Csus4','Gsus4','F6','Am9','C6','Gadd9','Dm9','D7','E7','Fm','B♭','A♭'];
-const chordNotes=[
- ['A3','C4','E4'],['B3','D4','F4'],['C4','E4','G4'],['D4','F4','A4'],['E4','G4','B4'],['F4','A4','C5'],['G3','B3','D4'],
- ['C4','E4','G4','B4'],['D4','F4','A4','C5'],['E4','G4','B4','D5'],['F4','A4','C5','E5'],['G3','B3','D4','F4'],['A3','C4','E4','G4'],
- ['C4','E4','G4','D5'],['C4','F4','G4'],['G3','C4','D4'],['F4','A4','C5','D5'],['A3','C4','E4','G4','B4'],['C4','E4','G4','A4'],
- ['G3','B3','D4','A4'],['D4','F4','A4','C5','E5'],['D4','F#4','A4','C5'],['E4','G#4','B4','D5'],['F3','Ab3','C4'],['Bb3','D4','F4'],['Ab3','C4','Eb4']
-];
-const scale=['C4','D4','E4','F4','G4','A4','B4'];
-const finals=[['iang',6],['uang',5],['iong',6],['ang',5],['eng',3],['ing',3],['ian',6],['iao',5],['ong',5],['ai',2],['ei',3],['ao',5],['ou',6],['an',4],['en',2],['in',3],['un',2],['er',7],['a',1],['o',1],['e',3],['i',3],['u',5],['v',6]];
-
-function renderMap(){
-  chordMap.innerHTML='';
-  for(let i=0;i<26;i++){
-    const s=document.createElement('span');
-    s.textContent=String.fromCharCode(97+i)+' = '+chordNames[i];
-    chordMap.appendChild(s);
-  }
+const chordNotes=[['A3','C4','E4'],['B3','D4','F4'],['C4','E4','G4'],['D4','F4','A4'],['E4','G4','B4'],['F4','A4','C5'],['G3','B3','D4'],['C4','E4','G4','B4'],['D4','F4','A4','C5'],['E4','G4','B4','D5'],['F4','A4','C5','E5'],['G3','B3','D4','F4'],['A3','C4','E4','G4'],['C4','E4','G4','D5'],['C4','F4','G4'],['G3','C4','D4'],['F4','A4','C5','D5'],['A3','C4','E4','G4','B4'],['C4','E4','G4','A4'],['G3','B3','D4','A4'],['D4','F4','A4','C5','E5'],['D4','F#4','A4','C5'],['E4','G#4','B4','D5'],['F3','Ab3','C4'],['Bb3','D4','F4'],['Ab3','C4','Eb4']];
+const scale=['C4','D4','E4','F4','G4','A4','B4'],finals=[['iang',6],['uang',5],['iong',6],['ang',5],['eng',3],['ing',3],['ian',6],['iao',5],['ong',5],['ai',2],['ei',3],['ao',5],['ou',6],['an',4],['en',2],['in',3],['un',2],['er',7],['a',1],['o',1],['e',3],['i',3],['u',5],['v',6]];
+function renderMap(){chordMap.innerHTML='';for(let i=0;i<26;i++){const s=document.createElement('span');s.textContent=String.fromCharCode(97+i)+' = '+chordNames[i];chordMap.appendChild(s)}}renderMap();
+function midi(note){const m=/^([A-Ga-g])([#b]?)(-?\d)$/.exec(note);if(!m)return null;const base={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1].toUpperCase()],acc=m[2]=='#'?1:m[2]=='b'?-1:0;return 12*(Number(m[3])+1)+base+acc}function nf(note){const m=midi(note);return m==null?440:440*Math.pow(2,(m-69)/12)}function clamp(v,a,b){return Math.max(a,Math.min(b,v))}function chordIndex(ch){const c=(ch||'').toLowerCase(),i=c.charCodeAt(0)-97;return i>=0&&i<26?i:null}function settings(){return{sound:soundSelect.value,density:densitySelect.value,echo:Number(echoRange.value),volume:Number(volumeRange.value),replyUrl:location.href.split('#')[0]}}
+function ensure(){if(audioCtx)return;audioCtx=new(window.AudioContext||window.webkitAudioContext)();master=audioCtx.createGain();compressor=audioCtx.createDynamicsCompressor();compressor.threshold.value=-12;compressor.knee.value=18;compressor.ratio.value=3.8;compressor.attack.value=.004;compressor.release.value=.15;delayNode=audioCtx.createDelay(1.4);delayNode.delayTime.value=.27;feedbackGain=audioCtx.createGain();delayWetGain=audioCtx.createGain();delayNode.connect(feedbackGain);feedbackGain.connect(delayNode);delayNode.connect(delayWetGain);delayWetGain.connect(master);master.connect(compressor);compressor.connect(audioCtx.destination);applyMix()}async function begin(){ensure();if(audioCtx.state==='suspended')await audioCtx.resume();input.focus();statusEl.textContent='Write. The page is listening.'}function applyMix(){if(!audioCtx)return;const echo=Number(echoRange.value)/100;master.gain.setTargetAtTime(Number(volumeRange.value)/100,audioCtx.currentTime,.06);delayWetGain.gain.setTargetAtTime(echo*.42,audioCtx.currentTime,.08);feedbackGain.gain.setTargetAtTime(echo*.48,audioCtx.currentTime,.08)}echoRange.oninput=applyMix;volumeRange.oninput=applyMix;
+function env(d,peak,t=audioCtx.currentTime,attack=.012){const g=audioCtx.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak),t+attack);g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak*.62),t+d*.35);g.gain.exponentialRampToValueAtTime(.0001,t+d);return g}function tone(freq,d=.25,o={}){ensure();applyMix();const t=audioCtx.currentTime+(o.delay||0),osc=audioCtx.createOscillator(),g=env(d,o.gain||.15,t,o.attack||.012),f=audioCtx.createBiquadFilter(),sound=soundSelect?soundSelect.value:'warm';osc.type=o.type||(sound==='bell'?'sine':sound==='toy'?'square':sound==='felt'?'triangle':'sine');f.type='lowpass';f.frequency.value=o.filter||(sound==='felt'?1300:sound==='toy'?1800:sound==='bell'?3200:2300);f.Q.value=o.q||1.2;osc.frequency.setValueAtTime(freq*(o.startRatio||1),t);if(o.glideTo)osc.frequency.exponentialRampToValueAtTime(freq*o.glideTo,t+d*.75);osc.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);osc.start(t);osc.stop(t+d+.05);if(sound==='bell'&&!o.noPartial){const osc2=audioCtx.createOscillator(),g2=env(d*.72,(o.gain||.15)*.28,t+.01,.006),f2=audioCtx.createBiquadFilter();osc2.type='sine';osc2.frequency.setValueAtTime(freq*2.01,t+.01);f2.type='lowpass';f2.frequency.value=4400;osc2.connect(f2);f2.connect(g2);g2.connect(master);g2.connect(delayNode);osc2.start(t+.01);osc2.stop(t+d*.75)}}function noise(d=.07,gain=.05,o={}){ensure();applyMix();const t=audioCtx.currentTime+(o.delay||0),size=Math.floor(audioCtx.sampleRate*d),buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate),data=buf.getChannelData(0);for(let i=0;i<size;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/size,o.curve||2);const src=audioCtx.createBufferSource(),g=env(d,gain,t,.006),f=audioCtx.createBiquadFilter();f.type=o.type||'bandpass';f.frequency.value=o.freq||1800;f.Q.value=o.q||6;src.buffer=buf;src.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);src.start(t);src.stop(t+d+.02)}
+function token(main,cls,sub){const el=document.createElement('span');el.className='token '+cls;el.textContent=sub?`${main} · ${sub}`:main;score.appendChild(el);while(score.children.length>120)score.removeChild(score.firstChild);score.scrollTop=score.scrollHeight}function densityCount(){const v=densitySelect.value;return v==='light'?2:v==='rich'?4:3}function playChord(idx,velocity=1,show=true){if(idx==null)return;const notes=chordNotes[idx].slice(0,densityCount()),dur=densitySelect.value==='rich'?.72:.58,gain=(.15*velocity)/Math.sqrt(notes.length);notes.forEach((n,j)=>tone(nf(n),dur,{gain,delay:j*.012,filter:2200+j*220,attack:.012}));if(show)token(String.fromCharCode(97+idx),'chord',chordNames[idx])}function playDigit(d,show=true){const deg=Number(d);if(deg<1||deg>7)return;tone(nf(scale[deg-1]),.42,{gain:.28,type:'sine',filter:3200,attack:.008});if(show)token(d,'note',['do','re','mi','fa','sol','la','ti'][deg-1])}function degreeFromSyllable(s){s=s.toLowerCase().replace(/[^a-zv]/g,'');for(const [fin,d]of finals)if(s.endsWith(fin))return d;const v=s.match(/[aeiouv]/g);if(!v)return((s.charCodeAt(0)||99)%7)+1;return{a:1,e:3,i:3,o:1,u:5,v:6}[v[v.length-1]]||4}function releaseSyllable(reason='space',show=true){const s=syllableBuffer.toLowerCase().replace(/[^a-zv]/g,'');if(!s)return;const deg=degreeFromSyllable(s),freq=nf(scale[deg-1]);tone(freq,.52+Math.min(.35,s.length*.035),{gain:.24,type:'sine',filter:2800,glideTo:s.length>4?1.06:1,attack:.018});if(s.length>=4)tone(freq*2,.35,{gain:.055,type:'sine',filter:3600,delay:.055,noPartial:true});if(show)token(s,'release',reason);syllableBuffer=''}function playSpace(show=true){releaseSyllable('breath',show);noise(.06,.035,{freq:2000,q:5});if(show)token('space','space','breath')}function playDelete(show=true){syllableBuffer=syllableBuffer.slice(0,-1);noise(.08,.06,{freq:900,q:9,curve:1.3});tone(nf('E4'),.16,{gain:.055,type:'triangle',filter:1000,glideTo:.68,noPartial:true});if(show)token('erase','delete','trace')}function playPunct(ch,show=true){releaseSyllable(ch,show);if(ch==='.'){['C4','E4','G4'].forEach((n,j)=>tone(nf(n),.55,{gain:.075,delay:j*.015,filter:2200+j*240}));if(show)token('.','space','cadence')}else if(ch===','){tone(nf('G4'),.42,{gain:.11,glideTo:1.04});if(show)token(',','space','hold')}else if(ch==='?'){tone(nf('D4'),.36,{gain:.13,type:'triangle',glideTo:1.38});if(show)token('?','space','lift')}else if(ch==='!'){noise(.12,.13,{freq:1600,q:4});tone(nf('C3'),.18,{gain:.14,type:'square',filter:900});if(show)token('!','space','hit')}}
+function mark(code,pos,value){const now=performance.now();if(perfStart===null)perfStart=now;const t=Math.max(0,Math.round(now-perfStart));perfEvents.push([t,code,pos,value]);lastPerfTime=t}function maybePause(){const now=performance.now(),gap=now-lastActionPerf;if(gap>850){const amount=clamp((gap-650)/1800,0,1);tone(nf('C4')*.5,.45+amount*.4,{gain:.05+amount*.04,type:'sine',filter:900,glideTo:.97});token('pause','pause',Math.round(gap)+'ms');mark('z',0,Math.round(gap))}lastActionPerf=now}
+function commonDiff(oldVal,newVal){let start=0;while(start<oldVal.length&&start<newVal.length&&oldVal[start]===newVal[start])start++;let oldEnd=oldVal.length-1,newEnd=newVal.length-1;while(oldEnd>=start&&newEnd>=start&&oldVal[oldEnd]===newVal[newEnd]){oldEnd--;newEnd--}return{pos:start,removed:oldEnd>=start?oldVal.slice(start,oldEnd+1):'',added:newEnd>=start?newVal.slice(start,newEnd+1):''}}
+function playInsertedText(text,pos,oldLen){const endEditing=pos>=oldLen;[...text].forEach((ch,i)=>setTimeout(()=>{if(ch==='\n'){releaseSyllable('line');token('enter','space','new line');stateLabel.textContent='new line';return}if(ch===' '){playSpace();stateLabel.textContent='breath';return}if(/[1-7]/.test(ch)){playDigit(ch);stateLabel.textContent='melody';return}if(/[,.;:!?，。！？、…]/.test(ch)){const p=ch==='。'?'.':ch==='，'?',':ch==='？'?'?':ch==='！'?'!':ch;playPunct(p);stateLabel.textContent='cadence';return}const idx=chordIndex(ch);if(idx!==null){if(endEditing)syllableBuffer+=ch.toLowerCase();playChord(idx,1);stateLabel.textContent=endEditing?'harmony':'edit'}else{noise(.025,.018,{freq:1600,q:3});token('letter','chord',ch);stateLabel.textContent='writing'}},i*34))}
+function scheduleProcess(){if(processing){queued=true;return}processing=true;requestAnimationFrame(async()=>{try{await processCurrentValue()}finally{processing=false;if(queued){queued=false;scheduleProcess()}}})}async function processCurrentValue(){const oldVal=prevValue,newVal=input.value;if(oldVal===newVal)return;ensure();if(audioCtx.state==='suspended')await audioCtx.resume();maybePause();const {pos,removed,added}=commonDiff(oldVal,newVal);if(removed.length){playDelete(true);if(removed.length>1)token('erase','delete',removed.length+' chars');mark('d',pos,removed.length);syllableBuffer=''}if(added.length){playInsertedText(added,pos,oldVal.length);mark('i',pos,added);if(pos<oldVal.length)token('edit','export','at '+pos)}prevValue=newVal;statusEl.textContent='Writing is being recorded into this page.'}
+input.addEventListener('compositionstart',()=>{composing=true});input.addEventListener('compositionend',()=>{composing=false;scheduleProcess()});input.addEventListener('input',()=>{if(!composing)scheduleProcess()});
+function encodePayload(payload){const json=JSON.stringify(payload),bytes=new TextEncoder().encode(json);let bin='';for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}function decodePayload(str){const b64=str.replace(/-/g,'+').replace(/_/g,'/'),pad=b64.length%4?'='.repeat(4-b64.length%4):'',bin=atob(b64+pad),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);return JSON.parse(new TextDecoder().decode(bytes))}function makeLetterURL(){const payload={v:2,created:new Date().toISOString(),settings:settings(),events:perfEvents,duration:lastPerfTime};return location.href.split('#')[0]+'#letter='+encodePayload(payload)}function isProbablyMobile(){
+ return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.maxTouchPoints&&navigator.maxTouchPoints>1&&Math.min(screen.width,screen.height)<900);
 }
-renderMap();
-
-function midi(note){
- const m=/^([A-Ga-g])([#b]?)(-?\d)$/.exec(note);
- if(!m)return null;
- const base={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1].toUpperCase()],acc=m[2]=='#'?1:m[2]=='b'?-1:0;
- return 12*(Number(m[3])+1)+base+acc;
+function esc(s){
+ return String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
-function nf(note){const m=midi(note);return m==null?440:440*Math.pow(2,(m-69)/12)}
-function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-function chordIndex(ch){const c=(ch||'').toLowerCase();const i=c.charCodeAt(0)-97;return i>=0&&i<26?i:null}
-function settings(){return{sound:soundSelect.value,density:densitySelect.value,echo:Number(echoRange.value),volume:Number(volumeRange.value),replyUrl:location.href.split('#')[0]}}
-
-function ensure(){
- if(audioCtx)return;
- audioCtx=new(window.AudioContext||window.webkitAudioContext)();
- master=audioCtx.createGain();
- compressor=audioCtx.createDynamicsCompressor();
- compressor.threshold.value=-12;compressor.knee.value=18;compressor.ratio.value=3.8;compressor.attack.value=.004;compressor.release.value=.15;
- delayNode=audioCtx.createDelay(1.4);delayNode.delayTime.value=.27;
- feedbackGain=audioCtx.createGain();delayWetGain=audioCtx.createGain();
- delayNode.connect(feedbackGain);feedbackGain.connect(delayNode);delayNode.connect(delayWetGain);delayWetGain.connect(master);
- master.connect(compressor);compressor.connect(audioCtx.destination);
- applyMix();
-}
-async function begin(){
- ensure();
- if(audioCtx.state==='suspended')await audioCtx.resume();
- beginBtn.textContent='Begin';
+function hideSharePanel(){
+ shareBox.style.display='none';
  input.focus();
- statusEl.textContent='Write. The page is listening.';
 }
-function applyMix(){
- if(!audioCtx)return;
- const echo=Number(echoRange.value)/100;
- master.gain.setTargetAtTime(Number(volumeRange.value)/100,audioCtx.currentTime,.06);
- delayWetGain.gain.setTargetAtTime(echo*.42,audioCtx.currentTime,.08);
- feedbackGain.gain.setTargetAtTime(echo*.48,audioCtx.currentTime,.08);
-}
-echoRange.oninput=applyMix;volumeRange.oninput=applyMix;
-
-function env(d,peak,t=audioCtx.currentTime,attack=.012){
- const g=audioCtx.createGain();
- g.gain.setValueAtTime(.0001,t);
- g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak),t+attack);
- g.gain.exponentialRampToValueAtTime(Math.max(.0002,peak*.62),t+d*.35);
- g.gain.exponentialRampToValueAtTime(.0001,t+d);
- return g;
-}
-function tone(freq,d=.25,o={}){
- ensure();applyMix();
- const t=audioCtx.currentTime+(o.delay||0),osc=audioCtx.createOscillator(),g=env(d,o.gain||.15,t,o.attack||.012),f=audioCtx.createBiquadFilter();
- const sound=soundSelect?soundSelect.value:'warm';
- osc.type=o.type||(sound==='bell'?'sine':sound==='toy'?'square':sound==='felt'?'triangle':'sine');
- f.type='lowpass';
- f.frequency.value=o.filter||(sound==='felt'?1300:sound==='toy'?1800:sound==='bell'?3200:2300);
- f.Q.value=o.q||1.2;
- osc.frequency.setValueAtTime(freq*(o.startRatio||1),t);
- if(o.glideTo)osc.frequency.exponentialRampToValueAtTime(freq*o.glideTo,t+d*.75);
- osc.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);
- osc.start(t);osc.stop(t+d+.05);
- if(sound==='bell'&&!o.noPartial){
-   const osc2=audioCtx.createOscillator(),g2=env(d*.72,(o.gain||.15)*.28,t+.01,.006),f2=audioCtx.createBiquadFilter();
-   osc2.type='sine';osc2.frequency.setValueAtTime(freq*2.01,t+.01);f2.type='lowpass';f2.frequency.value=4400;
-   osc2.connect(f2);f2.connect(g2);g2.connect(master);g2.connect(delayNode);osc2.start(t+.01);osc2.stop(t+d*.75);
- }
-}
-function noise(d=.07,gain=.05,o={}){
- ensure();applyMix();
- const t=audioCtx.currentTime+(o.delay||0),size=Math.floor(audioCtx.sampleRate*d),buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate),data=buf.getChannelData(0);
- for(let i=0;i<size;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/size,o.curve||2);
- const src=audioCtx.createBufferSource(),g=env(d,gain,t,.006),f=audioCtx.createBiquadFilter();
- f.type=o.type||'bandpass';f.frequency.value=o.freq||1800;f.Q.value=o.q||6;
- src.buffer=buf;src.connect(f);f.connect(g);g.connect(master);g.connect(delayNode);src.start(t);src.stop(t+d+.02);
-}
-function token(main,cls,sub){
- const el=document.createElement('span');el.className='token '+cls;el.textContent=sub?`${main} · ${sub}`:main;
- score.appendChild(el);while(score.children.length>120)score.removeChild(score.firstChild);score.scrollTop=score.scrollHeight;
-}
-function densityCount(){const v=densitySelect.value;return v==='light'?2:v==='rich'?4:3}
-function playChord(idx,velocity=1,show=true){
- if(idx==null)return;
- const notes=chordNotes[idx].slice(0,densityCount());
- const dur=densitySelect.value==='rich'?.72:.58;
- const gain=(.15*velocity)/(Math.sqrt(notes.length));
- notes.forEach((n,j)=>tone(nf(n),dur,{gain,delay:j*0.012,filter:2200+j*220,attack:.012}));
- if(show)token(String.fromCharCode(97+idx),'chord',chordNames[idx]);
-}
-function playDigit(d,show=true){
- const deg=Number(d);if(deg<1||deg>7)return;
- tone(nf(scale[deg-1]),.42,{gain:.28,type:'sine',filter:3200,attack:.008});
- if(show)token(d,'note',['do','re','mi','fa','sol','la','ti'][deg-1]);
-}
-function degreeFromSyllable(s){
- s=s.toLowerCase().replace(/[^a-zv]/g,'');
- for(const [fin,d] of finals)if(s.endsWith(fin))return d;
- const v=s.match(/[aeiouv]/g);if(!v)return((s.charCodeAt(0)||99)%7)+1;
- return{a:1,e:3,i:3,o:1,u:5,v:6}[v[v.length-1]]||4;
-}
-function releaseSyllable(reason='space',show=true){
- const s=syllableBuffer.toLowerCase().replace(/[^a-zv]/g,'');
- if(!s)return;
- const deg=degreeFromSyllable(s),freq=nf(scale[deg-1]);
- tone(freq,.52+Math.min(.35,s.length*.035),{gain:.24,type:'sine',filter:2800,glideTo:s.length>4?1.06:1,attack:.018});
- if(s.length>=4)tone(freq*2,.35,{gain:.055,type:'sine',filter:3600,delay:.055,noPartial:true});
- if(show)token(s,'release',reason);
- syllableBuffer='';
-}
-function playSpace(show=true){
- releaseSyllable('breath',show);
- noise(.06,.035,{freq:2000,q:5});
- if(show)token('space','space','breath');
-}
-function playDelete(show=true){
- syllableBuffer=syllableBuffer.slice(0,-1);
- noise(.08,.06,{freq:900,q:9,curve:1.3});
- tone(nf('E4'),.16,{gain:.055,type:'triangle',filter:1000,glideTo:.68,noPartial:true});
- if(show)token('erase','delete','trace');
-}
-function playPunct(ch,show=true){
- releaseSyllable(ch,show);
- if(ch==='.'){['C4','E4','G4'].forEach((n,j)=>tone(nf(n),.55,{gain:.075,delay:j*.015,filter:2200+j*240}));if(show)token('.','space','cadence')}
- else if(ch===','){tone(nf('G4'),.42,{gain:.11,glideTo:1.04});if(show)token(',','space','hold')}
- else if(ch==='?'){tone(nf('D4'),.36,{gain:.13,type:'triangle',glideTo:1.38});if(show)token('?','space','lift')}
- else if(ch==='!'){noise(.12,.13,{freq:1600,q:4});tone(nf('C3'),.18,{gain:.14,type:'square',filter:900});if(show)token('!','space','hit')}
-}
-
-function mark(code,value=''){
- const now=performance.now();
- if(perfStart===null)perfStart=now;
- const t=Math.max(0,Math.round(now-perfStart));
- perfEvents.push([t,code,value]);
- lastPerfTime=t;
-}
-function maybePause(){
- const now=performance.now(),gap=now-lastActionPerf;
- if(gap>850){
-   const amount=clamp((gap-650)/1800,0,1);
-   tone(nf('C4')*.5,.45+amount*.4,{gain:.05+amount*.04,type:'sine',filter:900,glideTo:.97});
-   token('pause','pause',Math.round(gap)+'ms');
-   mark('z',Math.round(gap));
- }
- lastActionPerf=now;
-}
-async function processInsertedChar(ch){
- ensure();if(audioCtx.state==='suspended')await audioCtx.resume();
- maybePause();
- if(ch==='\n'){releaseSyllable('line');token('enter','space','new line');mark('e','');stateLabel.textContent='new line';return}
- if(ch===' '){playSpace();mark('s','');stateLabel.textContent='breath';return}
- if(/[1-7]/.test(ch)){playDigit(ch);mark('d',ch);stateLabel.textContent='melody';return}
- if(/[,.;:!?，。！？、…]/.test(ch)){
-   const p=ch==='。'?'.':ch==='，'?',':ch==='？'?'?':ch==='！'?'!':ch;
-   playPunct(p);mark('p',p);stateLabel.textContent='cadence';return;
- }
- const idx=chordIndex(ch);
- if(idx!==null){
-   syllableBuffer+=ch.toLowerCase();
-   playChord(idx,1);
-   mark('c',ch);
-   stateLabel.textContent='harmony';
- }else{
-   noise(.025,.018,{freq:1600,q:3});
-   mark('c',ch);
-   token('letter','chord',ch);
-   stateLabel.textContent='writing';
- }
-}
-async function processDelete(count=1){
- ensure();if(audioCtx.state==='suspended')await audioCtx.resume();
- maybePause();
- for(let i=0;i<count;i++){playDelete();mark('b','')}
- stateLabel.textContent='erase';
-}
-
-function diffText(oldVal,newVal){
- let start=0;
- while(start<oldVal.length&&start<newVal.length&&oldVal[start]===newVal[start])start++;
- let oldEnd=oldVal.length-1,newEnd=newVal.length-1;
- while(oldEnd>=start&&newEnd>=start&&oldVal[oldEnd]===newVal[newEnd]){oldEnd--;newEnd--}
- const removed=oldEnd>=start?oldVal.slice(start,oldEnd+1):'';
- const added=newEnd>=start?newVal.slice(start,newEnd+1):'';
- return {removed,added};
-}
-let composing=false;
-input.addEventListener('compositionstart',()=>{composing=true});
-input.addEventListener('compositionend',async()=>{composing=false;await handleInputChange()});
-input.addEventListener('input',async()=>{if(!composing)await handleInputChange()});
-async function handleInputChange(){
- const oldVal=prevValue,newVal=input.value;
- const {removed,added}=diffText(oldVal,newVal);
- if(removed.length)await processDelete(removed.length);
- for(const ch of added)await processInsertedChar(ch);
- prevValue=newVal;
- statusEl.textContent='Writing is being recorded into this page.';
-}
-
-function encodePayload(payload){
- const json=JSON.stringify(payload);
- const bytes=new TextEncoder().encode(json);
- let bin='';
- for(let i=0;i<bytes.length;i+=0x8000){
-   bin+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
- }
- return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-}
-function decodePayload(str){
- const b64=str.replace(/-/g,'+').replace(/_/g,'/');
- const pad=b64.length%4?'='.repeat(4-b64.length%4):'';
- const bin=atob(b64+pad);
- const bytes=new Uint8Array(bin.length);
- for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
- return JSON.parse(new TextDecoder().decode(bytes));
-}
-function makeLetterURL(){
- const payload={v:1,created:new Date().toISOString(),settings:settings(),events:perfEvents,duration:lastPerfTime};
- const data=encodePayload(payload);
- return location.href.split('#')[0]+'#letter='+data;
-}
-function isProbablyMobile(){
- return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints>1 && Math.min(screen.width,screen.height)<900);
-}
-function showLetterLink(url,tooLong,message){
+function showShareResult(url,copyState='copied'){
+ currentLetterURL=url;
+ const tooLong=url.length>5200;
+ const preview=url.length>760?url.slice(0,760)+'…':url;
+ const title=copyState==='copied'?'Letter link copied.':'Your letter is ready.';
+ const body=copyState==='copied'?'The link is ready to send. Open it here to test the slow reveal, or close this card to keep writing.':'Copy the link below, or open it here to test the slow reveal.';
  shareBox.style.display='block';
- const preview=url.length>900?url.slice(0,900)+'…':url;
- shareBox.innerHTML=`<strong>Letter link</strong><br><a href="${url}">${preview}</a>${tooLong?'<br><br>This link is long. For longer letters, this project will need a tiny database / short-link storage later.':''}`;
- if(message)statusEl.textContent=message;
-}
-async function copyLetterLink(url,tooLong){
- try{
-   await navigator.clipboard.writeText(url);
-   showLetterLink(url,tooLong,tooLong?'Copied the letter link, but it is quite long.':'Copied the letter link.');
- }catch(err){
-   showLetterLink(url,tooLong,'Copy the link below.');
- }
+ shareBox.innerHTML=`<button class="share-close" type="button" onclick="hideSharePanel()" aria-label="Close">×</button><h3>${title}</h3><p>${body}</p><div class="share-actions"><a class="primary-action" href="${esc(url)}" target="_blank" rel="noopener">Open Letter</a><button type="button" onclick="copyCurrentLetterLink()">Copy Again</button></div><div class="link-preview">${esc(preview)}</div>${tooLong?'<p style="margin-top:10px">This letter is long, so some apps may not like the link. A future short-link/database version would fix this.</p>':''}`;
 }
 async function shareLetter(){
  if(!perfEvents.length){statusEl.textContent='Write something first, then share the letter.';return}
  const url=makeLetterURL();
- const tooLong=url.length>5200;
- const safeForNativeShare=url.length<3200;
- showLetterLink(url,tooLong,'Preparing letter link...');
- if(isProbablyMobile() && safeForNativeShare && navigator.share){
-   try{
-     await navigator.share({title:'A letter in music',text:'I wrote you a letter in music.',url});
-     statusEl.textContent='Shared the letter link.';
-     return;
-   }catch(err){
-     // Fall back to copy/display. Some browsers reject long hash URLs or file/sandbox contexts.
-   }
- }
- await copyLetterLink(url,tooLong);
-}
-function startOver(){
- input.value='';prevValue='';score.innerHTML='';shareBox.style.display='none';
- syllableBuffer='';perfEvents=[];perfStart=null;lastPerfTime=0;stateLabel.textContent='ready';
- token('start over','export','fresh page');
- statusEl.textContent='Started over. Write a fresh letter.';
- input.focus();
-}
-beginBtn.onclick=begin;shareLetterBtn.onclick=shareLetter;startOverBtn.onclick=startOver;
-
-/* Letter replay */
-let LETTER=null;
-function showLetter(payload){
- LETTER=payload;
- composerView.style.display='none';
- letterView.style.display='block';
- writeBackBtn.href=(payload.settings&&payload.settings.replyUrl)||location.href.split('#')[0];
- letterMeta.textContent=`${(payload.duration/1000).toFixed(1)}s · ${payload.events.length} gestures`;
-}
-function resetLetter(){
- replayTimeouts.forEach(clearTimeout);replayTimeouts=[];
- letterStage.innerHTML='';replaySyllable='';replayStack=[];
- const c=document.createElement('span');c.className='cursor';c.textContent='|';letterStage.appendChild(c);
-}
-function addBeforeCursor(el){
- const cursor=letterStage.querySelector('.cursor');
- letterStage.insertBefore(el,cursor);
-}
-function visibleChar(ch){
- if(ch==='\n'){const br=document.createElement('br');br.className='line-break';addBeforeCursor(br);return br}
- const span=document.createElement('span');
- span.className='char masked slow-hidden';
- span.dataset.secret=ch;
- span.textContent=/\s/.test(ch)?ch:'•';
- addBeforeCursor(span);
- if(!/\s/.test(ch))replayStack.push(span);
- return span;
-}
-function replayDelete(){
- const target=replayStack.pop();
- if(target){
-   target.classList.add('deleted');
-   target.textContent='×';
-   setTimeout(()=>{if(target.parentNode)target.remove()},620);
- }
- noise(.08,.06,{freq:900,q:9,curve:1.3});
- tone(nf('E4'),.16,{gain:.055,type:'triangle',filter:1000,glideTo:.68,noPartial:true});
-}
-function replayRelease(){
- const s=replaySyllable.toLowerCase().replace(/[^a-zv]/g,'');
- if(!s)return;
- const deg=degreeFromSyllable(s),freq=nf(scale[deg-1]);
- tone(freq,.52+Math.min(.35,s.length*.035),{gain:.24,type:'sine',filter:2800,glideTo:s.length>4?1.06:1,attack:.018});
- if(s.length>=4)tone(freq*2,.35,{gain:.055,type:'sine',filter:3600,delay:.055,noPartial:true});
- replaySyllable='';
-}
-function replayEvent(ev){
- const code=ev[1],val=ev[2];
- if(code==='c'){
-   visibleChar(val);
-   const idx=chordIndex(val);
-   if(idx!==null){replaySyllable+=val.toLowerCase();playChord(idx,1,false)}else noise(.025,.018,{freq:1600,q:3});
- }else if(code==='d'){
-   visibleChar(val);playDigit(val,false);
- }else if(code==='s'){
-   replayRelease();visibleChar(' ');noise(.06,.035,{freq:2000,q:5});
- }else if(code==='b'){
-   replayDelete();
- }else if(code==='p'){
-   replayRelease();visibleChar(val);playPunct(val,false);
- }else if(code==='e'){
-   replayRelease();visibleChar('\n');
- }else if(code==='z'){
-   tone(nf('C4')*.5,.55,{gain:.055,type:'sine',filter:900,glideTo:.97});
+ currentLetterURL=url;
+ try{
+   await navigator.clipboard.writeText(url);
+   statusEl.textContent='Copied. The letter is ready to send.';
+   showShareResult(url,'copied');
+ }catch(err){
+   statusEl.textContent='Copy did not work automatically. Select the link from the card.';
+   showShareResult(url,'manual');
  }
 }
-function finalReveal(){
- const chars=[...letterStage.querySelectorAll('.char[data-secret]')];
- chars.forEach((el,i)=>setTimeout(()=>{
-   el.textContent=el.dataset.secret;
-   el.classList.remove('masked','slow-hidden','deleted');
-   el.classList.add('revealed');
- },i*28));
-}
-async function playLetter(){
- if(!LETTER)return;
- ensure();if(audioCtx.state==='suspended')await audioCtx.resume();
- resetLetter();
- playLetterBtn.textContent='Playing...';
- const events=LETTER.events||[];
- events.forEach(ev=>replayTimeouts.push(setTimeout(()=>replayEvent(ev),ev[0])));
- replayTimeouts.push(setTimeout(()=>{
-   finalReveal();
-   playLetterBtn.textContent='Replay Letter';
- },(LETTER.duration||0)+900));
-}
-playLetterBtn.onclick=playLetter;resetLetterBtn.onclick=resetLetter;
-
-function init(){
- const hash=location.hash||'';
- if(hash.startsWith('#letter=')){
-   try{showLetter(decodePayload(hash.slice(8)));resetLetter();}
-   catch(err){composerView.style.display='block';letterView.style.display='none';statusEl.textContent='This letter link could not be opened.';}
- }else{
-   composerView.style.display='block';letterView.style.display='none';
- }
-}
-window.addEventListener('hashchange',()=>location.reload());
-init();
+function startOver(){currentLetterURL='';input.value='';prevValue='';score.innerHTML='';shareBox.style.display='none';syllableBuffer='';perfEvents=[];perfStart=null;lastPerfTime=0;stateLabel.textContent='ready';token('start over','export','fresh page');statusEl.textContent='Started over. Write a fresh letter.';input.focus()}beginBtn.onclick=begin;shareLetterBtn.onclick=shareLetter;startOverBtn.onclick=startOver;
+let LETTER=null;function showLetter(payload){LETTER=payload;composerView.style.display='none';letterView.style.display='block';writeBackBtn.href=(payload.settings&&payload.settings.replyUrl)||location.href.split('#')[0];letterMeta.textContent=`${((payload.duration||0)/1000).toFixed(1)}s · ${(payload.events||[]).length} gestures`}function resetLetter(){replayTimeouts.forEach(clearTimeout);replayTimeouts=[];letterStage.innerHTML='';replaySyllable='';replayNodes=[];replayEditCursor=document.createElement('span');replayEditCursor.className='cursor';replayEditCursor.textContent='|';letterStage.appendChild(replayEditCursor)}function nodeAt(pos){return replayNodes[pos]||replayEditCursor}function moveCursor(pos){letterStage.insertBefore(replayEditCursor,nodeAt(pos))}function makeMaskedNode(ch){if(ch==='\n'){const br=document.createElement('br');br.className='line-break';br.dataset.secret='\n';return br}const span=document.createElement('span');span.className='char masked slow-hidden';span.dataset.secret=ch;span.textContent=/\s/.test(ch)?ch:'•';return span}function insertReplayText(pos,text){let p=clamp(pos,0,replayNodes.length);moveCursor(p);[...text].forEach((ch,i)=>{const doIt=()=>{const node=makeMaskedNode(ch);letterStage.insertBefore(node,replayEditCursor);replayNodes.splice(p,0,node);p++;moveCursor(p);playReplayChar(ch)};if(i===0)doIt();else replayTimeouts.push(setTimeout(doIt,i*38))})}function deleteReplayText(pos,count){let p=clamp(pos,0,replayNodes.length);moveCursor(p);for(let i=0;i<count;i++){const target=replayNodes[p];if(!target)break;replayNodes.splice(p,1);if(target.tagName==='BR')target.remove();else{target.classList.add('deleted');target.textContent='×';replayTimeouts.push(setTimeout(()=>{if(target.parentNode)target.remove()},620))}}playDelete(false)}function playReplayChar(ch){if(ch==='\n'){replayRelease();return}if(ch===' '){replayRelease();noise(.06,.035,{freq:2000,q:5});return}if(/[1-7]/.test(ch)){playDigit(ch,false);return}if(/[,.;:!?，。！？、…]/.test(ch)){const p=ch==='。'?'.':ch==='，'?',':ch==='？'?'?':ch==='！'?'!':ch;replayRelease();playPunct(p,false);return}const idx=chordIndex(ch);if(idx!==null){replaySyllable+=ch.toLowerCase();playChord(idx,1,false)}else noise(.025,.018,{freq:1600,q:3})}function replayRelease(){const s=replaySyllable.toLowerCase().replace(/[^a-zv]/g,'');if(!s)return;const deg=degreeFromSyllable(s),freq=nf(scale[deg-1]);tone(freq,.52+Math.min(.35,s.length*.035),{gain:.24,type:'sine',filter:2800,glideTo:s.length>4?1.06:1,attack:.018});if(s.length>=4)tone(freq*2,.35,{gain:.055,type:'sine',filter:3600,delay:.055,noPartial:true});replaySyllable=''}function replayEvent(ev){const code=ev[1],pos=Number(ev[2]||0),val=ev[3];if(code==='i')insertReplayText(pos,String(val||''));else if(code==='d')deleteReplayText(pos,Number(val||1));else if(code==='z')tone(nf('C4')*.5,.55,{gain:.055,type:'sine',filter:900,glideTo:.97})}function finalReveal(){const chars=[...letterStage.querySelectorAll('.char[data-secret]')];chars.forEach((el,i)=>replayTimeouts.push(setTimeout(()=>{el.textContent=el.dataset.secret;el.classList.remove('masked','slow-hidden','deleted');el.classList.add('revealed')},i*26)))}async function playLetter(){if(!LETTER)return;ensure();if(audioCtx.state==='suspended')await audioCtx.resume();resetLetter();playLetterBtn.textContent='Playing...';const events=LETTER.events||[];events.forEach(ev=>replayTimeouts.push(setTimeout(()=>replayEvent(ev),ev[0])));replayTimeouts.push(setTimeout(()=>{finalReveal();playLetterBtn.textContent='Replay Letter'},(LETTER.duration||0)+1200))}playLetterBtn.onclick=playLetter;resetLetterBtn.onclick=resetLetter;
+function init(){const hash=location.hash||'';if(hash.startsWith('#letter=')){try{showLetter(decodePayload(hash.slice(8)));resetLetter()}catch(err){composerView.style.display='block';letterView.style.display='none';statusEl.textContent='This letter link could not be opened.'}}else{composerView.style.display='block';letterView.style.display='none'}}window.addEventListener('hashchange',()=>location.reload());init();
 </script>
 </body>
 </html>

@@ -353,14 +353,21 @@ button { font: inherit; }
 
 @media (max-width: 1040px) {
   .hero-main { grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); }
-  .hero h1 { font-size: clamp(66px, 8vw, 92px); }
+  .hero h1 { font-size: clamp(66px, 8vw, 72px); }
   .route { grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr); }
   .route h3 { font-size: clamp(56px, 6vw, 72px); }
 }
 
 @media (max-width: 720px) {
   :root { --rail: 0px; }
-
+.hero h1 {
+    width: 100%;
+    max-width: 100%;
+    justify-self: stretch;
+    padding: 48px 24px 24px;
+    font-size: clamp(38px, 11.5vw, 52px);
+    transform: none;
+  }
   .section-frame { display: block; }
   .side-rail { display: none; }
   .hero { min-height: auto; }

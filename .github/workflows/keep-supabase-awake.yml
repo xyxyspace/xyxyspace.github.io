@@ -1,0 +1,22 @@
+# Supabase pauses free projects after 7 days without activity.
+# This reads one row from the Type Instrument letters table every 3 days, which counts as activity.
+name: Keep Supabase awake
+
+on:
+  schedule:
+    - cron: "17 3 */3 * *"   # 03:17 UTC on every third day
+  workflow_dispatch:           # lets you run it by hand from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read one letter
+        env:
+          SUPABASE_URL: https://jpwmsukdlsmgajiteejp.supabase.co
+          SUPABASE_KEY: sb_publishable_aiggzLya-rjiyn3H-0rxpg_7P9AyVif   # the same public key type_instrument.html already uses
+        run: |
+          curl --fail --silent --show-error \
+            "$SUPABASE_URL/rest/v1/letters?select=id&limit=1" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY"

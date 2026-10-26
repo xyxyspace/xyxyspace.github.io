@@ -20,7 +20,7 @@
 
 <style>
 body{ margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:12px; }
-#Mouse{ position:absolute; z-index: 100; display:none;color:blue;}
+#Mouse{ position:fixed; pointer-events:none; white-space:nowrap; z-index: 100; display:none;color:blue;}
 #Mouse strong{ color:blue;}
 </style>
 
@@ -116,15 +116,16 @@ body{ margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:1
         <ul class="rk-menu rk-footer-menu">
           <li class="rk-menu__item"><a href="about.html" class="rk-menu__link">About</a>
           </li>
-          <li class="rk-menu__item"><a href="https://www.instagram.com/xyxy_kon/" class="rk-menu__link">Diaries</a>
+          <li class="rk-menu__item"><a href="https://www.instagram.com/xyxy_kon/" class="rk-menu__link">Plays</a>
           </li>
-          <li class="rk-menu__item"><a href="contact.html" class="rk-menu__link">High five?</a>
+            <li class="rk-menu__item"><a href="https://www.tiktok.com/@xyxy_kon" class="rk-menu__link">Diaries</a>
+            </li>
           </ul>
           <p class="rk-footer__text rk-footer__copy "> <span class="ae-u-bold">© </span><span class="ae-u-bolder"><span class="js-year">2026</span> xyxy and her space. </span>All rights reserved.</p>
         </div>
         <div class="ae-grid__item item-lg-4 au-xs-ta-center"></div>
         <div class="ae-grid__item item-lg-4 au-xs-ta-center au-lg-ta-right">
-          <p class="rk-footer__text rk-footer__contact "> <span class="ae-u-bold">Email: </span><span class="ae-u-bolder"> <a href="Mailto:xyxyspace@gmail.com" class="rk-dark-color ">xyxyspace@gmail.com</a></span></p>
+          <p class="rk-footer__text rk-footer__contact "><span class="ae-u-bolder"><a href="mailto:xyxyspace@gmail.com" class="rk-dark-color ">High five?</a></span></p>
           <p class="rk-footer__text rk-footer__by">Theme by <a href="http://pixeden.com" class="ae-u-bolder">Pixeden.</a></p>
         </div>
       </div>
@@ -141,8 +142,8 @@ body{ margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:1
       top = event.clientY > (window.screen.availHeight) ? -30 : 0,
       left = event.clientX > (window.screen.availWidth/2) ? -120 : 20;
 
-      document.getElementById("XXX").innerHTML = event.clientX;
-      document.getElementById("YYY").innerHTML = event.clientY;
+      document.getElementById("XXX").innerHTML = Math.round(event.clientX);
+      document.getElementById("YYY").innerHTML = Math.round(event.clientY);
 
       Mouse.style.top = event.clientY + top + "px";
       Mouse.style.left = event.clientX + left + "px";

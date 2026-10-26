@@ -15,7 +15,7 @@
 
 <style>
  body{ margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:12px;}
- #Mouse{ position:absolute; z-index: 100; display:none;color:#ff5e00;}
+ #Mouse{ position:fixed; pointer-events:none; white-space:nowrap; z-index: 100; display:none;color:#ff5e00;}
  #Mouse strong{ color:#ff5e00;}
  </style>
 
@@ -27,6 +27,20 @@
   gtag('config', 'UA-134998086-1');
 </script>
 
+  <style>
+ /* (x,y) homepage: the headline stays under the fixed header while the projects scroll */
+ .xy-pin{position:sticky;top:var(--xy-top,136px);z-index:4;background:#fff;padding:6px 0 14px;margin-bottom:6px}
+ .xy-pair{font-size:36px;line-height:1.2;font-weight:900;margin:0}
+ .xy-between{display:block;min-height:1.2em}
+ .xy-hl{background-color:#ff5e00;color:#fff;padding:0 .08em;transition:opacity .22s;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+ .xy-pair.swap .xy-hl{opacity:0}
+ .xy-intro{font-size:21px;font-weight:700;line-height:1.3;margin:6px 0 24px}
+ .xy-award{position:absolute;left:8px;bottom:8px;z-index:2;background:#ff5e00;color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 7px}
+ .rk-item--flex{position:relative}
+ @media (max-width:64em){ .xy-pair{font-size:30px} .xy-between{min-height:2.4em} }
+ @media (max-width:40em){ .rk-portfolio{padding-left:12px!important;padding-right:12px!important} .xy-pair{font-size:24px} .xy-between{min-height:2.4em} .xy-intro{font-size:16px} }
+ @media (prefers-reduced-motion: reduce){ .xy-hl{transition:none} }
+</style>
   </head>
 
    <body class="top-fixed">
@@ -66,84 +80,66 @@
       <section class="ae-container-fluid ae-container-fluid--inner loading rk-portfolio ">
 
 </span>
-          <h2>
-            <span style="font-weight: 900;">
-              Hello, I’m <a href="about.html"><span style="background-color:#ff5e00;color: white;">xyxy</span></a>.
-        <br><br>Creative thinker. Visual storyteller. Culturally in-between. Exploring experimental creative tech and brand innovation. 
-        <span style="font-weight: 900;">
-        
-        <br><br>Recently won Best AI Studio prize in Google's <a href="https://devpost.com/software/rehearsal" target="_blank"><span style="background-color:#ff5e00;color: white;">#CloudRunHackathon</span></a> for Rehearsal, turning Google Maps into a language learning playground.<br>
-          <!--<img src="assets/img/home2.png">
-
-        <div align="center"><a href="acmi.html"><img src="assets/img/acmi-gif-1.gif" style="width: 50%"></a></div>
-         My space is a playground that contains different dots, including
-         <a href="PostDigitalBook.html"><span style="background-color:#ffff00;">something fun</span></a>,
-         <a href="SAC.html"><span style="background-color:#ffff00;">something energetic</span></a>,
-         <a href="concept.html"><span style="background-color:#ffff00;">something that makes people feel connected</span></a>.
-         <br><br><div align="center"><a href="ProgramRecords.html">
-           <img src="assets/img/project-5-1.gif" style="width: 30%;">
-         </a></div>
-        <br>Wanna give me <a href="contact.html"><span style="background-color:#ffff00;">high five</span></a>?
-        I dream wild, <span style="background-color:#ffff00;">like a star in space</span>.
-      <br><br><span style="background-color:#ffff00;"><a href="about.html">Why?</a></span>
-    <span style="font-size: .5em">(and sometimes combine them together)</span>.-->
-        </span></h2>
-
+          <div class="xy-pin" id="xy-pin">
+            <h2 class="xy-pair">I connect the dots between<span class="xy-between"><span class="xy-hl" id="xy-x">Google Maps</span> and <span class="xy-hl" id="xy-y">language learners</span>.</span></h2>
+          </div>
+          <p class="xy-intro">By the way, I’m <a href="about.html"><span style="background-color:#ff5e00;color: white;">xyxy</span></a>, a creative working across cultures, brands and tech.</p>
 
           <div class="rk-portfolio__items">
-            <a href="vans.html" class="rk-item rk-item--flex item-1-1 rk-size-4 rk-tosize-3 rk-square ">
+            <a href="https://devpost.com/software/rehearsal" target="_blank" rel="noopener" data-k="rehearsal" class="rk-item rk-item--flex  rk-size-4 rk-tosize-3 rk-square " style="background-image:url('assets/img/home-rehearsal.webp')">
+              <span class="xy-award">Best of AI Studio · Google</span>
               <div class="item-meta">
-                <h2>Vans Family</h2>
-                <p>H5 Game + Gift + Digital Stickers</p>
+                <h2>Rehearsal</h2>
+                <p>AI Language Playground</p>
               </div></a>
-              <a href="Fly-lineBangs.html" class="rk-item rk-item--flex item-5-1 rk-size-4 rk-tosize-3 rk-square ">
+            <a href="Fly-lineBangs.html" data-k="flyline" class="rk-item rk-item--flex item-5-1 rk-size-4 rk-tosize-3 rk-square ">
               <div class="item-meta">
                 <h2>Porsche</h2>
                 <p>Campaign</p>
               </div></a>
-              <a href="elephant.html" class="rk-item rk-item--flex item-6-1 rk-size-4 rk-tosize-3 rk-square ">
+            <a href="elephant.html" data-k="ellie" class="rk-item rk-item--flex item-6-1 rk-size-4 rk-tosize-3 rk-square ">
               <div class="item-meta">
                 <h2>Ellie Slide</h2>
                 <p>Brand System</p>
               </div></a>
-              <a href="tiger.html" class="rk-item rk-item--flex item-9 rk-size-4 rk-tosize-3 rk-square ">
+            <a href="tiger.html" data-k="hufu" class="rk-item rk-item--flex item-9 rk-size-4 rk-tosize-3 rk-square ">
               <div class="item-meta">
                 <h2>Porsche</h2>
                 <p>Social Game + Gift Packaging</p>
               </div></a>
-              <a href="SaveSpaceshipEarth.html" class="rk-item rk-item--flex item-3-1 rk-size-4 rk-tosize-3 rk-square ">
+            <a href="vans.html" data-k="vans" class="rk-item rk-item--flex item-1-1 rk-size-4 rk-tosize-3 rk-square ">
               <div class="item-meta">
-                <h2>Save Spaceship Earth</h2>
-                <p>Exhibition</p>
+                <h2>Vans Family</h2>
+                <p>H5 Game + Gift + Digital Stickers</p>
               </div></a>
-              <a href="summer.html" class="rk-item rk-item--flex item-20 rk-size-4 rk-tosize-3 rk-square ">
-              <div class="item-meta">
-                <h2>Porsche</h2>
-                <p>Poster + Film</p>
-              </div></a>
-              <a href="FeelTheSame.html" class="rk-item rk-item--flex item-10 rk-size-4 rk-tosize-3 rk-square ">
-              <div class="item-meta">
-                <h2>Days Before Getting Hired</h2>
-                <p>Zine</p>
-              </div></a>
-              <a href="slim.html" class="rk-item rk-item--flex item-19 rk-size-4 rk-tosize-3 rk-square ">
+            <a href="slim.html" data-k="infinix" class="rk-item rk-item--flex  rk-size-4 rk-tosize-3 rk-square " style="background-image:url('assets/img/home-infinix.webp')">
               <div class="item-meta">
                 <h2>Infinix HOT 60 Series</h2>
                 <p>Social Videos</p>
               </div></a>
-              <a href="Happiness.html" class="rk-item rk-item--flex item-18 rk-size-4 rk-tosize-3 rk-square ">
+            <a href="evoto.html" data-k="evoto" class="rk-item rk-item--flex  rk-size-4 rk-tosize-3 rk-square " style="background-image:url('https://i.ytimg.com/vi/A3onoKCc_N8/maxresdefault.jpg')">
+              <div class="item-meta">
+                <h2>Evoto</h2>
+                <p>Brand Film</p>
+              </div></a>
+            <a href="Happiness.html" data-k="happiness" class="rk-item rk-item--flex item-18 rk-size-4 rk-tosize-3 rk-square ">
               <div class="item-meta">
                 <h2>Happiness</h2>
                 <p>Film</p>
+              </div></a>
+            <a href="FeelTheSame.html" data-k="dbgh" class="rk-item rk-item--flex item-10 rk-size-4 rk-tosize-3 rk-square ">
+              <div class="item-meta">
+                <h2>Days Before Getting Hired</h2>
+                <p>Zine</p>
               </div></a>
 
           </div>
 
           <br><br><br>
           <h2><span style="font-weight: 900;">
-            Also make books,
-          jokes
-          and friends.
+            Also make <a href="PostDigitalBook.html"><span style="background-color:#ff5e00;color: white;">books</span></a>,
+          <a href="TheWorstIntern.html"><span style="background-color:#ff5e00;color: white;">jokes</span></a>
+          and <a href="contact.html"><span style="background-color:#ff5e00;color: white;">friends</span></a>.
           <br><br>Let's make something big
           <span style="font-size: .5em">(Or small, as long as we are having fun)</span> together!
         </span></h2>
@@ -157,16 +153,16 @@
           <ul class="rk-menu rk-footer-menu">
             <li class="rk-menu__item"><a href="works.html" class="rk-menu__link">Works</a>
             </li>
-            <li class="rk-menu__item"><a href="https://www.instagram.com/xyxy_kon/" class="rk-menu__link">Diaries</a>
+            <li class="rk-menu__item"><a href="https://www.instagram.com/xyxy_kon/" class="rk-menu__link">Plays</a>
             </li>
-            <li class="rk-menu__item"><a href="contact.html" class="rk-menu__link">High five?</a>
+            <li class="rk-menu__item"><a href="https://www.tiktok.com/@xyxy_kon" class="rk-menu__link">Diaries</a>
             </li>
           </ul>
           <p class="rk-footer__text rk-footer__copy "> <span class="ae-u-bold">© </span><span class="ae-u-bolder"><span class="js-year">2026</span> xyxy and her space. </span><br>All rights reserved.</p>
         </div>
         <div class="ae-grid__item item-lg-4 au-xs-ta-center"></div>
         <div class="ae-grid__item item-lg-4 au-xs-ta-center au-lg-ta-right">
-          <p class="rk-footer__text rk-footer__contact "> <span class="ae-u-bold">Email: </span><span class="ae-u-bolder"> <a href="Mailto:xyxyspace@gmail.com" class="rk-dark-color ">xyxyspace@gmail.com</a></span></p>
+          <p class="rk-footer__text rk-footer__contact "><span class="ae-u-bolder"><a href="mailto:xyxyspace@gmail.com" class="rk-dark-color ">High five?</a></span></p>
           <p class="rk-footer__text rk-footer__by">Theme by <a href="http://pixeden.com" class="ae-u-bolder">Pixeden.</a></p>
         </div>
       </div>
@@ -180,11 +176,11 @@
         var x_div = document.getElementById("x_div"),
             y_div = document.getElementById("y_div"),
             Mouse = document.getElementById("Mouse"),
-            top = event.clientY > (window.screen.availHeight/2) ? -30 : 10,
-            left = event.clientX > (window.screen.availWidth/2) ? -100 : 20;
+            top = event.clientY > (window.innerHeight - 40) ? -26 : 14,
+            left = event.clientX > (window.innerWidth - 120) ? -(Mouse.offsetWidth || 90) - 12 : 16;
 
-        document.getElementById("XXX").innerHTML = event.clientX;
-        document.getElementById("YYY").innerHTML = event.clientY;
+        document.getElementById("XXX").innerHTML = Math.round(event.clientX);
+        document.getElementById("YYY").innerHTML = Math.round(event.clientY);
 
         Mouse.style.top = event.clientY + top + "px";
         Mouse.style.left = event.clientX + left + "px";
@@ -199,5 +195,32 @@
     <script src="assets/js/svg4everybody.min.js"></script>
     <script>svg4everybody();</script>
     <script>document.querySelectorAll(".js-year").forEach(function(e){e.textContent=new Date().getFullYear()})</script>
+<script>
+(function(){
+  var P = {"rehearsal": ["Google Maps", "language learners"], "flyline": ["the classic 911", "young fashion"], "ellie": ["an elephant slide", "Xinyang, a city in China"], "hufu": ["a German sports car", "Chinese New Year"], "vans": ["the checkerboard", "Vans Family players"], "infinix": ["an ultra-thin phone", "the feel of paper"], "evoto": ["new AI tools", "a photographer’s standard"], "happiness": ["gender equality", "the loudest premiere"], "dbgh": ["my job hunt", "every international student"]};
+  var pair = document.querySelector('.xy-pair'), X = document.getElementById('xy-x'), Y = document.getElementById('xy-y'), pin = document.getElementById('xy-pin');
+  var tiles = [].slice.call(document.querySelectorAll('.rk-portfolio__items [data-k]')), shown = 'rehearsal', hovering = false, i = 0;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function setTop(){ var h = document.querySelector('.rk-header'); if (h) document.documentElement.style.setProperty('--xy-top', h.getBoundingClientRect().height + 'px'); }
+  setTop(); addEventListener('resize', setTop);
+  function show(k, quick){ if (k === shown || !P[k]) return; shown = k;
+    var set = function(){ X.textContent = P[k][0]; Y.textContent = P[k][1]; pair.classList.remove('swap'); };
+    if (quick || reduce) return set(); pair.classList.add('swap'); setTimeout(set, 200); }
+  var keys = tiles.map(function(t){ return t.dataset.k; });
+  setInterval(function(){ if (hovering) return; i = (keys.indexOf(shown) + 1) % keys.length; show(keys[i]); }, 2800);
+  tiles.forEach(function(t){
+    t.addEventListener('mouseenter', function(){ hovering = true; show(t.dataset.k, true); });
+    t.addEventListener('mouseleave', function(){ hovering = false; });
+  });
+  // phones have no hover: follow the project passing just under the headline
+  if (window.matchMedia && matchMedia('(hover: none)').matches){
+    var raf = 0;
+    addEventListener('scroll', function(){ if (raf) return; raf = requestAnimationFrame(function(){ raf = 0;
+      var line = pin.getBoundingClientRect().bottom + 40, best = null, bd = 1e9;
+      tiles.forEach(function(t){ var r = t.getBoundingClientRect(), d = Math.abs(r.top - line); if (r.bottom > line && d < bd){ bd = d; best = t; } });
+      if (best && scrollY > 60){ hovering = true; show(best.dataset.k); } else hovering = false; }); }, { passive:true });
+  }
+})();
+</script>
 </body>
   </html>

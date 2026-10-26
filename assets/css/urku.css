@@ -2712,3 +2712,38 @@ iframe, video { max-width: 100%; }
 iframe[src*="youtube.com"] { width: 100%; height: auto; aspect-ratio: 16 / 9; }
 video { height: auto; }
 .rk-portfolio-title { overflow-wrap: anywhere; }
+
+/* Evoto cover (2026) */
+.item-inside-40 { background-image: url("https://i.ytimg.com/vi/A3onoKCc_N8/maxresdefault.jpg"); background-position: 50% 50%; background-size: cover; }
+
+/* 2026 project covers */
+.item-inside-41 { background-image: url("../img/latrobe-billboard.jpg"); background-position: 50% 40%; background-size: cover; }
+.item-inside-42 { background-image: url("../img/latrobe-cover.jpg"); background-position: 50% 50%; background-size: contain; background-repeat: no-repeat; }
+.item-inside-43 { background-image: url("../img/liene-kv.jpg"); background-position: 50% 50%; background-size: cover; }
+
+/* project cover v2 (2026): the title sits on white above the picture; the picture is never covered */
+.rk-portfolio-cover{
+  --cover-head:300px;
+  position:relative; display:block; height:auto!important; min-height:0!important;
+  padding:var(--cover-head) 0 0!important; background-color:#fff!important;
+  background-origin:content-box!important; background-clip:content-box!important;
+}
+.rk-portfolio-cover::after{content:""; display:block; height:min(74vh,calc(100vw * .56)); }
+.rk-portfolio-cover .item-inside__meta{
+  position:absolute; top:0; left:0; right:0; height:var(--cover-head);
+  box-sizing:border-box; width:95vw; max-width:88.88889em; margin:0 auto; padding:0 0 22px;
+  display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-start; text-align:left; background:#fff;
+}
+.rk-portfolio-cover .item-inside__meta:before{display:none}
+.rk-portfolio-cover .rk-portfolio-title,
+.rk-portfolio-cover .rk-portfolio-title font{color:#202020!important; text-shadow:none!important; background:none!important}
+.rk-portfolio-cover .rk-portfolio-title{display:block!important; padding:0!important; margin:0 0 8px; font-size:36px; line-height:1.15; letter-spacing:0}
+.rk-portfolio-cover .rk-portfolio-category,
+.rk-portfolio-cover .rk-portfolio-category font{color:#ff5e00!important; text-shadow:none!important}
+.rk-portfolio-cover .rk-portfolio-category{margin:0; font-size:14px; font-weight:700; letter-spacing:.06em; text-transform:uppercase}
+@media (max-width:40em){
+  .rk-portfolio-cover{--cover-head:240px}
+  .rk-portfolio-cover .item-inside__meta{width:auto; left:12px; right:12px; padding-bottom:16px}
+  .rk-portfolio-cover .rk-portfolio-title{font-size:24px}
+  .rk-portfolio-cover::after{height:calc(100vw * .8)}
+}

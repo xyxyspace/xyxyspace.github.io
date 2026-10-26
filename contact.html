@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="assets/css/urku.css">
     <style>
      body{ margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:12px; }
-     #Mouse{ position:absolute; z-index: 100; display:none;color:#ff5e00;}
+     #Mouse{ position:fixed; pointer-events:none; white-space:nowrap; z-index: 100; display:none;color:#ff5e00;}
      #Mouse strong{ color:#ff5e00;}
      </style>
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -59,6 +59,7 @@
       <div class="ae-grid__item item-lg-4"><img src="assets/img/highfive.gif" alt="Urku Portfolio"></div>
         <h2><span style="font-weight: 900;">Based in Australia. Available globally.
         <a href="Mailto:xyxyspace@gmail.com"><span style="background-color:#ff5e00;color: white;">Drop me an email. </span></a>Let's connect the dots.
+      <br><br>Or <a href="type_instrument.html"><span style="background-color:#ff5e00;color: white;">write a letter you can hear</span></a>, to me or to anyone.
       <br><br>I don't drink coffee, but I'm happy to meet :-D</span> </h2>
 
     </div>
@@ -78,7 +79,7 @@
         </div>
         <div class="ae-grid__item item-lg-4 au-xs-ta-center"></div>
         <div class="ae-grid__item item-lg-4 au-xs-ta-center au-lg-ta-right">
-          <p class="rk-footer__text rk-footer__contact "> <span class="ae-u-bold">Email: </span><span class="ae-u-bolder"> <a href="Mailto:xyxyspace@gmail.com" class="rk-dark-color ">xyxyspace@gmail.com</a></span></p>
+          <p class="rk-footer__text rk-footer__contact "><span class="ae-u-bolder"><a href="mailto:xyxyspace@gmail.com" class="rk-dark-color ">High five?</a></span></p>
           <p class="rk-footer__text rk-footer__by">Theme by <a href="http://pixeden.com" class="ae-u-bolder">Pixeden.</a></p>
         </div>
       </div>
@@ -92,11 +93,11 @@
         var x_div = document.getElementById("x_div"),
             y_div = document.getElementById("y_div"),
             Mouse = document.getElementById("Mouse"),
-            top = event.clientY > (window.screen.availHeight/2) ? -30 : 10,
-            left = event.clientX > (window.screen.availWidth/2) ? -100 : 20;
+            top = event.clientY > (window.innerHeight - 40) ? -26 : 14,
+            left = event.clientX > (window.innerWidth - 120) ? -(Mouse.offsetWidth || 90) - 12 : 16;
 
-        document.getElementById("XXX").innerHTML = event.clientX;
-        document.getElementById("YYY").innerHTML = event.clientY;
+        document.getElementById("XXX").innerHTML = Math.round(event.clientX);
+        document.getElementById("YYY").innerHTML = Math.round(event.clientY);
 
         Mouse.style.top = event.clientY + top + "px";
         Mouse.style.left = event.clientX + left + "px";

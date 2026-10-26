@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>La Trobe University · Steps</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="assets/css/aurora-pack.min.css">
+    <link rel="stylesheet" href="assets/css/aurora-theme-base.min.css">
+    <link rel="stylesheet" href="assets/css/urku.css">
+    <style>
+     body{ margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:12px; }
+     #Mouse{ position:fixed; pointer-events:none; white-space:nowrap; z-index: 100; display:none;color:#ff5e00;}
+     #Mouse strong{ color:#ff5e00;}
+     </style>
+
+  </head>
+  <body class="top-fixed">
+    <header class="ae-container-fluid ae-container-fluid--full rk-header ">
+      <input type="checkbox" id="mobile-menu" class="rk-mobile-menu">
+      <label for="mobile-menu">
+        <svg>
+          <use xlink:href="assets/img/symbols.svg#bar"></use>
+        </svg>
+        <svg>
+          <use xlink:href="assets/img/symbols.svg#bar"></use>
+        </svg>
+        <svg>
+          <use xlink:href="assets/img/symbols.svg#bar"></use>
+        </svg>
+      </label>
+      <div class="ae-container-fluid rk-topbar">
+        <h1 class="rk-logo"><a href="index.html">(x,y)</a></h1>
+        <nav class="rk-navigation">
+          <ul class="rk-menu">
+            <li class="rk-menu__item"><a href="about.html" class="rk-menu__link">xyxy</a>
+            </li>
+            <li class="rk-menu__item"><a href="works.html" class="rk-menu__link">Works</a>
+            </li>
+            <li class="rk-menu__item"><a href="concept.html" class="rk-menu__link">For dreams,</a>
+            </li>
+            <li class="rk-menu__item"><a href="contact.html" class="rk-menu__link">High five?</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <section class="ae-container-fluid ae-container-fluid--full">
+      <header class="rk-portfolio-cover  item-inside-41">
+        <div class="item-inside__meta">
+          <h1 class="ae-u-bolder rk-portfolio-title " style="color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.55)"><font>Walk the walk, <br>Steps do the talk.</font></h1>
+          <p class="ae-theta rk-portfolio-category " style="color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.6)"><font>Billboard</font></p>
+        </div>
+      </header>
+      <div class="ae-container-fluid">
+        <div class="ae-grid ae-grid--collapse rk-portfolio-info ">
+          <div class="ae-grid__item item-lg-8 item-sm--center au-xs-ta-center au-lg-ta-left">
+            <h4 class="rk-portfolio-inner-title ">Idea &amp; Copy <br>Art Direction</h4>
+          </div>
+          <div class="ae-grid__item item-lg-4 au-xs-ta-center au-lg-ta-right rk-portfolio-details">
+            <h4 class="rk-portfolio-inner-title ">La Trobe University <br>Melbourne</h4>
+          </div>
+        </div>
+      </div>
+      <div class="ae-container-fluid ae-container-fluid--inner rk-portfolio--inner">
+        <div class="ae-grid ae-grid--collapse au-xs-ptp-1">
+          <div class="ae-grid__item item-lg-8">
+            <p>Australia’s largest metro uni campus. A big claim. But on a roadside billboard, “largest” is just a word, and drivers pass it in seconds.<br><br>So we said it in a language people already check every day: steps.<br><br>On the left, a step tracker from your phone. One week on campus adds up to 18,707 steps, with the busiest days on lecture days. On the right, the campus from above, and the claim.<br><br><span style="background-color:#ff5e00;color:white;">You don’t read how big it is. You feel it in your legs.</span></p>
+          </div>
+        </div>
+        <br>
+           <br><br><br><br><h5>My Role</h5>
+        <p>As Senior Creative at La Trobe University, I came up with the idea and led the copy and art direction. The design production team refined it and finished the final artwork.</p>
+            </div>
+      </div>
+    </section>
+    <footer class="ae-container-fluid rk-footer ">
+      <div class="ae-grid ae-grid--collapse">
+        <div class="ae-grid__item item-lg-4 au-xs-ta-center au-lg-ta-left">
+          <ul class="rk-menu rk-footer-menu">
+            <li class="rk-menu__item"><a href="about.html" class="rk-menu__link">About</a>
+            </li>
+            <li class="rk-menu__item"><a href="https://www.instagram.com/xyxy_kon/" class="rk-menu__link">Plays</a>
+            </li>
+            <li class="rk-menu__item"><a href="https://www.tiktok.com/@xyxy_kon" class="rk-menu__link">Diaries</a>
+            </li>
+          </ul>
+          <p class="rk-footer__text rk-footer__copy "> <span class="ae-u-bold">© </span><span class="ae-u-bolder"><span class="js-year">2026</span> xyxy and her space. </span><br>All rights reserved.</p>
+        </div>
+        <div class="ae-grid__item item-lg-4 au-xs-ta-center"></div>
+        <div class="ae-grid__item item-lg-4 au-xs-ta-center au-lg-ta-right">
+          <p class="rk-footer__text rk-footer__contact "><span class="ae-u-bolder"><a href="mailto:xyxyspace@gmail.com" class="rk-dark-color ">High five?</a></span></p>
+          <p class="rk-footer__text rk-footer__by">Theme by <a href="http://pixeden.com" class="ae-u-bolder">Pixeden.</a></p>
+        </div>
+      </div>
+    </footer>
+    <div id="Mouse">(<strong id="XXX"></strong>, <strong id="YYY"></strong>)</div>
+    <div id="x_div"></div>
+    <div id="y_div"></div>
+    <script>
+    function mouseMove(event){
+       var event = window.event || event;
+        var x_div = document.getElementById("x_div"),
+            y_div = document.getElementById("y_div"),
+            Mouse = document.getElementById("Mouse"),
+            top = event.clientY > (window.innerHeight - 40) ? -26 : 14,
+            left = event.clientX > (window.innerWidth - 120) ? -(Mouse.offsetWidth || 90) - 12 : 16;
+
+        document.getElementById("XXX").innerHTML = Math.round(event.clientX);
+        document.getElementById("YYY").innerHTML = Math.round(event.clientY);
+
+        Mouse.style.top = event.clientY + top + "px";
+        Mouse.style.left = event.clientX + left + "px";
+        Mouse.style.display = "block";
+
+        //x_div.style.top = event.clientY + "px";
+        //y_div.style.left = event.clientX + "px";
+    }
+
+    document.onmousemove = mouseMove;
+    </script>
+    <script src="assets/js/svg4everybody.min.js"></script>
+    <script>svg4everybody();</script>
+  <script>document.querySelectorAll(".js-year").forEach(function(e){e.textContent=new Date().getFullYear()})</script>
+</body>
+</html>

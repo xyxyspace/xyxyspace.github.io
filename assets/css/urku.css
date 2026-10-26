@@ -2706,3 +2706,9 @@ body {
 .rk-light-color {
   color: #787878;
 }
+
+/* phone fixes 2026: embedded videos and long titles never push the page wider than the screen */
+iframe, video { max-width: 100%; }
+iframe[src*="youtube.com"] { width: 100%; height: auto; aspect-ratio: 16 / 9; }
+video { height: auto; }
+.rk-portfolio-title { overflow-wrap: anywhere; }

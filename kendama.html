@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kendama Tricks · xyxy</title>
+<meta name="description" content="Every kendama trick, step by step: turn it around, slow it down, loop one step. Made by xyxy.">
+<meta name="author" content="xyxy">
+<meta property="og:title" content="Kendama Tricks">
+<meta property="og:description" content="Every kendama trick, step by step: turn it around, slow it down, loop one step.">
+<meta property="og:image" content="https://xyxyspace.github.io/assets/img/kendama-share.jpg">
+<meta property="og:url" content="https://xyxyspace.github.io/kendama.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico">
+</head>
+<body>
+<script>
+/* ============================================================
+   Colorfigures core: projection, shapes, shading, ink, labels, page shell.
+   A figure page includes this file (scripts/build.py inlines it), then calls mountFigure({...}).
+   See SKILL.md for the drawing contract and conventions.
+   One fixed view (front-left-top) and one fixed light (from above, behind the viewer's right shoulder: the front is lit,
+   the left side is in shade, and cast shadows fall toward the lower left of the screen).
+   ============================================================ */
+
+/* ---------- palettes ---------- */
+const PALS = {
+  mustard: { l:'#f4b829', m:'#d49c1f', d:'#4e4a18' },
+  tomato:  { l:'#ef6a4c', m:'#cf5038', d:'#4a2219' },
+  mint:    { l:'#93d3b0', m:'#71b693', d:'#1f4034' },
+  cobalt:  { l:'#76a0e2', m:'#5a82c6', d:'#1c2948' },
+  blush:   { l:'#f3a6bb', m:'#d8869c', d:'#4b2430' },
+  orange:  { l:'#ff5e00', m:'#d94f00', d:'#4f1d06' },
+};
+const METAL   = { l:'#eef0f0', m:'#c6ccce', d:'#8f989b' };
+const CLEAR   = { l:'#e4f2f4', m:'#c4dfe4', d:'#97b9c0' };
+const CERAMIC = { l:'#fbfaf3', m:'#e3e0d2', d:'#bdb8a6' };
+const DARK    = { l:'#55504a', m:'#3d3935', d:'#272421' };
+const INK = '#231e16';
+const SHADOW = '#41538f';
+
+/* ---------- projection (x = depth toward viewer-right, y = toward viewer-left, z = up) ---------- */
+const C = Math.cos(Math.PI/6), S = Math.sin(Math.PI/6);
+let OX = 0, OY = 0;
+/* VIEW turns the object in 90° steps about a vertical axis through its centre (RC):
+   0 = front (+x) and left (+y) faces toward the viewer, 1 = turned once (the +y side becomes the front)…
+   Figures keep modelling in their own coordinates; P / Dv / vis / tone / depthOf all apply the turn. */
+let VIEW = 0, RC = [0, 0];
+const VIEW_NAMES = ['front', 'left side', 'back', 'right side'];
+const TURNS = [0, 2];                 // the views the UI offers: front and back (figures still draw correctly in all four)
+const rotV = ([x,y,z]) => { switch (VIEW & 3){ case 1: return [y,-x,z]; case 2: return [-x,-y,z]; case 3: return [-y,x,z]; default: return [x,y,z]; } };
+const rotXY = (x,y) => { const r = rotV([x-RC[0], y-RC[1], 0]); return [r[0]+RC[0], r[1]+RC[1]]; };
+const P0 = (x,y,z) => [(x-y)*C + OX, (x+y)*S - z + OY];                       // raw iso, no turn
+const P  = (x,y,z) => { const [a,b] = rotXY(x,y); return [(a-b)*C + OX, (a+b)*S - z + OY]; };
+const Dv = (x,y,z) => { const [a,b,c] = rotV([x,y,z]); return [(a-b)*C, (a+b)*S - c]; };
+// distance toward the viewer in the current view: draw parts with smaller depth first
+const depthOf = p => { const [a,b] = rotXY(p[0],p[1]); return a + b + p[2]; };
+// sort [{at:[x,y,z], svg}] back-to-front for the current view and join
+const byDepth = parts => parts.filter(Boolean).sort((p,q) => depthOf(p.at) - depthOf(q.at)).map(p => p.svg).join('');
+const f  = v => v.toFixed(1);
+const pd = (pts, close=true) => 'M' + pts.map(p => { const q = P(p[0],p[1],p[2]); return f(q[0])+' '+f(q[1]); }).join('L') + (close ? 'Z' : '');
+const sp = pts => 'M' + pts.map(q => f(q[0])+' '+f(q[1])).join('L') + 'Z';
+
+/* ---------- 2D shapes in a plane's (u,v) coords (v up), mapped to 3D by a plane ---------- */
+const arcUV  = (cu,cv,r,a0,a1,n=7) => { const o=[]; for (let i=0;i<=n;i++){ const a=(a0+(a1-a0)*i/n)*Math.PI/180; o.push([cu+r*Math.cos(a), cv+r*Math.sin(a)]); } return o; };
+const rrUV   = (u0,v0,u1,v1,r,n=7) => r <= 0 ? rectUV(u0,v0,u1,v1) : [...arcUV(u1-r,v0+r,r,-90,0,n), ...arcUV(u1-r,v1-r,r,0,90,n), ...arcUV(u0+r,v1-r,r,90,180,n), ...arcUV(u0+r,v0+r,r,180,270,n)];
+const rectUV = (u0,v0,u1,v1) => [[u0,v0],[u1,v0],[u1,v1],[u0,v1]];
+const ellUV  = (cu,cv,ru,rv,n=24) => Array.from({length:n}, (_,i) => { const a=i/n*2*Math.PI; return [cu+ru*Math.cos(a), cv+rv*Math.sin(a)]; });
+const PX = x => ([u,v]) => [x,u,v];      // front-facing plane x = const   (u = y, v = z)
+const PY = y => ([u,v]) => [u,y,v];      // side plane y = const           (u = x, v = z)
+const PZ = z => ([u,v]) => [u,v,z];      // horizontal plane z = const     (u = x, v = y)
+const on = (plane, uv) => uv.map(plane);
+
+/* ---------- vectors + shading ---------- */
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]], dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+const norm=a=>{ const l=Math.hypot(...a)||1; return a.map(v=>v/l); };
+const avg=ps=>ps.reduce((s,p)=>[s[0]+p[0]/ps.length,s[1]+p[1]/ps.length,s[2]+p[2]/ps.length],[0,0,0]);
+const vis = n => { const r = rotV(n); return r[0]+r[1]+r[2] > 1e-6; };   // viewer looks from (+1,+1,+1) after the turn
+const facing = vis;                                                       // readable alias: is this face toward the viewer?
+const SHADOW_K = 0.85, AZ_MIN = 20, AZ_MAX = 160;
+// cast shadows are drawn shorter than the shading light implies (0.45 × height instead of 0.85 ×): long shadows of tall
+// parts on thin supports (a lamp shade, a fan head) land far from the object and read as separate blobs
+const SHADOW_LEN = 0.45;
+let L = [0,0,1], SH = [0,0];
+function setLight(deg){ const a=deg*Math.PI/180; SH=[SHADOW_K*Math.cos(a), SHADOW_K*Math.sin(a)]; L=norm([-SH[0],-SH[1],1]); }
+const LIN = norm([.6,.2,1]);                       // fixed light for interiors / small props
+const tone  = (n,m) => { const d=dot(rotV(n),L);   return d>-.15 ? m.l : d>-.45 ? m.m : m.d; };   // exterior, follows the sun
+const toneI = (n,m) => { const d=dot(rotV(n),LIN); return d>.6 ? m.l : d>.05 ? m.m : m.d; };      // interior / props
+const mix = (a,b,t) => '#' + [1,3,5].map(i => Math.round(parseInt(a.substr(i,2),16)*(1-t) + parseInt(b.substr(i,2),16)*t).toString(16).padStart(2,'0')).join('');
+const matOf = hex => ({ l:hex, m:mix(hex,'#000000',.16), d:mix(hex,'#000000',.42) });
+const ease = t => t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+
+/* ---------- drawing primitives (all return SVG strings) ---------- */
+const ink   = (d,w=1.0) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
+const fill  = (d,c,extra='') => `<path d="${d}" fill="${c}" ${extra}/>`;
+const face  = (d,c) => `<path d="${d}" fill="${c}" stroke="${c}" stroke-width=".7" stroke-linejoin="round"/>`;
+const shape = (pts,c,w=.9) => fill(pd(pts),c) + (w ? ink(pd(pts),w) : '');
+const line  = (pts,w=.9) => ink(pd(pts,false),w);
+// Loft between two rings of equal length (closed). colour(n) picks each strip's fill; flip = seen from inside.
+function loft(A, B, colour, flip=false){
+  const n=A.length, cen=avg(A.concat(B)); let s='';
+  for (let i=0;i<n;i++){
+    const a0=A[i], a1=A[(i+1)%n], b1=B[(i+1)%n], b0=B[i];
+    let nr = norm(cross(sub(a1,a0), sub(b0,a0)));
+    if (!isFinite(nr[0])) continue;
+    if (dot(nr, sub(avg([a0,a1,b1,b0]), cen)) < 0) nr = nr.map(v=>-v);
+    if (flip) nr = nr.map(v=>-v);
+    if (vis(nr)) s += face(pd([a0,a1,b1,b0]), colour(nr));
+  }
+  return s;
+}
+function hull(pts){
+  pts = pts.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]); const lo=[], up=[];
+  for (const p of pts){ while(lo.length>=2 && cr(lo[lo.length-2],lo[lo.length-1],p)<=0) lo.pop(); lo.push(p); }
+  for (const p of pts.reverse()){ while(up.length>=2 && cr(up[up.length-2],up[up.length-1],p)<=0) up.pop(); up.push(p); }
+  lo.pop(); up.pop(); return lo.concat(up);
+}
+// Silhouette ink, weighted by how thick the part is on screen (like a hand inker): the w you pass is the most it gets.
+// Thickness = 2 × area / perimeter of the outline (a rod's diameter, about half a box's width), as a share of the
+// frame width. A long thin rod, a handle or a knob stays light (~1–1.5); a grinder, kettle or machine body gets the
+// heavy ~2.4–2.8. Thin parts stay thin and parts keep air between them.
+const hullInk = (pts3, w=1.4) => { const h = hull(pts3.map(p=>P(...p))); let a = 0, per = 0;
+  for (let i = 0; i < h.length; i++){ const p = h[i], q = h[(i+1) % h.length]; a += p[0]*q[1] - q[0]*p[1]; per += Math.hypot(q[0]-p[0], q[1]-p[1]); }
+  const thick = per ? Math.abs(a) / per / (INK_K * INK_REF_VB) : 0;
+  return ink(sp(h), Math.min(w, .9 + 20*thick)); };
+// Axis-aligned box: three visible faces, shaded, each outlined. shade = tone (sunlit) or toneI (interior).
+function box(x0,y0,z0,x1,y1,z1,m,shade=toneI,w=.9){
+  // all six faces, drawn only when they face the viewer (sides first, then top) — correct in every VIEW
+  const F = [
+    [[0,1,0],  [[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]]],
+    [[1,0,0],  [[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]]],
+    [[0,-1,0], [[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]]],
+    [[-1,0,0], [[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]]],
+    [[0,0,1],  [[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]]] ];
+  return F.filter(([n]) => vis(n)).map(([n,q]) => shape(q, shade(n,m), w)).join('');
+}
+// Rounded-profile extrusion: profile (u=y, v=z) swept along x from x0 to x1. Body of most machines.
+function extrude(profileUV, x0, x1, m, shade=tone){ return loft(on(PX(x0),profileUV), on(PX(x1),profileUV), n=>shade(n,m)); }
+// Vertical cylinder (axis z) centred (x,y), radius r from z0 to z1, with top cap.
+function cyl(x,y,z0,z1,r,m,shade=toneI,w=1.2,n=24){
+  const A=on(PZ(z0),ellUV(x,y,r,r,n)), B=on(PZ(z1),ellUV(x,y,r,r,n));
+  return loft(A,B,nr=>shade(nr,m)) + fill(pd(B),shade([0,0,1],m)) + hullInk([...A,...B],w) + ink(pd(B),w*.8);
+}
+// Cylinder lying along x (e.g. a knob or dial sticking out of a front face): centred (y,z), from x0 to x1.
+function cylX(x0,x1,y,z,r,m,shade=toneI,w=1.1,n=20){
+  const A=on(PX(x0),ellUV(y,z,r,r,n)), B=on(PX(x1),ellUV(y,z,r,r,n));
+  // cap on whichever end faces the viewer (the +x end in VIEW 0)
+  const capB = vis([1,0,0]), cap = capB ? B : A, cn = capB ? [1,0,0] : [-1,0,0];
+  return loft(A,B,nr=>shade(nr,m)) + (vis(cn) ? fill(pd(cap),shade(cn,m)) : '') + hullInk([...A,...B],w) + (vis(cn) ? ink(pd(cap),w*.8) : '');
+}
+// Cylinder between any two 3D points a and b (a lamp arm, a rod, a pipe at an angle, a handle bar), radius r.
+// The end facing the viewer gets a cap. For a tapered part (a cone, a lamp shade) pass r1 for the radius at b.
+function rod(a, b, r, m, shade=toneI, w=1, r1=r, n=16){
+  const d = norm(sub(b, a)), u = norm(cross(d, Math.abs(d[2]) < .9 ? [0,0,1] : [1,0,0])), v = cross(d, u);
+  const ring = (p, rr) => Array.from({length:n}, (_,i) => { const t = i/n*2*Math.PI, c = Math.cos(t)*rr, s2 = Math.sin(t)*rr;
+    return [p[0] + u[0]*c + v[0]*s2, p[1] + u[1]*c + v[1]*s2, p[2] + u[2]*c + v[2]*s2]; });
+  const A = ring(a, r), B = ring(b, r1), capB = vis(d), cap = capB ? B : A, cn = capB ? d : d.map(x => -x);
+  return loft(A, B, nr => shade(nr, m)) + (Math.max(r, r1) > 0 ? fill(pd(cap), shade(cn, m)) + ink(pd(cap), w*.8) : '') + hullInk([...A, ...B], w);
+}
+// Text lying flat on a front plane x = const, centred at (y,z) baseline; reads left-to-right on screen.
+const txM = (o, U, V) => `matrix(${U[0].toFixed(4)} ${U[1].toFixed(4)} ${V[0].toFixed(4)} ${V[1].toFixed(4)} ${f(o[0])} ${f(o[1])})`;
+const tx = (x,y,z,str,size,col=INK,weight=700) => { const o=P(x,y,z);
+  return `<text transform="${txM(o, Dv(0,-1,0), Dv(0,0,-1))}" font-size="${size}" fill="${col}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-weight="${weight}" letter-spacing=".04em">${str}</text>`; };
+// Text on a side plane y = const, centred at (x,z).
+const txY = (x,y,z,str,size,col=INK,weight=700) => { const o=P(x,y,z);
+  return `<text transform="${txM(o, Dv(1,0,0), Dv(0,0,-1))}" font-size="${size}" fill="${col}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-weight="${weight}" letter-spacing=".04em">${str}</text>`; };
+// Cast shadow of a set of 3D points (any outline of the object), pushed along the light onto z = 0.
+// the light stays put relative to the viewer, so the shadow is cast in turned coordinates
+// z0: the surface it falls on (a board, a counter); clip it to that surface with clipTo(...) if it could spill off.
+// clip: the 3D outline of the surface it falls on (e.g. boardTop(...)), so it can't spill over the edge.
+const castShadow = (pts3, z0=0, clip=null) => { const k = SHADOW_LEN / SHADOW_K;
+  const s = fill(sp(hull(pts3.map(([x,y,z]) => { const [a,b] = rotXY(x,y); return P0(a+(z-z0)*SH[0]*k, b+(z-z0)*SH[1]*k, z0); }))), SHADOW);
+  return clip ? clipTo(clip, s) : s; };
+// A board for the object to stand on (a tray, a desk top, a counter): a rounded slab from (x0,y0) to (x1,y1), h thick.
+// Draw it first; then castShadow(points, h, boardTop(x0,y0,x1,y1,h,r)) so shadows lie on it and stop at its edge.
+const BOARD = { l:'#e6e1d4', m:'#cfc8b8', d:'#aaa293' }, WOOD = { l:'#d9a86c', m:'#bf8a4f', d:'#8e6236' };
+const boardTop = (x0,y0,x1,y1,h=3,r=5) => on(PZ(h), rrUV(x0,y0,x1,y1,r));
+function board(x0,y0,x1,y1,h=3,r=5,m=BOARD){
+  const A = on(PZ(0), rrUV(x0,y0,x1,y1,r)), B = boardTop(x0,y0,x1,y1,h,r);
+  return loft(A, B, n => toneI(n, m)) + fill(pd(B), m.l) + ink(pd(B), 1) + hullInk([...A, ...B], 1.8);
+}
+// Group helpers: clickable target, clip to an opening.
+const act  = (name, inner, data='') => `<g data-act="${name}" ${data}>${inner}</g>`;
+let _clipN = 0;
+// Part label (for "how does it work" figures): a cream pill with a leader line to a 3D point on the part.
+// dx, dy = where the pill sits, in screen units at the reference zoom (they scale with the figure like stroke widths).
+// on = that part is working right now (the pill turns the accent colour). Labels can be hidden with the Labels switch.
+function tag(p3, dx, dy, text, on=false){
+  const k = INK_K, [X,Y] = P(...p3), fs = 8.6*k, w = text.length*fs*.62 + fs*1.5, h = fs*1.8, cx = X + dx*k, cy = Y + dy*k;
+  return `<g class="tag${on ? ' on' : ''}"><path d="M${f(X)} ${f(Y)}L${f(cx)} ${f(cy)}" fill="none" stroke="${INK}" stroke-width="1"/>`
+    + `<circle cx="${f(X)}" cy="${f(Y)}" r="${f(1.3*k)}" fill="${INK}"/>`
+    + `<rect x="${f(cx-w/2)}" y="${f(cy-h/2)}" width="${f(w)}" height="${f(h)}" rx="${f(h/2)}" fill="${on ? 'var(--accent,#f4b829)' : '#fff4d6'}" stroke="${INK}" stroke-width="1.2"/>`
+    + `<text x="${f(cx)}" y="${f(cy+fs*.36)}" font-size="${f(fs)}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-weight="800" letter-spacing=".04em" fill="${INK}">${text}</text></g>`;
+}
+const clipTo = (pts3, inner) => { const id = 'k' + (++_clipN); return `<clipPath id="${id}"><path d="${pd(pts3)}"/></clipPath><g clip-path="url(#${id})">${inner}</g>`; };
+
+/* ---------- constant on-screen line weight ----------
+   Stroke widths are written in model units, and each figure is zoomed to fill the frame, so a small
+   object would get fat lines. INK_K rescales every stroke-width (and the wobble/grain filter) so all
+   figures match the reference zoom of the booth / vending machine (viewBox ≈ 585 units wide). */
+const INK_REF_VB = 585;
+let INK_K = 1;
+const inkScale = svg => INK_K === 1 ? svg : svg.replace(/stroke-width="([\d.]+)"/g, (_, w) => `stroke-width="${(+w * INK_K).toFixed(2)}"`);
+
+/* ---------- page shell ---------- */
+const CORE_CSS = `
+  :root{--paper:#f2efe7;--ink:#231e16;--muted:#857d6e;--rule:#ddd6c8}
+  *{box-sizing:border-box} html,body{margin:0;height:100%}
+  body{background-color:var(--paper);
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .39  0 0 0 0 .33  .16 0 0 0 0'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>");
+    overflow-x:hidden;color:var(--ink);font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;display:flex;flex-direction:column;align-items:center;padding:24px 16px 32px}
+  header{width:100%;max-width:760px;display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  header h1{font-size:13px;font-weight:600;margin:0;letter-spacing:.02em} header span{color:var(--muted)}
+  #fig{width:100%;max-width:760px;height:auto;display:block;margin:4px 0 8px;user-select:none;overflow:visible}
+  #fig [data-act]{cursor:pointer}
+  #readout, .idea{display:none}   /* status line + big idea are off: the buttons and motion tell the story */
+  .idea{width:100%;max-width:760px;margin:-6px 0 16px;font-size:12.5px;line-height:1.5;text-align:center;color:var(--ink)}
+  .idea strong{letter-spacing:.12em;text-transform:uppercase;font-size:11px;margin-right:8px}
+  #readout{position:relative;min-height:1.4em;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;text-align:center;text-shadow:0 0 3px var(--paper),0 0 6px var(--paper),0 0 10px var(--paper)}
+  .stage{position:relative;width:100%;max-width:760px}
+  .actions{position:absolute;top:4px;left:0;display:flex;flex-direction:column;align-items:flex-start;gap:8px;z-index:2;max-width:220px}
+  .actions .cap{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 2px}
+  html.nolabels #fig .tag{display:none}
+  .ctl[hidden]{display:none}
+  /* ui.flash(text): a short note under the buttons ("the can is empty — refill it"); the status line itself stays hidden */
+  .toast{position:absolute;left:0;z-index:3;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;background:var(--paper);
+    border:1.5px solid var(--ink);border-radius:8px;padding:4px 9px;box-shadow:2px 2px 0 var(--ink);opacity:0;transition:opacity .2s;pointer-events:none;max-width:240px}
+  .toast.show{opacity:1}
+  .made-with{width:100%;max-width:760px;margin-top:18px;text-align:right;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+  .made-with a{color:var(--muted);text-decoration:none} .made-with a:hover{color:var(--ink)}
+  .stats{position:absolute;top:4px;right:0;display:flex;flex-direction:column;align-items:flex-end;gap:10px;z-index:2;text-align:right}
+  .stat .k{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .stat .v{font-size:34px;font-weight:800;line-height:1.05;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .stat.small .v{font-size:20px}
+  .stat .v.bump{animation:bump .35s ease-out}
+  @keyframes bump{0%{transform:scale(1.18)}100%{transform:none}}
+  .stepwrap{position:relative;display:flex;align-items:center;gap:8px}
+  .act{font:inherit;color:var(--ink);background:var(--paper);border:1.5px solid var(--ink);border-radius:999px;padding:5px 14px;cursor:pointer;white-space:nowrap}
+  .act:hover{background:color-mix(in srgb,var(--paper) 92%,var(--ink))}
+  .act .car{margin-left:6px;font-size:10px}
+  .act:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+  .chips{display:none;flex-wrap:wrap;gap:6px;background:var(--paper);border:2px solid var(--ink);border-radius:12px;box-shadow:3px 3px 0 var(--ink);
+    padding:8px;width:max-content;max-width:min(300px,62vw);position:absolute;left:calc(100% + 10px);top:-4px;z-index:3}
+  .stepwrap.open .chips{display:flex}
+  .chip{white-space:nowrap;font:inherit;font-size:11.5px;font-weight:700;color:var(--ink);background:var(--paper);border:1.5px solid var(--ink);border-radius:8px;padding:4px 8px;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+  .chip:hover{background:var(--accent,#f4b829);transform:translate(-1px,-1px)}
+  .chip.current{background:var(--ink);color:var(--paper)} .chip.current:hover{background:var(--ink);transform:none}
+  .chip.off{opacity:.45} .chip.off:hover{transform:none;background:var(--paper)}
+  
+  @media (max-width:560px){body{padding:14px 12px 24px}header span,.actions .cap{display:none}.actions{flex-direction:row;flex-wrap:wrap;gap:6px}.act{font-size:12px;padding:4px 11px}.stats{position:static;flex-direction:row;justify-content:flex-end;gap:18px;margin-bottom:4px}.actions{position:static;max-width:none;margin:6px 0 4px}.chips{left:0;top:calc(100% + 8px)}}
+  .controls{width:100%;max-width:760px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 28px;border-top:1px solid var(--rule);padding-top:16px}
+  .ctl{display:flex;flex-direction:column;gap:6px}
+  .ctl label{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  input[type=range]{width:100%;accent-color:var(--ink)}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  button{font:inherit;color:var(--ink);background:transparent;border:1.5px solid var(--ink);border-radius:999px;padding:5px 14px;cursor:pointer}
+  button:hover{background:#0000000d}
+  .sw{width:26px;height:26px;padding:0;border-radius:50%} .sw[aria-pressed=true]{outline:2px solid var(--ink);outline-offset:2px}`;
+
+const filterFor = k => `<filter id="hand" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="${(0.045/k).toFixed(4)}" numOctaves="2" seed="4" result="warp"/>
+  <feDisplacementMap id="wob" in="SourceGraphic" in2="warp" scale="${(2.4*k).toFixed(2)}" xChannelSelector="R" yChannelSelector="G" result="wob"/>
+  <feTurbulence type="fractalNoise" baseFrequency="${(0.9/k).toFixed(4)}" numOctaves="3" seed="11" result="n1"/>
+  <feColorMatrix in="n1" type="matrix" values=".3 0 0 0 .84  .3 0 0 0 .84  .3 0 0 0 .84  0 0 0 0 1" result="grain"/>
+  <feTurbulence type="fractalNoise" baseFrequency="${(0.012/k).toFixed(4)}" numOctaves="2" seed="7" result="n2"/>
+  <feColorMatrix in="n2" type="matrix" values=".3 0 0 0 .85  .3 0 0 0 .85  .3 0 0 0 .85  0 0 0 0 1" result="blot"/>
+  <feBlend in="wob" in2="grain" mode="multiply" result="g1"/><feBlend in="g1" in2="blot" mode="multiply" result="g2"/>
+  <feComposite in="g2" in2="wob" operator="in"/></filter>`;
+
+/* mountFigure({
+     fig:'03', title:'Photo booth', hint:'click the curtain…',
+     size:[W,D,H],                 // bounding box, used to frame the view (shadow range included)
+     palette:'mustard',            // default PALS key
+     state:{...},                  // figure state (st.pal is built in)
+     scene: (st, m) => svgString,  // m = current palette {l,m,d}
+     readout: st => 'text',        // status line under the figure
+     buttons: [{label, onClick(st, ui)}      // listed in the order the user should do them
+               | {label, choices: st => [{label, onClick(st,ui), current?, disabled?, why?}]}],   // opens a picker
+     stats: st => [{label, value, small?}],   // optional: big numbers top-right (credit, change, score)
+     credit: false,                // optional: hide the small "Made with Colorfigures" link
+     acts: { name(st, el, ui){} },  // clicks on act(name, …) groups; el has dataset
+     params(st, q){}               // optional: read URLSearchParams for screenshot states
+   })  -> ui = { st, render, animate(stepFn), flash(text,ms) }
+   animate(step): calls step(dt seconds) every frame and re-renders until step returns false. */
+addEventListener('error', e => { document.documentElement.dataset.errors = (document.documentElement.dataset.errors || '') + ' ' + e.message + ';'; });
+function mountFigure(cfg){
+  document.title = cfg.title;
+  const style = document.createElement('style'); style.textContent = CORE_CSS; document.head.appendChild(style);
+  document.body.innerHTML = `
+    <header><h1>Fig. ${cfg.fig} — ${cfg.title}</h1><span>${cfg.hint || ''}</span></header>
+    <div class="stage">
+      ${cfg.buttons && cfg.buttons.length ? `<div class="actions" id="btns"><div class="cap">${cfg.buttonsLabel || 'Try it'}</div></div>` : ''}
+      ${cfg.stats ? '<div class="stats" id="stats"></div>' : ''}
+      <div class="toast" id="toast" role="status"></div>
+      <svg id="fig" role="img" aria-label="${cfg.title}"><defs id="fdefs"></defs><g id="art" filter="url(#hand)"></g></svg>
+    </div>
+    <div id="readout"></div>
+    ${cfg.idea ? `<p class="idea"><strong>The big idea</strong>${cfg.idea}</p>` : ''}
+    <div class="controls">
+      <div class="ctl"><label for="wb">Hand-drawn wobble</label><input id="wb" type="range" min="0" max="7" step="0.1" value="2.4"></div>
+      <div class="ctl"><label>Colour</label><div class="row" id="pals"></div></div>
+      <div class="ctl" id="lblctl" hidden><label>Labels</label><div class="row"><button id="lbl" aria-pressed="true">On</button></div></div>
+    </div>
+    ${cfg.credit === false ? '' : '<footer class="made-with"><a href="https://april-zhu.com/colorfigures" target="_blank" rel="noopener">Made with Colorfigures ↗</a></footer>'}`;
+  const st = cfg.state || {};            // kept as the same object, so a figure may hold on to it
+  if (!st.pal) st.pal = cfg.palette || 'mustard';
+  if (st.az == null) st.az = 105;
+  const q = new URLSearchParams(location.search);
+  if (PALS[q.get('pal')]) st.pal = q.get('pal');
+  if (cfg.params) cfg.params(st, q);
+
+  // frame on the object itself: centred, filling ~60% of the width / ~78% of the height of a 4:3 view.
+  // The cast shadow is allowed to spill outside the frame (svg overflow is visible).
+  const [W,D,H] = cfg.size, pts = [];
+  OX = OY = 0; RC = cfg.center || [W/2, D/2];
+  VIEW = 0;
+  for (const x of [0,W]) for (const y of [0,D]) for (const z of [0,H]) pts.push(P(x,y,z));
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const bw = Math.max(...xs)-Math.min(...xs), bh = Math.max(...ys)-Math.min(...ys);
+  // the object fills ~74% of the width / ~88% of the height, nudged right of centre so the buttons (top left) stay clear
+  const vbW = Math.max(bw/.74, bh/.88/.75), vbH = vbW*.75;
+  OX = (vbW-bw)/2 + vbW*.06 - Math.min(...xs); OY = vbH*.04 - Math.min(...ys);   // sit a little high: shadows fall downward
+  const svg = document.getElementById('fig');
+  svg.setAttribute('viewBox', `0 0 ${f(vbW)} ${f(vbH)}`);
+  INK_K = vbW / INK_REF_VB;
+  document.getElementById('fdefs').innerHTML = filterFor(INK_K);
+
+  const art = document.getElementById('art'), readout = document.getElementById('readout');
+  const ui = { st };
+  ui.render = () => { _clipN = 0; document.documentElement.style.setProperty('--accent', PALS[st.pal].l); art.innerHTML = inkScale(cfg.scene(st, PALS[st.pal])); if (!ui._flash) readout.textContent = cfg.readout ? cfg.readout(st) : ''; if (ui.drawStats) ui.drawStats(); };
+  // big numbers in the top-right corner (credit, change, score…); a value that changes gets a little bump
+  const statsEl = document.getElementById('stats'), prevStats = {};
+  ui.drawStats = () => { if (!statsEl) return;
+    const list = cfg.stats(st).filter(Boolean), html = list.map(x => `<div class="stat${x.small ? ' small' : ''}"><div class="k">${x.label}</div><div class="v" data-k="${x.label}">${x.value}</div></div>`).join('');
+    if (statsEl._html !== html){ statsEl._html = html; statsEl.innerHTML = html;
+      statsEl.querySelectorAll('.v').forEach(v => { if (prevStats[v.dataset.k] != null && prevStats[v.dataset.k] !== v.textContent) v.classList.add('bump'); prevStats[v.dataset.k] = v.textContent; }); } };
+  let flashT = 0;
+  const toast = document.getElementById('toast');
+  ui.flash = (text, ms=1600) => { ui._flash = true; readout.textContent = text; toast.textContent = text;
+    toast.style.top = ((document.getElementById('btns') ? document.getElementById('btns').offsetTop + document.getElementById('btns').offsetHeight : 0) + 8) + 'px'; toast.classList.add('show');
+    clearTimeout(flashT); flashT = setTimeout(() => { ui._flash = false; toast.classList.remove('show'); ui.render(); }, ms); };
+  // animations run on a ~60 fps timer rather than requestAnimationFrame, so they also run in headless test shots
+  ui.animate = step => { let last = performance.now();
+    const loop = () => { const now = performance.now(), dt = Math.max(0, Math.min(.05,(now-last)/1000)); last = now; const more = step(dt) !== false; ui.render(); if (more) setTimeout(loop, 16); };
+    setTimeout(loop, 16); };
+
+  // clickable parts react on press, not on click: while something animates, the scene is redrawn every frame, so the
+  // element under the pointer is replaced between press and release and a 'click' would never fire
+  svg.addEventListener('pointerdown', e => { if (e.button) return; const a = e.target.closest('[data-act]'); if (!a || !cfg.acts || !cfg.acts[a.dataset.act]) return;
+    e.preventDefault(); cfg.acts[a.dataset.act](st, a, ui); ui.render(); });
+  const btns = document.getElementById('btns');
+  const stepEls = [];
+  if (btns) cfg.buttons.forEach((b, i) => {
+    const wrap = document.createElement('div'); wrap.className = 'stepwrap';
+    const el = document.createElement('button'); el.className = 'act';
+    el.innerHTML = `${b.label}${b.choices ? '<span class="car">▾</span>' : ''}`;
+    wrap.appendChild(el); btns.appendChild(wrap); stepEls.push(el);
+    if (!b.choices){ el.onclick = () => { closeChips(); b.onClick(st, ui); ui.render(); }; return; }
+    const chips = document.createElement('div'); chips.className = 'chips'; wrap.appendChild(chips);
+    el.onclick = e => { e.stopPropagation(); const open = !wrap.classList.contains('open'); closeChips();
+      if (!open) return;
+      chips.innerHTML = '';
+      // every choice stays clickable, so nothing silently ignores a press:
+      //   current:true  = the one in use (shown selected); a press just says so
+      //   disabled:true = not possible right now (shown faded); a press says why (c.why, or a generic note)
+      for (const c of b.choices(st)){ const ch = document.createElement('button'); ch.className = 'chip' + (c.current ? ' current' : c.disabled ? ' off' : ''); ch.textContent = c.label;
+        if (c.current) ch.setAttribute('aria-pressed', 'true');
+        ch.onclick = ev => { ev.stopPropagation(); closeChips();
+          if (c.current) return ui.flash(`${c.label} — already set`);
+          if (c.disabled) return ui.flash(c.why || `${c.label} isn't possible right now`);
+          c.onClick(st, ui); ui.render(); }; chips.appendChild(ch); }
+      wrap.classList.add('open'); };
+  });
+  function closeChips(){ document.querySelectorAll('.stepwrap.open').forEach(w => w.classList.remove('open')); }
+  document.addEventListener('click', closeChips);
+
+  document.getElementById('wb').oninput = e => document.getElementById('wob').setAttribute('scale', (e.target.value * INK_K).toFixed(2));
+  const pals = document.getElementById('pals');
+  for (const [k,p] of Object.entries(PALS)){
+    const b = document.createElement('button'); b.className='sw'; b.title=k; b.style.background=p.l; b.setAttribute('aria-pressed', k===st.pal);
+    b.onclick = () => { st.pal=k; [...pals.children].forEach(c=>c.setAttribute('aria-pressed', c===b)); ui.render(); };
+    pals.appendChild(b);
+  }
+  // labels: the switch appears when the figure draws any tag(); ?labels=0 starts with them hidden
+  const lblctl = document.getElementById('lblctl'), lbl = document.getElementById('lbl');
+  const setLabels = on => { document.documentElement.classList.toggle('nolabels', !on); lbl.textContent = on ? 'On' : 'Off'; lbl.setAttribute('aria-pressed', on); };
+  lbl.onclick = () => setLabels(document.documentElement.classList.contains('nolabels'));
+  if (q.get('labels') === '0') setLabels(false);
+  // testing: ?press=Label@ms,Label@ms clicks the buttons whose text starts with Label at those times after load
+  // (any order, repeats allowed); Label>Choice picks a choice from a picker button (?press=Speed>3@300).
+  // Script errors and unknown labels are recorded on <html data-errors="…">
+  window.__st = st;
+  const noteErr = m => { document.documentElement.dataset.errors = (document.documentElement.dataset.errors || '') + ' ' + m + ';'; };
+  const starts = (el, t) => el.textContent.trim().toLowerCase().startsWith(t.trim().toLowerCase());
+  if (q.has('press')) q.get('press').split(',').forEach(item => { const [what, ms] = item.split('@'), [label, choice] = what.split('>');
+    setTimeout(() => { const b = [...document.querySelectorAll('.act')].find(b => starts(b, label));
+      if (!b) return noteErr(`no button "${label}"`);
+      b.click(); if (choice == null) return;
+      const c = [...b.parentElement.querySelectorAll('.chip')].find(c => starts(c, choice));
+      if (c && !c.disabled) c.click(); else noteErr(`no choice "${choice}" in "${label}"`); }, +ms || 0); });
+  setLight(st.az); ui.render();
+  if (art.querySelector('.tag')) lblctl.hidden = false;
+  return ui;
+}
+
+</script>
+<script>
+(function(){
+/* ============================================================
+   Kendama tricks — a Colorfigures figure.
+   Side view: the player stands on the left of the frame, facing right. Everything moves in one vertical
+   plane facing the viewer: plane coords u (screen right = the player's forward), z (up), w (toward the
+   viewer = the player's left side). Units are centimetres; flights use real gravity.
+   ============================================================ */
+const SQ = Math.SQRT1_2, KX0 = 30, KY0 = 30;
+// the player's frame is turned 20° from the iso diagonal, so "toward you" reads as a diagonal, not as "down"
+let YAWD = -65, UX = 0, UY = 0, WX = 0, WY = 0;
+const U3 = [0, 0, 0], E3 = [0, 0, 0];
+function setYaw(d){ YAWD = ((d % 360) + 540) % 360 - 180; const r = YAWD * Math.PI / 180;
+  UX = Math.cos(r); UY = Math.sin(r); WX = -UY; WY = UX; U3[0] = UX; U3[1] = UY; E3[0] = WX; E3[1] = WY; }
+setYaw(-65);
+const W3 = (u, z, w = 0) => [KX0 + u*UX + w*WX, KY0 + u*UY + w*WY, z];
+const Wv = p => W3(p[0], p[1], p[2] || 0);
+const GRAV = 981, LS = 34, BR = 3, HB = 60, SG = -3.5, SAR = 3.2, HANG_W = 6;
+const KWOOD = { l:'#ecd09f', m:'#d3ad75', d:'#9f7848' };
+const FLOOR = { l:'#e2dccd', m:'#cfc8b8', d:'#aaa293' };
+
+const rad = d => d * Math.PI / 180;
+const E1 = th => [Math.sin(rad(th)), Math.cos(rad(th))];      // ken axis (toward the spike)
+const E2 = th => [Math.cos(rad(th)), -Math.sin(rad(th))];     // sarado axis (toward the small cup)
+// a point on the ken: s along the axis (grip at s = SG), t along the sarado; returns [u, z, w]
+// ken frame in plane coords [u, z, w]: a = axis (toward the spike), b = sarado (toward the small cup), n = a × b
+function kframe(th, ps, be){ const T = rad(th), Ps = rad(ps), B = rad(be), cb = Math.cos(B), sb = Math.sin(B);
+  const tilt = v => [v[0], v[1]*cb - v[2]*sb, v[1]*sb + v[2]*cb];
+  const a = [Math.sin(T), Math.cos(T), 0], b = [Math.cos(T)*Math.cos(Ps), -Math.sin(T)*Math.cos(Ps), Math.sin(Ps)];
+  const n = [a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]];
+  return [tilt(a), tilt(b), tilt(n)]; }
+const kpt = (O, th, s, t = 0, n = 0) => { const [a, b, c] = kframe(th, O[3] || 0, O[4] || 0), k = s - SG;
+  return [0, 1, 2].map(i => (O[i] || 0) + a[i]*k + b[i]*t + c[i]*n); };
+const dz = (O, d) => [O[0], O[1] + d, O[2] || 0, O[3] || 0, O[4] || 0];
+const K3 = (O, th, s, t = 0, n = 0) => { const q = kpt(O, th, s, t, n); return W3(q[0], q[1], q[2]); };
+function restAt(name, O, th){
+  switch (name){
+    case 'tip':   return kpt(O, th, 9.8 + BR - .4);
+    case 'big':   return kpt(O, th, SAR, -(4.3 + 1.5));
+    case 'small': return kpt(O, th, SAR, 4.0 + 2.14);
+    case 'base':  return kpt(O, th, -9 - 2.24);
+    case 'spike': return kpt(O, th, 8.0);
+  }
+}
+const rimAt = (name, O, th) => name === 'big' ? kpt(O, th, SAR, -4.3) : name === 'small' ? kpt(O, th, SAR, 4.0) : name === 'base' ? kpt(O, th, -9) : kpt(O, th, 9.8);
+const gripFor = (name, th, ball, ps = 0, be = 0) => { const r = restAt(name, [0, 0, 0, ps, be], th); return [ball[0] - r[0], ball[1] - r[1], -r[2], ps, be]; };
+const attachOf = (O, th) => kpt(O, th, 1.5);
+const flyT = (z0, z1, apex) => (Math.sqrt(2*GRAV*Math.max(.01, apex - z0)) + Math.sqrt(2*GRAV*Math.max(.01, apex - z1))) / GRAV;
+
+/* ---------- tracks ---------- */
+const kl = (a, b, k) => a + (b - a) * k, kl2 = (a, b, k) => [0, 1, 2, 3, 4].map(i => kl(a[i] || 0, b[i] || 0, k));
+const ballistic = (p0, p1, tau, T) => { const q = kl2(p0, p1, tau / T); q[1] += .5*GRAV*tau*(T - tau); return q; };
+// the ball rises beside the ken, moves over only near the top of its flight, then drops straight in
+const ballFlight = (p0, p1, tau, T) => { const q = ballistic(p0, p1, tau, T), s = ease(Math.min(1, Math.max(0, (tau / T - .62) / .3)));
+  q[0] = kl(p0[0] || 0, p1[0] || 0, s); q[2] = kl(p0[2] || 0, p1[2] || 0, s); return q; };
+function seg(keys, t){ let i = 0; while (i < keys.length - 1 && keys[i+1].t <= t) i++; return [keys[i], keys[Math.min(i+1, keys.length-1)]]; }
+function kenAt(tr, t){
+  const [A, B] = seg(tr.ken, t);
+  if (A === B || t <= A.t) return { o:A.o, th:A.th };
+  const T = B.t - A.t, tau = t - A.t, k = tau / T;
+  if (B.fly){ const o = ballistic(A.o, B.o, tau, T), lk = B.late ? k*k*k : k; o[0] = kl(A.o[0] || 0, B.o[0] || 0, lk); o[2] = kl(A.o[2] || 0, B.o[2] || 0, lk); return { o, th:kl(A.th, B.th, k) }; }
+  const e = B.lin ? k : ease(k);
+  return { o:kl2(A.o, B.o, e), th:kl(A.th, B.th, e) };
+}
+function modePos(K, kp){
+  // a hanging ball sits a little to the player's side of the ken, so it rises beside it, not into it
+  if (K.m === 'hang'){ const a = attachOf(kp.o, kp.th), ax = kframe(kp.th, kp.o[3] || 0, kp.o[4] || 0)[0];
+    let off = [-ax[2]*ax[0], -ax[2]*ax[1], 1 - ax[2]*ax[2]];
+    if (Math.hypot(...off) < .5) off = [1 - ax[0]*ax[0], -ax[0]*ax[1], -ax[0]*ax[2]];
+    const l = Math.hypot(...off); return [a[0] + off[0]/l*HANG_W, a[1] - LS - BR, a[2] + off[2]/l*HANG_W]; }
+  if (K.m === 'held') return [K.p[0], K.p[1], 0];
+  if (K.m === 'pt') return [K.p[0], K.p[1], K.p[2] || 0];
+  // swinging on a taut string: angle a from straight down, in the vertical plane along dir = [du, dw]
+  if (K.m === 'swing'){ const a = attachOf(kp.o, kp.th), ar = rad(K.a), d = K.dir || [1, 0], Lc = LS + BR;
+    return [a[0] + Lc*Math.sin(ar)*d[0], a[1] - Lc*Math.cos(ar), a[2] + Lc*Math.sin(ar)*d[1]]; }
+  return restAt(K.m, kp.o, kp.th);
+}
+const keyPos = (tr, K) => modePos(K, kenAt(tr, K.t));
+// hk: 1 = the hole is placed by its own angle (on the spike, on the spike point, in the hand);
+//     0 = the hole faces along the string, since the string runs out through it
+const HK = m => (m === 'spike' || m === 'tip' || m === 'held') ? 1 : 0;
+function ballAt(tr, t){
+  const [A, B] = seg(tr.ball, t), kp = kenAt(tr, t);
+  if (A === B || t <= A.t) return { p:modePos(A, kp), hole:A.hole, mode:A.m, hk:HK(A.m) };
+  const T = B.t - A.t, tau = t - A.t, k = tau / T, hk = kl(HK(A.m), HK(B.m), ease(k));
+  if (B.fly) return { p:(B.plain ? ballistic : ballFlight)(keyPos(tr, A), keyPos(tr, B), tau, T), hole:kl(A.hole, B.hole, k), mode:'air', hk };
+  if (A.m === 'swing' && B.m === 'swing'){ const e = B.lin ? k : ease(k); return { p:modePos({ ...A, a:kl(A.a, B.a, e) }, kp), hole:kl(A.hole, B.hole, e), mode:'swing', hk:0 }; }
+  if (A.m === B.m && A.m !== 'held') return { p:modePos(A, kp), hole:kl(A.hole, B.hole, ease(k)), mode:A.m, hk };
+  return { p:kl2(keyPos(tr, A), keyPos(tr, B), ease(k)), hole:kl(A.hole, B.hole, ease(k)), mode:A.m === 'held' ? 'held' : 'air', hk };
+}
+
+/* ---------- trick builders ---------- */
+const GRIPS = {
+  big:'Right hand: spike pointing straight ahead of you, big cup facing up.',
+  small:'Right hand: spike pointing to your left, small cup facing up.',
+  base:'Right hand, upside down: spike pointing at the floor, base cup facing up.',
+  spike:'Right hand, upright: spike pointing straight up, a cup facing you.',
+  tip:'Right hand, upright: spike pointing straight up, a cup facing you.',
+};
+const CUPN = { big:'big cup', small:'small cup', base:'base cup', spike:'spike', tip:'spike point' };
+function Trick(id, name, kana, romaji, en, sum){ return { id, name, kana, romaji, en, sum, ken:[], ball:[], ph:[], hold:'ken', targets:[], T:0 }; }
+function Bld(tr){
+  const s = { t:0, O:null, th:0, cup:null, hole:90 };
+  const kk = (o, th, x = {}) => tr.ken.push({ t:s.t, o, th, ...x });
+  const bk = (m, hole, x = {}) => tr.ball.push({ t:s.t, m, hole, ...x });
+  const ph = (name, jp, tip, dt = 0) => { if (!s.quiet) tr.ph.push({ t:s.t + dt, name, jp, tip }); };
+  const tgt = c => { if (!tr.targets.includes(c)) tr.targets.push(c); };
+  const api = {
+    startHang(cup, th, ps = 0, be = 0){ s.th = th; s.O = gripFor(cup, th, [0, HB], ps, be); s.hole = 90;
+      ph('Ready', '構え', GRIPS[cup] + ' Let the ball hang until it is completely still. Feet shoulder-width apart, knees soft.');
+      kk(s.O, th); bk('hang', 90); s.t += .7; kk(s.O, th); bk('hang', 90); return api; },
+    startCup(cup, th, ps = 0, be = 0){ s.th = th; s.O = gripFor(cup, th, [0, HB], ps, be); s.cup = cup; s.hole = 200; tgt(cup);
+      ph('Start', '構え', `Start with the ball resting in the ${CUPN[cup]} (one pull gets it there). Keep your elbow close to your body.`);
+      kk(s.O, th); bk(cup, 200); s.t += .6; kk(s.O, th); bk(cup, 200); return api; },
+    pull(cup, holeEnd = 200){ const Oc = s.O; tgt(cup);
+      ph('Bend', '膝を曲げる', 'Bend your knees and sink. The arm barely moves: the whole kendama goes down with your body.');
+      s.t += .4; kk(dz(Oc, -6), s.th); bk('hang', 90);
+      ph('Pull', '引き上げ', 'Straighten your knees to pull the ball straight up. The power comes from the legs, not a flick of the wrist. The ball rises just beside the ken.');
+      s.t += .3; kk(dz(Oc, 3), s.th); bk('hang', 90);
+      const z0 = modePos({ m:'hang' }, { o:dz(Oc, 3), th:s.th })[1];
+      const Tf = flyT(z0, HB, HB + (cup === 'spike' ? 7 : cup === 'tip' ? 8 : 4));
+      s.t += Tf; kk(Oc, s.th); bk(cup, holeEnd, { fly:true });
+      ph('Catch', '受ける', cup === 'tip'
+        ? 'Let the ball come down onto the very point of the spike, hole to the side, and balance it there like an egg in a frying pan.'
+        : cup === 'spike'
+        ? 'Passing the spike, the ball turns half over so its hole faces down. At the peak, slide the spike under the hole and let the ball drop onto it.'
+        : `Near the top the ball almost floats. Bring the ${CUPN[cup]} underneath and meet it.`, -Tf*.45);
+      api.cushion(cup, holeEnd); s.cup = cup; s.hole = holeEnd; return api; },
+    cushion(cup, hole){
+      ph('Cushion', '膝で受ける', `Bend your knees again as it lands, so the ball settles onto the ${CUPN[cup]} instead of bouncing off.`);
+      s.t += .28; kk(dz(s.O, -3.5), s.th); bk(cup, hole);
+      s.t += .45; kk(s.O, s.th); bk(cup, hole); },
+    hop(cup, th1, holeEnd, hopH = 13, tip = null, name = null, ps1 = null, be1 = null){ const Oa = s.O, from = s.cup; tgt(cup); if (ps1 == null) ps1 = Oa[3] || 0; if (be1 == null) be1 = Oa[4] || 0;
+      ph(name || `To ${CUPN[cup]}`, '跳ね上げ', tip || `Dip and pop the ball a hand's height out of the ${CUPN[from]}; while it is in the air, turn your wrist to bring the ${CUPN[cup]} underneath.`);
+      s.t += .16; kk(dz(Oa, -2.5), s.th); bk(from, s.hole);
+      s.t += .09; kk(dz(Oa, 1.2), s.th); bk(from, s.hole);
+      const Tf = flyT(HB + 1.2, HB, HB + hopH), Ob = gripFor(cup, th1, [0, HB], ps1, be1);
+      tr.ken.push({ t:s.t + Tf*.8, o:Ob, th:th1 });
+      s.t += Tf; s.O = Ob; s.th = th1; kk(Ob, th1); bk(cup, holeEnd, { fly:true });
+      api.cushion(cup, holeEnd); s.cup = cup; s.hole = holeEnd; return api; },
+    hold(dt, name, jp, tip){ if (name) ph(name, jp, tip); s.t += dt; kk(s.O, s.th); bk(s.cup, s.hole); return api; },
+    quiet(on){ s.quiet = on; return api; },
+    phase(name, jp, tip){ tr.ph.push({ t:s.t, name, jp, tip }); return api; },
+    raw:{ kk, bk, ph, s },
+    done(){ tr.T = s.t; return tr; },
+  };
+  return api;
+}
+
+const TR = {};
+const add = tr => (TR[tr.id] = tr);
+add(Bld(Trick('ozara', '大皿', 'おおざら', 'Ozara', 'Big cup', 'The first trick everyone learns: pull the ball up and catch it in the big cup. Almost everything else starts here.'))
+  .startHang('big', 0, -90, -90).pull('big').hold(.5, 'Done', '決め', 'The ball rests in the big cup; stand back up, relaxed.').done());
+add(Bld(Trick('kozara', '小皿', 'こざら', 'Kozara', 'Small cup', 'The same pull to the other end. The small cup is smaller and shallower, so the ball bounces out more easily.'))
+  .startHang('small', -90).pull('small').hold(.5, 'Done', '決め', 'Cushion softer than for the big cup: there is less cup to hold the ball.').done());
+add(Bld(Trick('chuzara', '中皿', 'ちゅうざら', 'Chuzara', 'Base cup', 'Hold the ken upside down and catch the ball in the base cup at the end of the handle.'))
+  .startHang('base', 0, -90, -180).pull('base').hold(.5, 'Done', '決め', 'The base cup is the shallowest; keep the ken upright once the ball is in.').done());
+add(Bld(Trick('tomeken', 'とめけん', 'とめけん', 'Tomeken', 'Spike', 'Pull the ball up and land its hole on the spike. Kendama means "sword and ball"; this is the trick that uses the sword.'))
+  .startHang('spike', 0, -90, 0).pull('spike', 270).hold(.5, 'Done', '決め', 'The ball sits on the spike; keep the ken vertical.').done());
+function moshi(N){ const b = Bld(Trick('moshi' + N, 'もしかめ' + N + '回', 'もしかめ', 'Moshikame ×' + N, 'Big cup ↔ base cup ×' + N,
+  `Alternate between the big cup and the base cup ${N} times without stopping. The rhythm follows the children's song うさぎとかめ ("moshimoshi kame yo…"), hence the name.`));
+  b.startCup('big', 0, -90, -90);
+  const syl = ['も', 'し', 'か', 'め'];
+  for (let i = 0; i < N; i++){
+    if (i === 2) b.quiet(false).phase('Keep the rhythm', 'くりかえし', `Keep alternating, one catch on each beat of the song, until you reach ${N}. Stay low and loose: knees bounce, the wrist only tips the ken.`).quiet(true);
+    const toBase = i % 2 === 0, from = toBase ? 'big cup' : 'base cup', to = toBase ? 'base cup' : 'big cup';
+    b.hop(toBase ? 'base' : 'big', 0, 200, 11,
+      `"${syl[i % 4]}": dip and pop the ball out of the ${from}; tip the spike ${toBase ? 'down to the floor' : 'back up to straight ahead'} so the ${to} comes up to catch it.`, `${syl[i % 4]} · ${to}`, -90, toBase ? -180 : -90);
+  }
+  b.quiet(false).hold(.5, 'Done', '決め', `${N} in a row.`);
+  const tr = b.done(); tr.count = N; tr.chip = 'もしかめ×' + N; add(tr); }
+moshi(5); moshi(10); moshi(20);
+add(Bld(Trick('nihon', '日本一周', 'にほんいっしゅう', 'Nihon isshu', 'Around Japan', 'Small cup → big cup → spike. The spike points left, then straight ahead, then up: three wrist positions. The knees do the lifting; the hand only moves the cup under the ball.'))
+  .startHang('small', -90).pull('small')
+  .hop('big', 0, 200, 15, 'Pop the ball straight up. While it is in the air, turn the wrist so the spike swings from your left to straight ahead of you and the big cup comes up underneath. The elbow stays put; the hand shifts to keep the cup under the ball.', 'To big cup', -90, -90)
+  .hop('spike', 0, 270, 15, 'Pop again. Tip the spike from straight ahead up to the sky and aim it at the hole as the ball comes down. Pop the ball first, then turn: don\'t throw the ball with the turn.', 'To spike', -90, 0)
+  .hold(.5, 'Done', '決め', 'One full run: the ball ends on the spike.').done());
+add(Bld(Trick('kozara2', '小皿〜大皿', 'こざら〜おおざら', 'Kozara ozara', 'Small cup → Big cup', 'Pull into the small cup, then pop it across to the big cup.'))
+  .startHang('small', -90).pull('small')
+  .hop('big', 0, 200, 15, 'Pop the ball straight up. While it is in the air, turn the wrist so the spike swings from your left to straight ahead and the big cup comes up underneath.', 'To big cup', -90, -90)
+  .hold(.5, 'Done', '決め', 'The ball rests in the big cup.').done());
+add(Bld(Trick('block', '小皿〜大皿〜中皿', 'こざら〜おおざら〜ちゅうざら', 'Kozara ozara chuzara', 'Around the block', 'Small cup → big cup → base cup: all three cups in one run, no spike.'))
+  .startHang('small', -90).pull('small')
+  .hop('big', 0, 200, 15, 'Pop out of the small cup and turn the wrist: the spike swings from your left to straight ahead, big cup up.', 'To big cup', -90, -90)
+  .hop('base', 0, 200, 13, 'Pop again and tip the spike down to the floor: the base cup comes up.', 'To base cup', -90, -180)
+  .hold(.5, 'Done', '決め', 'Three cups, one run.').done());
+(function(){ const b = Bld(Trick('tenose', '手のせ大皿〜けん', 'てのせおおざら〜けん', 'Tenose ozara ken', 'Easy big cup → Spike', 'Set the ball in the big cup by hand, then pop it onto the spike.'));
+  b.startCup('big', 0, -90, -90); const tr = b.raw ? null : null;
+  b.hop('spike', 0, 270, 12, 'Lift the ball just a little out of the cup and bring the spike up under it. Because the hole already faces you, a small pop is enough: guide the spike in gently as it falls.', 'Pop · spike', -90, 0)
+   .hold(.5, 'Done', '決め', 'The ball sits on the spike.');
+  const t = b.done(); t.ph[0] = { ...t.ph[0], name:'Set', jp:'手のせ', tip:'With your free hand, set the ball in the big cup, ideally with its hole facing your body. Hold the ken in the big-cup position, spike pointing straight ahead.' }; add(t); })();
+add(Bld(Trick('frypan', 'フライパン〜けん', 'フライパン〜けん', 'Furaipan ken', 'Frying pan → Spike', 'Pull the ball up and balance it on the very point of the spike, then pop it and land the hole on the spike.'))
+  .startHang('tip', 0, -90, 0).pull('tip', 180)
+  .hop('spike', 0, 270, 8, 'Lift the ball off the point just a little, let it turn so the hole faces down, and slide the spike in as it drops.', 'Pop · spike', -90, 0)
+  .hold(.5, 'Done', '決め', 'From balanced on the point to sitting on the spike.').done());
+add(Bld(Trick('sekai', '世界一周', 'せかいいっしゅう', 'Sekai isshu', 'Around the World', 'Small cup → big cup → base cup → spike: every landing spot in one run.'))
+  .startHang('small', -90).pull('small')
+  .hop('big', 0, 200, 15, 'Pop out of the small cup and turn the wrist: the spike swings from your left to straight ahead, big cup up.', 'To big cup', -90, -90)
+  .hop('base', 0, 200, 13, 'Pop again and tip the spike down to the floor: the base cup comes up.', 'To base cup', -90, -180)
+  .hop('spike', 0, 270, 16, 'Last pop: swing the spike from the floor, through straight ahead, up to the sky and into the hole.', 'To spike', -90, 0)
+  .hold(.5, 'Done', '決め', 'All four landing spots in one run.').done());
+
+// 飛行機 (airplane): the hand holds the ball, the ken swings out and flips onto it
+(function(){
+  const tr = Trick('hikoki', '飛行機', 'ひこうき', 'Hikoki', 'Airplane', 'The other way round: hold the ball (hole up), swing the ken out like a pendulum, pop it so it flips, and land the spike in the hole.');
+  tr.hold = 'ball'; tr.view = 'side'; tr.fwd = 'u'; tr.targets = ['spike'];
+  const Bp = [-2, 54], H = [Bp[0], Bp[1] + BR], A0 = 40;
+  const pend = a => { const ar = rad(a), at = [H[0] + LS*Math.sin(ar), H[1] - LS*Math.cos(ar)], th = -a, e = E1(th); return { o:[at[0] - e[0]*5, at[1] - e[1]*5, 0], th }; };
+  let t = 0;
+  const kk = (p, x = {}) => tr.ken.push({ t, o:p.o, th:p.th, ...x });
+  const bk = (p, x = {}) => tr.ball.push({ t, m:'held', p, hole:90, ...x });
+  tr.ph.push({ t, name:'Ready', jp:'構え', tip:'Shown from the side: the player faces right. Hold the ball with the hole facing up. With your other hand, pull the ken back toward your body so the string is straight.' });
+  kk(pend(-A0)); bk(Bp); t = .7; kk(pend(-A0)); bk(Bp);
+  tr.ph.push({ t, name:'Release', jp:'離す', tip:'Let go: the ken swings down and forward like a pendulum.' });
+  const half = .6, pop = .48;
+  for (let i = 1; i <= 8; i++){ const tau = pop * i / 8; t = .7 + tau; kk(pend(-A0*Math.cos(Math.PI*tau/half)), { lin:true }); }
+  bk(Bp);
+  const p0 = pend(-A0*Math.cos(Math.PI*pop/half)), Of = [Bp[0], Bp[1] + 11.5, 0];
+  tr.ph.push({ t:.7 + half/2, name:'Pop', jp:'引き上げ', tip:'As the ken swings out in front, pop it up with your wrist and knees.' });
+  const Oa = [Of[0], Of[1] + 6, 0], T1 = Math.sqrt(2*Math.max(1, Oa[1] - p0.o[1])/GRAV), T2 = Math.sqrt(2*6/GRAV);
+  tr.ph.push({ t:t + T1*.3, name:'Flip', jp:'回す', tip:'The string pulls on the cups, so the handle swings out and over: the spike turns from up, through back, to pointing down, about half a turn. Keep the ball right under it; don\'t chase it.' });
+  t += T1; kk({ o:Oa, th:-180 }, { fly:true, late:true }); bk(Bp);
+  tr.ph.push({ t, name:'Catch', jp:'受ける', tip:'The ken stops turning just above the ball, spike straight down; it drops onto the hole. Bend your knees as it goes in.' });
+  t += T2; kk({ o:Of, th:-180 }, { fly:true }); bk(Bp);
+  t += .3; kk({ o:[Of[0], Of[1] - 3, 0], th:-180 }); bk([Bp[0], Bp[1] - 3]);
+  t += .45; kk({ o:Of, th:-180 }); bk(Bp);
+  tr.ph.push({ t, name:'Done', jp:'決め', tip:'The ken sits upside down on the ball, like a parked airplane.' });
+  t += .5; kk({ o:Of, th:-180 }); bk(Bp);
+  tr.T = t; add(tr);
+})();
+// 野球 (baseball), after gloken.net: けん持ち, ken held sideways (spike to the right, big cup up, the ken's bottom end
+// to the left). Lift the ball a little, swing the bottom end up from the left and tap the ball to the right (コツっと).
+// The ball swings out right, down under the ken, up the left side and over, and drops back into the big cup.
+(function(){ const b = Bld(Trick('yakyu', '野球', 'やきゅう', 'Yakyu', 'Baseball', 'Hold the ken sideways with the ball in the big cup. Lift the ball a little and tap it with the bottom of the ken, like a bat. It swings round under the ken and comes back up over the top into the big cup (the base cup also counts).'));
+  // find the roll that puts the big cup on top with the spike pointing left
+  let PB = [0, 0], hiZ = -1e9; for (const ps of [0, 90, -90, 180]) for (const be of [0, 90, -90, 180]){ const z = restAt('big', [0, 0, 0, ps, be], -90)[1], ax = sub(kpt([0, 0, 0, ps, be], -90, 1), kpt([0, 0, 0, ps, be], -90, 0));
+    if (ax[0] < -.95 && z > hiZ + 1e-6){ hiZ = z; PB = [ps, be]; } }
+  b.startCup('big', -90, PB[0], PB[1]);
+  const { kk, bk, ph, s } = b.raw, TH = -90, O0 = s.O, cupP = restAt('big', O0, TH), D = [-1, 0];
+  // (the Start step text comes from startCup; say how it is held)
+  ph('Pop', '浮かせる', 'Ken grip, ken held sideways: spike pointing left, big cup up, the bottom of the ken to your right. Lift the ball just a little off the big cup.');
+  s.t += .16; kk(dz(O0, -2), TH); bk('big', 200);
+  s.t += .09; kk(dz(O0, 1), TH); bk('big', 200);
+  const Pp = [cupP[0], cupP[1] + 6, cupP[2]], Tup = Math.sqrt(2*5/GRAV);
+  s.t += Tup*.55; kk(dz(O0, -1), TH);
+  s.t += Tup*.45; kk(O0, TH); bk('pt', 200, { p:Pp, fly:true, plain:true });
+  // tap: the ken turns in front of you so its bottom end swings up from the left into the ball's left side
+  // the spike tips down and the bottom of the ken comes up on the ball's right, hitting it toward the left
+  const Tg = [Pp[0] + (BR + 2.2), Pp[1] - .4, Pp[2]], H0 = kpt(O0, TH, SAR), pz = [0, 0, 0, O0[3] || 0, O0[4] || 0];
+  let thT = TH, OT = O0, bestS = 1e9;
+  for (let th = TH - 180; th <= TH + 180; th += 2){ const e0 = kpt(pz, th, -9), O = [Tg[0] - e0[0], Tg[1] - e0[1], Tg[2] - e0[2], pz[3], pz[4]];
+    const spikeZ = kpt(O, th, 9.8)[1], tail = kpt(O, th, -9)[1];
+    const sc = Math.hypot(...sub(kpt(O, th, SAR), H0)) + (spikeZ < tail - 8 ? 0 : 99) + Math.abs(th - TH)*.01;
+    if (sc < bestS){ bestS = sc; thT = th; OT = O; } }
+  ph('Tap', 'たたく', 'While the ball floats, turn the wrist so the bottom of the ken (けん尻) swings up from the right and taps the ball to the left: コツっと, gently. Too hard and you lose control.');
+  s.t += .13; kk(OT, thT); bk('pt', 200, { p:Pp });
+  tr_extra('yakyu', s.t);
+  // out to the right until the string is taut; the ken turns back to sideways
+  const aOut = 100, Tout = .2;
+  s.t += Tout; kk(dz(O0, -1), TH); bk('swing', 200, { a:aOut, dir:D, fly:true, plain:true });
+  ph('Follow', '目で追う', 'The ball swings out to the left and down. Follow it with your eyes and bend your knees as it drops under the ken.', -Tout);
+  const Tdn = .4; for (let i = 1; i <= 6; i++){ s.t += Tdn/6; bk('swing', 200, { a:aOut*(1 - i/6), dir:D, lin:true }); }
+  kk(dz(O0, -4.5), TH);
+  ph('Pull up', '引き上げ', 'As it passes underneath, in front of your body, straighten your knees and pull up: it rises on the right side and over the top.');
+  const aTop = -172, Tu = .62; for (let i = 1; i <= 8; i++){ const k = i/8; s.t += Tu/8; bk('swing', 200, { a:aTop*(1 - (1 - k)*(1 - k)*.55 - .45*(1 - k)), dir:D, lin:true }); }
+  kk(dz(O0, 2), TH);
+  const top = modePos({ m:'swing', a:aTop, dir:D }, { o:dz(O0, 2), th:TH }), Tdrop = Math.sqrt(2*Math.max(1, top[1] - cupP[1])/GRAV);
+  ph('Catch', '受ける', 'Don\'t chase it: wait with the big cup where it will come down, and catch it with soft knees. (Catching it in the base cup also counts.)');
+  s.t += Tdrop; kk(O0, TH); bk('big', 200, { fly:true, plain:true });
+  b.cushion('big', 200); s.cup = 'big'; s.hole = 200;
+  b.hold(.5, 'Done', '決め', 'Back in the big cup, ken still sideways.');
+  const tr = b.done(); add(tr); })();
+function tr_extra(id, t){ (window.__extraContacts = window.__extraContacts || []).push({ id, t, kind:'cup' }); }
+
+// 空中ブランコ (trapeze): ball on the spike; pinch the middle of the one string (the loop between the ken's knot and
+// the ball's hole) and lift, so the whole kendama hangs from your fingers. Swing it up half a turn, let go, catch the
+// ken upside down; the ball comes off the spike, goes on round (a full turn in all) and drops into the base cup.
+(function(){
+  const tr = Trick('trapeze', '空中ブランコ', 'くうちゅうブランコ', 'Kuchu buranko', 'Trapeze', 'With the ball on the spike, pinch the middle of the string and hang the whole kendama from it. Swing it up half a turn, let go, catch the ken upside down; the ball goes on round and lands in the base cup.');
+  tr.view = 'side'; tr.fwd = 'u';
+  let t = 0;
+  const kk = (o, th, x = {}) => tr.ken.push({ t, o, th, ...x });
+  const bk = (m, hole, x = {}) => tr.ball.push({ t, m, hole, ...x });
+  const O0 = gripFor('spike', 0, [0, HB - 6], 0, 0), B0 = restAt('spike', O0, 0);
+  // the fingers: a little toward you, at the height where the string (knot -> fingers -> hole) is just tight
+  const len = M => { const q = pinchPath({ o:O0, th:0 }, B0, M); let L = 0; for (let i = 1; i < q.length; i++) L += Math.hypot(...sub(q[i], q[i-1])); return L; };
+  let lo = B0[1], hi = B0[1] + LS; for (let n = 0; n < 40; n++){ const z = (lo + hi)/2; if (len([B0[0] - 4, z, 0]) > LS) hi = z; else lo = z; }
+  const M = [B0[0] - 4, lo, 0], Mlow = [B0[0] - 4, B0[1] - 6, 0];
+  const rotAbout = (P, a) => { const r = rad(a), du = P[0] - M[0], dzz = P[1] - M[1]; return [M[0] + du*Math.cos(r) - dzz*Math.sin(r), M[1] + du*Math.sin(r) + dzz*Math.cos(r), 0]; };
+  const unit = a => ({ o:rotAbout(O0, a), th:-a });
+  tr.ph.push({ t, name:'Ready', jp:'構え', tip:'Shown from the side: the player faces right. Start with the ball on the spike (とめけん). The string hangs in a loop from the ken down and back up into the ball\'s hole.' });
+  kk(O0, 0); bk('spike', 270); t = .6; kk(O0, 0); bk('spike', 270);
+  tr.ph.push({ t, name:'Pinch', jp:'つまむ', tip:'With your other hand, pinch the middle of that loop and lift it until the string is tight. It is the same one string: from the ken, up to your fingers, back down into the hole.' });
+  tr.pinch = { t0:t, t1:0, M, M0:Mlow, tl:t + .45 };
+  t += .45; kk(O0, 0); bk('spike', 270);
+  t += .25; kk(O0, 0); bk('spike', 270);
+  tr.ph.push({ t, name:'Swing up', jp:'振り上げる', tip:'Let go of the ken: the whole kendama hangs from your fingers. Using your fingers as the pivot, swing it forward and up, half a turn.' });
+  const t0 = t, Tsw = .7, aRel = 150;
+  for (let i = 1; i <= 14; i++){ const k = i/14, a = aRel*(k*k*(3 - 2*k)*.85 + k*.15); t = t0 + Tsw*k; const u = unit(a); kk(u.o, u.th, { lin:true }); bk('spike', 270 + a); }
+  tr.pinch.t1 = t;
+  tr.ph.push({ t, name:'Let go · grab', jp:'離す・つかむ', tip:'Near the top, let go of the string and grab the handle. The ken has turned half a turn: upside down, base cup facing up.' });
+  const Tg = .14, G = unit(180).o; t += Tg; kk(G, -180, { fly:true }); bk('spike', 450);
+  // the ball slides off the spike and carries on round the ken on its string, then drops into the base cup
+  const att = attachOf(G, -180), Lc = LS + BR, sw = a => [att[0] + Lc*Math.sin(rad(a)), att[1] - Lc*Math.cos(rad(a)), 0];
+  tr.ph.push({ t, name:'Round', jp:'一周', tip:'The ball comes off the spike and keeps going round: under the ken, out in front and up over the top. Half a turn for the ken, a full turn for the ball.' });
+  const T1 = .2; t += T1; kk(dz(G, -2), -180); bk('swing', 200, { a:60, dir:[1, 0], fly:true, plain:true });
+  for (let i = 1; i <= 8; i++){ t += .55/8; bk('swing', 200, { a:60 + (172 - 60)*i/8, dir:[1, 0], lin:true }); }
+  kk(dz(G, -3), -180);
+  const top = sw(172), Cb = restAt('base', G, -180), Td = Math.sqrt(2*Math.max(1, top[1] - Cb[1])/GRAV);
+  tr.ph.push({ t, name:'Catch', jp:'受ける', tip:'Use the momentum: pull the ball up as it swings round, and as it comes over the top bring the base cup under it.' });
+  t += Td; kk(G, -180); bk('base', 200, { fly:true, plain:true });
+  tr.ph.push({ t, name:'Cushion', jp:'膝で受ける', tip:'Bend your knees as it lands, so the ball settles in the base cup.' });
+  t += .28; kk(dz(G, -3.5), -180); bk('base', 200);
+  t += .45; kk(G, -180); bk('base', 200);
+  tr.ph.push({ t, name:'Done', jp:'決め', tip:'Ken upside down in your hand, ball in the base cup.' });
+  t += .5; kk(G, -180); bk('base', 200);
+  tr.T = t; add(tr);
+})();
+
+const GROUPS = [
+  ['Basic', '3級', ['ozara', 'kozara', 'chuzara', 'moshi5', 'tomeken']],
+  ['Basic', '2級', ['yakyu', 'tenose', 'kozara2', 'moshi10', 'hikoki']],
+  ['Basic', '1級', ['frypan', 'block', 'trapeze', 'moshi20', 'nihon']],
+  ['Advanced', '3級', ['sekai']],
+];
+// levels as on Kendama Kentei (Medal Challenge left out); empty ones are shown as "soon"
+const LEVELS = ['Basic', 'Advanced', 'Expert', 'Master'];
+const ORDER = GROUPS.flatMap(g => g[2]);
+for (const [lv, gr, ids] of GROUPS) for (const id of ids) TR[id].grade = `${lv} · ${gr}`;
+// views are set by where the player's forward direction points in the scene (an angle in the ground plane)
+const VIEWS = { behind:205, side:-65, front:25 };
+const fwdOffset = tr => tr.fwd === 'u' ? 0 : 270;            // forward = +u (airplane) or -w (all others)
+const yawFor = (tr, v) => VIEWS[v] - fwdOffset(tr);
+// moments of contact (ball lands in a cup / spike goes into the hole), for the "tock" sound
+for (const id of ORDER){ const tr = TR[id];
+  tr.contacts = tr.ball.filter(k => k.fly && ['big', 'small', 'base', 'spike', 'tip'].includes(k.m)).map(k => ({ t:k.t, kind:k.m === 'spike' || k.m === 'tip' ? 'spike' : 'cup' }));
+  for (const x of (window.__extraContacts || [])) if (x.id === id) tr.contacts.push({ t:x.t, kind:x.kind });
+  const lastFly = tr.ken.filter(k => k.fly).pop();
+  if (tr.hold === 'ball' && lastFly) tr.contacts.push({ t:lastFly.t, kind:'spike' }); }
+
+/* ---------- sound: a short wooden "tock", synthesised (no audio files) ---------- */
+let AC = null;
+const ensureAC = () => { try { if (!AC){ const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; AC = new C(); }
+  if (AC.state === 'suspended') AC.resume(); } catch (e) {} return AC; };
+document.addEventListener('pointerdown', ensureAC, { capture:true });
+function tock(kind){
+  const ac = AC; if (!ac || ac.state !== 'running') return;
+  const t = ac.currentTime, spike = kind === 'spike';
+  // the click of wood on wood: a very short burst of filtered noise
+  const len = Math.floor(ac.sampleRate * .03), buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random()*2 - 1) * Math.pow(1 - i/len, 5);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = spike ? 3800 : 2400; bp.Q.value = spike ? 3 : 2.4;
+  const ng = ac.createGain(); ng.gain.value = spike ? .5 : .6;
+  // the knock of the hollow cup / the hard spike: a quick falling tone
+  const o = ac.createOscillator(); o.type = 'triangle';
+  o.frequency.setValueAtTime(spike ? 1750 : 1150, t); o.frequency.exponentialRampToValueAtTime(spike ? 1350 : 900, t + .06);
+  const og = ac.createGain(); og.gain.setValueAtTime(.0001, t); og.gain.exponentialRampToValueAtTime(spike ? .2 : .22, t + .002); og.gain.exponentialRampToValueAtTime(.0001, t + (spike ? .055 : .075));
+  src.connect(bp).connect(ng).connect(ac.destination); o.connect(og).connect(ac.destination);
+  src.start(t); o.start(t); o.stop(t + .14);
+}
+function soundBetween(tr, a, b){ if (!st.sound || b <= a) return;
+  for (const c of tr.contacts){ const ct = c.t - .004; if (a < ct && b >= ct) tock(c.kind); } }
+
+/* ---------- drawing ---------- */
+function ringK(c, d, r, n = 20){
+  const u = norm(cross(d, Math.abs(d[2]) < .9 ? [0,0,1] : [1,0,0])), v = cross(d, u);
+  return Array.from({ length:n }, (_, i) => { const a = i/n*2*Math.PI, cc = Math.cos(a)*r, ss = Math.sin(a)*r;
+    return [c[0] + u[0]*cc + v[0]*ss, c[1] + u[1]*cc + v[1]*ss, c[2] + u[2]*cc + v[2]*ss]; });
+}
+// the part of a projected ring on one side (dir) of its centre, as one unbroken run of points
+function halfArc(q, c, dir){
+  const n = q.length, ok = q.map(p => (p[0]-c[0])*dir[0] + (p[1]-c[1])*dir[1] >= 0);
+  const st = ok.findIndex((v, i) => v && !ok[(i - 1 + n) % n]); if (st < 0) return ok[0] ? q.concat([q[0]]) : [];
+  const o = []; for (let i = 0; i < n && ok[(st + i) % n]; i++) o.push(q[(st + i) % n]); return o;
+}
+const sp2 = (pts, close = false) => 'M' + pts.map(p => f(p[0]) + ' ' + f(p[1])).join('L') + (close ? 'Z' : '');
+// A turned wooden part, drawn as ONE piece: profile [[s, r], …] along an axis, with cup openings at either end.
+function lathe(at, prof, m, ends = {}, w = 1.5){
+  const d = norm(sub(at(1), at(0)));
+  const rings = prof.map(([s, r]) => { const c = at(s); return { c, r, pts:ringK(c, d, Math.max(r, .001)) }; });
+  const segs = [];
+  for (let i = 0; i < rings.length - 1; i++) segs.push({ at:avg([rings[i].c, rings[i+1].c]), svg:loft(rings[i].pts, rings[i+1].pts, n => toneI(n, m)) });
+  let s = byDepth(segs);
+  // open cup ends: the lip, then the hollow
+  const cupEnd = (rg, out) => { if (!vis(out)) return '';
+    const inner = ringK(sub(rg.c, out.map(v => v*.25)), out, rg.r*.8);
+    return fill(pd(rg.pts), m.l) + fill(pd(inner), mix(m.m, m.d, .25)) + ink(pd(inner), .8); };
+  const lo = rings[0], hi = rings[rings.length - 1];
+  if (ends.lo) s += cupEnd(lo, d.map(v => -v));
+  if (ends.hi) s += cupEnd(hi, d);
+  // silhouette: two continuous side lines plus the visible part of each end rim
+  const pa = P(...lo.c), pb = P(...hi.c), al = Math.hypot(pb[0]-pa[0], pb[1]-pa[1]) || 1, ax = [(pb[0]-pa[0])/al, (pb[1]-pa[1])/al], nr = [-ax[1], ax[0]];
+  const Lp = [], Rp = [];
+  for (const rg of rings){ const c = P(...rg.c); let mx = -1e9, mn = 1e9;
+    rg.q = rg.pts.map(p => P(...p));
+    rg.q.forEach((q, i) => { const v = (q[0]-c[0])*nr[0] + (q[1]-c[1])*nr[1]; if (v > mx){ mx = v; rg.iM = i; } if (v < mn){ mn = v; rg.im = i; } });
+    Lp.push(rg.q[rg.iM]); Rp.push(rg.q[rg.im]); }
+  s += ink(sp2(Lp), w) + ink(sp2(Rp), w);
+  // an end rim seen from behind: draw the arc between the two tangent points that lies on the far (outer) side,
+  // so it always joins both side lines
+  const rimInk = (rg, out, outScr) => { if (rg.r < .3) return ''; const q = rg.q, n = q.length, c = P(...rg.c);
+    if (vis(out)) return ink(sp2(q, true), w*.8);
+    const arc = (a, b) => { const o = []; for (let i = a; ; i = (i + 1) % n){ o.push(q[i]); if (i === b) break; } return o; };
+    const A = arc(rg.iM, rg.im), B = arc(rg.im, rg.iM), mid = r => r[Math.floor(r.length/2)];
+    const side = r => (mid(r)[0]-c[0])*outScr[0] + (mid(r)[1]-c[1])*outScr[1];
+    return ink(sp2(side(A) >= side(B) ? A : B), w); };
+  s += (ends.cutLo ? '' : rimInk(lo, d.map(v => -v), [-ax[0], -ax[1]])) + (ends.cutHi ? '' : rimInk(hi, d, ax));
+  return s;
+}
+// ken: base cup → handle → shoulder → spike, one turned piece; the sarado (big cup ↔ small cup) sits across it
+const KEN_PROF = [[-9, 2.0], [-8.6, 1.75], [-8.0, 1.35], [-7.4, 1.15], [-3, 1.1], [0, 1.18], [4.4, 1.22], [4.9, 1.0], [5.4, .95], [9.0, .38], [9.8, 0]];
+const SAR_PROF = [[-4.3, 2.6], [-3.9, 2.25], [-3.2, 1.75], [-2.4, 1.5], [0, 1.6], [2.2, 1.45], [3.0, 1.6], [3.6, 1.9], [4.0, 2.1]];
+// the ken profile cut into pieces: below the sarado, between sarado and spike, and the spike itself
+const radAt = s0 => { for (let i = 0; i < KEN_PROF.length - 1; i++){ const [a, ra] = KEN_PROF[i], [b, rb] = KEN_PROF[i+1]; if (s0 >= a && s0 <= b) return ra + (rb - ra)*(s0 - a)/(b - a); } return 1; };
+const profBetween = (a, b) => [[a, radAt(a)], ...KEN_PROF.filter(([s0]) => s0 > a + 1e-6 && s0 < b - 1e-6), [b, radAt(b)]];
+const KEN_LO = profBetween(-9, SAR), KEN_MID = profBetween(SAR, 4.9), KEN_TIP = profBetween(4.9, 9.8);
+function kenPieces(O, th){
+  const at = s => K3(O, th, s);
+  const kn = P(...K3(O, th, 1.5, 0, depthOf(K3(O, th, 1.5, 0, 1)) > depthOf(K3(O, th, 1.5, 0, -1)) ? 1.1 : -1.1));
+  return [
+    { at:K3(O, th, -3), svg:lathe(at, KEN_LO, KWOOD, { lo:true, cutHi:true }, 1.5) + `<circle cx="${f(kn[0])}" cy="${f(kn[1])}" r="${f(.42)}" fill="${INK}"/>` },
+    { at:K3(O, th, SAR), svg:lathe(t => K3(O, th, SAR, t), SAR_PROF, KWOOD, { lo:true, hi:true }, 1.5), sar:true },
+    { at:K3(O, th, 4.4), svg:lathe(at, KEN_MID, KWOOD, { cutLo:true, cutHi:true }, 1.5) },
+    { at:K3(O, th, 7.3), svg:lathe(at, KEN_TIP, KWOOD, { cutLo:true }, 1.3), tip:true },
+  ];
+}
+const sortDraw = items => items.map(it => ({ d:it.d != null ? it.d : depthOf(it.at), svg:it.svg })).sort((a, b) => a.d - b.d).map(it => it.svg).join('');
+function kenSVG(O, th){ return sortDraw(kenPieces(O, th)); }
+function kenPts(O, th){ const o = [];
+  for (const s of [-9, -7.6, 0, 4.8, 9.8]) for (const w of [-1.2, 1.2]) o.push(K3(O, th, s, 0, w));
+  for (const t of [-4.3, 4.0]) for (const dz of [-2.4, 2.4]) o.push(K3(O, th, SAR + dz, t));
+  return o; }
+let kcN = 0;
+const holeVec = (holeDeg, tilt = .3) => { const hr = rad(holeDeg); return norm([U3[0]*Math.cos(hr) + SQ*tilt, U3[1]*Math.cos(hr) + SQ*tilt, Math.sin(hr)]); };
+function ballSVG(c2, holeDeg, m, tilt = .3, hvec = null){
+  const c = Wv(c2), [X, Y] = P(...c), r = BR * 1.2247, id = 'kb' + (++kcN);
+  const h = hvec || holeVec(holeDeg, tilt);
+  let hole = '';
+  if (dot(h, [1,1,1]) / Math.sqrt(3) > .02){
+    const beta = rad(24), cc = [c[0] + h[0]*BR*Math.cos(beta), c[1] + h[1]*BR*Math.cos(beta), c[2] + h[2]*BR*Math.cos(beta)];
+    const rim = ringK(cc, h, BR*Math.sin(beta), 16);
+    hole = fill(pd(rim), mix(m.d, '#000000', .25)) + ink(pd(rim), .8);
+  }
+  return `<clipPath id="${id}"><circle cx="${f(X)}" cy="${f(Y)}" r="${f(r)}"/></clipPath>`
+    + `<circle cx="${f(X)}" cy="${f(Y)}" r="${f(r)}" fill="${m.m}"/>`
+    + `<g clip-path="url(#${id})"><circle cx="${f(X + r*.2)}" cy="${f(Y - r*.24)}" r="${f(r*.86)}" fill="${m.l}"/>${hole}`
+    + `<ellipse cx="${f(X + r*.36)}" cy="${f(Y - r*.44)}" rx="${f(r*.2)}" ry="${f(r*.13)}" fill="#fff" opacity=".55"/></g>`
+    + `<circle cx="${f(X)}" cy="${f(Y)}" r="${f(r)}" fill="none" stroke="${INK}" stroke-width="1.5"/>`;
+}
+const ballPts = c2 => { const o = [], w = c2[2] || 0; for (let i = 0; i < 12; i++){ const a = i/12*2*Math.PI; o.push(W3(c2[0] + BR*Math.cos(a), c2[1] + BR*Math.sin(a), w)); o.push(W3(c2[0], c2[1] + BR*Math.sin(a), w + BR*Math.cos(a))); } return o; };
+// The string: from the knot on the ken to the small string hole on the ball. The string hole is wherever the string
+// leaves the ball (the ball turns to follow its string), so the line meets the ball's surface, never its middle.
+function pinchPath(kp, c, M){
+  const ax = norm(sub(kpt(kp.o, kp.th, 1), kpt(kp.o, kp.th, 0))), H = [0, 1, 2].map(i => c[i] - ax[i]*BR*.9);
+  const toM = sub(M, c), along = dot(toM, ax), perp = norm([0, 1, 2].map(i => toM[i] - ax[i]*along)), S = [0, 1, 2].map(i => c[i] + perp[i]*(BR + .35));
+  return [attachOf(kp.o, kp.th), M, S, H]; }
+function stringParts(a2, c2){
+  const d = Math.hypot(c2[0] - a2[0], c2[1] - a2[1], (c2[2]||0) - (a2[2]||0)) - BR;
+  let mid = null;
+  if (d < LS - .4){ const sag = Math.sqrt(LS*LS - d*d) * .5; mid = [(a2[0] + c2[0])/2 + sag*.35, (a2[1] + c2[1])/2 - sag, ((a2[2]||0) + (c2[2]||0))/2]; }
+  const toward = mid || a2, dv = norm(sub(toward, [c2[0], c2[1], c2[2]||0]));
+  const ex = [c2[0] + dv[0]*BR, c2[1] + dv[1]*BR, (c2[2]||0) + dv[2]*BR];
+  const pts = [];
+  if (!mid) pts.push(Wv(a2), Wv(ex));
+  else for (let i = 0; i <= 24; i++){ const k = i/24, bz = j => (1-k)*(1-k)*(a2[j]||0) + 2*k*(1-k)*mid[j] + k*k*(ex[j]||0); pts.push(W3(bz(0), bz(1), bz(2))); }
+  // world direction of the exit point, to know whether it is on the visible side of the ball
+  const wd = [U3[0]*dv[0] + E3[0]*dv[2], U3[1]*dv[0] + E3[1]*dv[2], dv[1]];
+  const e2 = P(...Wv(ex));
+  const svg = `<path d="${pd(pts, false)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>`
+    + `<path d="${pd(pts, false)}" fill="none" stroke="#fbf3df" stroke-width=".45" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const dotSvg = `<circle cx="${f(e2[0])}" cy="${f(e2[1])}" r=".5" fill="${INK}"/>`;
+  return { svg, dot:dotSvg, front:dot(wd, [1,1,1]) > 0, wd:norm(wd) };
+}
+
+/* ---------- precomputed record: ball trail + ghost poses at each phase ---------- */
+for (const id of ORDER){ const tr = TR[id];
+  tr.path = []; for (let t = 0; t <= tr.T + 1e-6; t += 1/60) tr.path.push(ballAt(tr, t).p);
+  tr.ghosts = tr.ph.map(p => ({ k:kenAt(tr, p.t + .001), b:ballAt(tr, p.t + .001) })); }
+
+function ghostSVG(g, active){
+  const { o, th } = g.k, op = active ? .5 : .2;
+  const [X, Y] = P(...Wv(g.b.p)), r = BR*1.2247;
+  return `<g opacity="${active ? .3 : .13}">${kenSVG(o, th)}</g><g opacity="${op}">`
+    + `<circle cx="${f(X)}" cy="${f(Y)}" r="${f(r)}" fill="none" stroke="${INK}" stroke-width=".9" stroke-dasharray="${f(1.2*INK_K)} ${f(1.4*INK_K)}"/></g>`;
+}
+function badge(g, i, active, side){
+  const [X, Y] = P(...Wv(g.b.p)), k = INK_K, cx = X + side*(BR*1.2247 + 9*k), cy = Y;
+  return `<g opacity="${active ? 1 : .6}"><circle cx="${f(cx)}" cy="${f(cy)}" r="${f(6*k)}" fill="${active ? 'var(--accent)' : '#fff4d6'}" stroke="${INK}" stroke-width="1"/>`
+    + `<text x="${f(cx)}" y="${f(cy + 2.7*k)}" font-size="${f(7.6*k)}" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-weight="800" fill="${INK}">${i + 1}</text></g>`;
+}
+const FING = [['#f4b829', 'thumb'], ['#5a82c6', 'index'], ['#71b693', 'middle'], ['#d8869c', 'ring']];
+const fdot = (p3, i, r) => { const q = P(...p3); return `<circle cx="${f(q[0])}" cy="${f(q[1])}" r="${f(r)}" fill="${FING[i][0]}" stroke="${INK}" stroke-width=".8"/>`; };
+// finger contact points for each grip; far = on the far side of the wood from you (drawn dashed)
+const hidDot = (p3, i, r) => { const q = P(...p3); return `<circle cx="${f(q[0])}" cy="${f(q[1])}" r="${f(r)}" fill="${FING[i][0]}" fill-opacity=".45" stroke="${INK}" stroke-width=".8" stroke-dasharray="1.4 1.2"/>`; };
+const nearSide = (O, th, s0, t0 = 0) => depthOf(K3(O, th, s0, t0, 1)) > depthOf(K3(O, th, s0, t0, -1)) ? 1 : -1;
+const GRIP_DOTS = {
+  // けん持ち: pinch the ken just below the cups, thumb on your side, index + middle on the far side
+  ken:(O, th, r) => { const sg = nearSide(O, th, SAR - 1.6), s0 = SAR - 1.6;
+    return hidDot(K3(O, th, s0 + .2, 0, -1.15*sg), 1, r) + hidDot(K3(O, th, s0 - 1.2, 0, -1.15*sg), 2, r) + fdot(K3(O, th, s0 - .5, 0, 1.15*sg), 0, r); },
+  // 皿持ち: thumb and index pinch the ken right next to the cups; middle + ring rest on the far cup
+  sara:(O, th, r, side) => { const s0 = SAR - 1.7, sg = nearSide(O, th, s0), far = -side*3.2;
+    return fdot(K3(O, th, s0, side*1.15), 0, r) + fdot(K3(O, th, s0, -side*1.15), 1, r)
+      + fdot(K3(O, th, SAR - .6, far, 1.2*sg), 2, r) + fdot(K3(O, th, SAR + .6, far, 1.2*sg), 3, r); },
+};
+const ballGripDots = (c, r = .62) => [205, 325, 278].map((a, i) => fdot(W3(c[0] + BR*Math.cos(rad(a)), c[1] + BR*Math.sin(rad(a)), c[2] || 0), i, r)).join('');
+const TAGN = { big:'OZARA  BIG CUP', small:'KOZARA  SMALL CUP', base:'CHUZARA  BASE CUP', spike:'KENSAKI  SPIKE' };
+
+/* ---------- scene ---------- */
+function scene(st, m){
+  kcN = 0;
+  const tr = TR[st.trick], t = Math.min(st.t, tr.T), kp = kenAt(tr, t), bp = ballAt(tr, t);
+  const pi = phaseIdx(tr, t);
+  let s = '';
+  // the record: where the ball travels, and the pose at the start of each step
+  if (st.trail){
+    const tp = tr.path.map(Wv);
+    s += `<path d="${pd(tp, false)}" fill="none" stroke="${INK}" stroke-width=".9" stroke-dasharray="${f(.4*INK_K)} ${f(2.2*INK_K)}" stroke-linecap="round" opacity=".55"/>`;
+    tr.ghosts.forEach((g, i) => { s += ghostSVG(g, i === pi); });
+  }
+  // ken, string, ball — back to front. Inside the plane, higher = nearer the viewer; a ball out to the
+  // player's side (toward the viewer) is in front of the ken.
+  const pieces = kenPieces(kp.o, kp.th);
+  let sg = stringParts(attachOf(kp.o, kp.th), bp.p);
+  if (tr.pinch && t >= tr.pinch.t0 && t <= tr.pinch.t1){ const M = tr.pinch.M, c = [bp.p[0], bp.p[1], bp.p[2] || 0];
+    const Mt = tr.pinch.M0 && t < tr.pinch.tl ? kl2(tr.pinch.M0, M, ease((t - tr.pinch.t0)/(tr.pinch.tl - tr.pinch.t0))) : M;
+    const pts = pinchPath(kp, c, Mt).map(Wv), [mx, my] = P(...Wv(Mt));
+    sg = { front:true, dot:'', svg:`<path d="${pd(pts, false)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-linejoin="round"/><path d="${pd(pts, false)}" fill="none" stroke="#fbf3df" stroke-width=".45"/>`
+      + `<circle cx="${f(mx)}" cy="${f(my)}" r="1.15" fill="#f6d6b8" stroke="${INK}" stroke-width=".9"/>` }; }
+  const tip = pieces.find(p => p.tip), tipD = depthOf(tip.at);
+  const spiked = Math.hypot(...sub(Wv(kpt(kp.o, kp.th, 9.8)), Wv(bp.p))) < BR;
+  let ballD = depthOf(Wv(bp.p)); if (spiked) ballD = Math.max(ballD, tipD + .01);
+  const items = pieces.slice();
+  // which way the hole faces: down the spike when it is on the spike, along the string when it hangs or flies
+  const tilt = tr.hold === 'ball' ? 0 : .3, axisW = norm(sub(Wv(kpt(kp.o, kp.th, 1)), Wv(kpt(kp.o, kp.th, 0))));
+  const own = spiked ? axisW.map(x => -x) : holeVec(bp.hole, tilt), sd = sg.wd || own, hk = bp.hk ?? 1;
+  const hvec = norm([0, 1, 2].map(i => sd[i]*(1 - hk) + own[i]*hk));
+  items.push({ d:ballD, svg:ballSVG(bp.p, bp.hole, m, tilt, hvec) + (sg.front ? sg.dot : '') });
+  items.push({ d:sg.front ? ballD + .005 : ballD - .005, svg:sg.svg });
+  s += sortDraw(items);
+  // step numbers and labels on top
+  if (st.trail){ let last = null, side = 1;
+    tr.ghosts.forEach((g, i) => { const near = last && Math.hypot(g.b.p[0] - last[0], g.b.p[1] - last[1]) < 4;
+      side = near ? -side : 1; s += badge(g, i, i === pi, side); last = g.b.p; }); }
+  if (typeof st.onRender === 'function') st.onRender();
+  return s;
+}
+function phaseIdx(tr, t){ let i = 0; while (i < tr.ph.length - 1 && tr.ph[i+1].t <= t + 1e-6) i++; return i; }
+
+/* ---------- framing: fit every pose of every trick (and the player marker), so the view doesn't jump ---------- */
+const VB = { x0:0, y0:0, x1:1, y1:1 };
+let INK_FIX = null;
+function reframe(){
+  if (INK_FIX === null){ const keep = st.trick; st.trick = 'yakyu'; INK_FIX = 0; reframe(); INK_FIX = INK_K; st.trick = keep; }
+  OX = OY = 0; let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  const push = p3 => { const q = P(...p3); if (q[0] < x0) x0 = q[0]; if (q[0] > x1) x1 = q[0]; if (q[1] < y0) y0 = q[1]; if (q[1] > y1) y1 = q[1]; };
+  const keep = YAWD;
+  for (let yd = 0; yd < 360; yd += 30){ setYaw(yd);
+    // frame the trick on screen together with the simple cup tricks, so most tricks share one size and only the
+    // big ones (野球, 空中ブランコ, …) zoom out
+    for (const id of new Set(['ozara', 'kozara', 'chuzara', 'tomeken', st.trick])){ const tr = TR[id];
+      for (let t = 0; t <= tr.T; t += .05){ const k = kenAt(tr, t), b = ballAt(tr, t);
+        kenPts(k.o, k.th).forEach(push); ballPts(b.p).forEach(push); } } }
+  setYaw(keep);
+  const w = x1 - x0, h = y1 - y0;
+  x0 -= w*.04; x1 += w*.04; y0 -= h*.03; y1 += h*.03;
+  OX = -x0; OY = -y0;
+  const vbW = x1 - x0, vbH = y1 - y0;
+  VB.x0 = 0; VB.y0 = 0; VB.x1 = vbW; VB.y1 = vbH;
+  // strokes are sized to the kendama, not to the screen, so every trick is drawn with the same line weight
+  INK_K = INK_FIX || vbW / INK_REF_VB;
+  const svg = document.getElementById('fig');
+  svg.setAttribute('viewBox', `0 0 ${f(vbW)} ${f(vbH)}`);
+  document.getElementById('fdefs').innerHTML = filterFor(INK_K);
+  document.getElementById('wob').setAttribute('scale', (document.getElementById('wb').value * INK_K).toFixed(2));
+}
+
+/* ---------- playback ---------- */
+const st = { trick:'ozara', t:0, playing:true, speed:.5, trail:true, pal:'orange', sound:true };
+function play(ui){
+  if (st._running){ st.playing = true; return; } st._running = true; st.playing = true;
+  ui.animate(dt => {
+    if (!st.playing){ st._running = false; return false; }
+    const tr = TR[st.trick], t0 = st.t;
+    if (st.seg){ // one step on a loop: play it, hold its last pose a moment, start again
+      if (st.t >= st.seg[1] - 1e-6){ st.hold = (st.hold || 0) + dt; if (st.hold > .6){ st.hold = 0; st.t = st.seg[0]; } }
+      else st.t = Math.min(st.seg[1], st.t + dt * st.speed); }
+    else { st.t += dt * st.speed; if (st.t > tr.T + .9) st.t = 0; }
+    soundBetween(tr, t0, st.t);
+    return true; });
+}
+function playStep(i){ const tr = TR[st.trick], p = tr.ph; i = (i + p.length) % p.length;
+  st.seg = [p[i].t + .001, (i + 1 < p.length ? p[i+1].t : tr.T) - .002]; st.t = st.seg[0]; st.hold = 0; play(ui); ui.render(); }
+const SPEEDS = [1, .5, .25], SPEED_LBL = v => (v === 1 ? '1' : v === .5 ? '0.5' : '0.25') + '×';
+const ICON_PLAY = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M6 4 L16 10 L6 16 Z" fill="currentColor"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><rect x="5" y="4" width="3.6" height="12" rx="1" fill="currentColor"/><rect x="11.4" y="4" width="3.6" height="12" rx="1" fill="currentColor"/></svg>';
+const ICON_NEXT = '<svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 4 L13 10 L4 16 Z" fill="currentColor"/><rect x="13.6" y="4" width="2.8" height="12" rx="1" fill="currentColor"/></svg>';
+
+const ui = mountFigure({
+  fig:'', title:'Kendama Tricks', hint:'',
+  size:[58, 57, 78], palette:'orange', state:st, credit:true, buttonsLabel:'Trick',
+  scene,
+  buttons:[
+    { label:ICON_PAUSE, onClick:(s, ui) => { if (s.playing){ s.playing = false; } else { s.seg = null; if (s.t >= TR[s.trick].T) s.t = 0; play(ui); } } },
+    { label:ICON_NEXT, onClick:(s, ui) => { const tr = TR[s.trick]; playStep(phaseIdx(tr, Math.min(s.t, tr.T)) + 1); } },
+    { label:'0.5×', onClick:s => { s.speed = SPEEDS[(SPEEDS.indexOf(s.speed) + 1) % SPEEDS.length]; } },
+  ],
+  stats: s => { const tr = TR[s.trick], i = phaseIdx(tr, Math.min(s.t, tr.T));
+    if (tr.count) return [{ label:'Count', value:`${tr.contacts.filter(c => c.t <= s.t + 1e-6).length}/${tr.count}` }, { label:'Step', value:`${i + 1}/${tr.ph.length}`, small:true }];
+    return [{ label:'Step', value:`${i + 1}/${tr.ph.length}` }]; },
+  params(s, q){
+    if (TR[q.get('trick')]) s.trick = q.get('trick');
+    if (q.has('t')){ s.t = +q.get('t'); s.playing = false; }
+    if (q.has('speed')) s.speed = +q.get('speed');
+    if (q.get('trail') === '0') s.trail = false;
+  },
+});
+
+document.querySelector('header h1').textContent = 'Kendama Tricks';
+document.querySelector('header h1').textContent = 'Kendama Tricks';
+/* ---------- grip diagrams: the kendama (or ball) in its starting pose, with the finger contact points ---------- */
+const GRIPDEF = {
+  ken:{ name:'Ken grip', jp:'けん持ち', fingers:[0, 1, 2], far:[1, 2], dots:(O, th, r) => GRIP_DOTS.ken(O, th, r),
+    text:'Pinch the ken just below the cups with thumb and index finger, thumb on your side. The other fingers rest lightly. Turn with the wrist, not the arm.' },
+  saraBig:{ name:'Sara grip', jp:'皿持ち', fingers:[0, 1, 2, 3], far:[], dots:(O, th, r) => GRIP_DOTS.sara(O, th, r, -1),
+    text:'Pinch the ken right next to the cups with thumb and index finger, thumb on the big-cup side. Middle and ring fingers rest on the small cup.' },
+  saraSmall:{ name:'Sara grip', jp:'皿持ち', fingers:[0, 1, 2, 3], far:[], dots:(O, th, r) => GRIP_DOTS.sara(O, th, r, 1),
+    text:'Same grip, the other way round: thumb on the small-cup side, middle and ring fingers resting on the big cup.' },
+  tama:{ name:'Tama grip', jp:'玉持ち', fingers:[0, 1, 2], far:[],
+    text:'Cradle the ball in your fingertips: thumb on one side, two fingers underneath, hole facing up.' },
+};
+const GRIP_OF = { ozara:'saraBig', kozara:'saraSmall', chuzara:'saraBig', moshi5:'saraBig', moshi10:'saraBig', moshi20:'saraBig', tomeken:'ken', nihon:'ken', sekai:'ken', hikoki:'tama',
+  yakyu:'ken', tenose:'ken', kozara2:'ken', block:'ken', frypan:'ken', trapeze:'ken' };
+function gripCardSVG(tr){
+  const keepYaw = YAWD; setYaw(yawFor(tr, tr.view || 'behind'));
+  const save = [OX, OY], kp = kenAt(tr, 0), bp = ballAt(tr, 0), ken = tr.hold === 'ken';
+  OX = OY = 0;
+  const pts = (ken ? kenPts(kp.o, kp.th) : ballPts(bp.p)).map(p => P(...p));
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), pad = ken ? 1.5 : 1.2;
+  const x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, W = Math.max(...xs) - x0 + pad, H = Math.max(...ys) - y0 + pad;
+  OX = -x0; OY = -y0; kcN = 100;
+  let body = ken ? kenSVG(kp.o, kp.th) + GRIPDEF[GRIP_OF[tr.id]].dots(kp.o, kp.th, .75) : ballSVG(bp.p, 90, PALS[st.pal], 0) + ballGripDots(bp.p, .5);
+  const k = Math.max(W, H) / 110;
+  body = body.replace(/stroke-width="([\d.]+)"/g, (_, w) => `stroke-width="${(+w * k).toFixed(3)}"`);
+  OX = save[0]; OY = save[1]; setYaw(keepYaw);
+  return `<svg viewBox="0 0 ${f(W)} ${f(H)}" aria-hidden="true">${body}</svg>`;
+}
+// a top-down person: shoulders, head and nose show which way the player faces (behind view: facing away from you)
+const facingIcon = view => `<svg viewBox="0 0 40 40" aria-hidden="true"><g class="kv-rot" transform="rotate(${view === 'side' ? -90 : 180} 20 20)">
+  <ellipse cx="20" cy="18" rx="14" ry="6" fill="#fff4d6" stroke="${INK}" stroke-width="1.6"/>
+  <circle cx="20" cy="18" r="6.2" fill="#e6dccb" stroke="${INK}" stroke-width="1.6"/>
+  <path d="M16.5 23.5 L20 29 L23.5 23.5" fill="${INK}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M20 31 L20 37 M17 34.5 L20 37.5 L23 34.5" fill="none" stroke="${INK}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`;
+
+/* ---------- layout: tricks on top; figure with its view + grip on the left; the trick's steps on the right ---------- */
+const JPF = '"Hiragino Sans","Noto Sans CJK JP","Yu Gothic",sans-serif';
+const css = document.createElement('style');
+css.textContent = `
+  header{align-items:center;max-width:none} header > span{display:none}
+  .ktricks{display:flex;flex-wrap:wrap;gap:6px;flex-basis:100%;margin:6px 0 0;justify-content:flex-start}
+  .ktricks button{font-size:13.5px;padding:4px 12px;font-family:${JPF};background:var(--paper)}
+  .ktricks button i{font-style:normal;font-size:10px;color:var(--muted);margin-left:6px;font-family:ui-monospace,Menlo,monospace}
+  .ktricks button.on{background:var(--ink);color:var(--paper)} .ktricks button.on i{color:#cfc8b8}
+  .ktricks{display:flex;flex-direction:column;align-items:flex-start;gap:8px} .kgrp{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+  .klhs{display:flex;flex-wrap:wrap;gap:4px 18px}
+  .ktricks .klh{all:unset;cursor:pointer;display:inline-flex;align-items:baseline;gap:6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:3px 0;border-bottom:1.5px solid transparent}
+  .ktricks .klh i{font-style:normal;font-size:10px;letter-spacing:.04em;text-transform:none;opacity:.8}
+  .ktricks .klh svg{width:9px;height:9px;align-self:center;transition:transform .18s}
+  .ktricks .klh.has, .ktricks .klh:hover{color:var(--ink)} .ktricks .klh.open{color:var(--ink);border-bottom-color:var(--ink)} .ktricks .klh.open svg{transform:rotate(180deg)}
+  .ktricks .klh:disabled{cursor:default;opacity:.45} .ktricks .klh:disabled svg{display:none}
+  .ktricks .klh:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+  .klb{display:flex;flex-direction:column;gap:6px;padding-left:2px} .klb[hidden]{display:none}
+  .kgl{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);min-width:92px;white-space:nowrap;display:inline-flex;align-items:baseline;gap:7px;line-height:1.15}
+  .kgl b{white-space:nowrap;font-family:${JPF};font-size:13px;color:var(--ink);letter-spacing:.02em}
+  .ktricks button{font-size:12.5px;padding:3px 10px}
+  .kp-grade{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;font-family:ui-monospace,Menlo,monospace}
+  .actions .cap{display:none}
+  .kfoot{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 48px;width:100%;border-top:1px solid var(--rule);padding:18px 0 10px;margin-top:16px;align-items:center}
+  .kbar{display:flex;flex-direction:column;gap:14px;min-width:0}
+  .stage .actions{position:static;margin:4px 0 0;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:8px;max-width:none;width:auto}
+  .kviews{display:flex;margin-left:14px;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;height:34px}
+  .kvbtn{border:0;border-radius:0;padding:0 12px;font-size:12px;background:var(--paper)} .kvbtn + .kvbtn{border-left:1.5px solid var(--ink)}
+  .kvbtn.on{background:var(--ink);color:var(--paper)}
+  #fig{cursor:grab;touch-action:pan-y} #fig.turning{cursor:grabbing}
+  @media (max-width:560px){ .stage .actions{flex-wrap:wrap} .kviews{margin-left:0} }
+  .stage .act{display:inline-grid;place-items:center;min-width:44px;height:34px;padding:0 12px;font-size:13px;font-weight:700}
+  .kmeta{display:flex;flex-wrap:wrap;align-items:center;gap:14px 40px;white-space:normal}
+  .km-view{display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .km-view svg{width:30px;height:30px;flex:none}
+  .km-grip{display:grid;grid-template-columns:96px minmax(0,380px);column-gap:14px;align-items:center}
+  .km-grip svg{grid-row:1 / span 3;width:96px;height:58px;align-self:center}
+  .km-grip b{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+  .km-grip b i{font-style:normal;color:var(--muted);text-transform:none;letter-spacing:0;font-family:${JPF};margin-left:4px}
+  .km-grip p{font-size:11px;line-height:1.45;margin:3px 0 4px}
+  .kp-dots{display:flex;flex-wrap:wrap;gap:4px 9px;font-size:10px;color:var(--muted)} .kp-dots em{font-style:normal;display:inline-flex;align-items:center;gap:3px}
+  .kp-dots em::before{content:"";width:8px;height:8px;border-radius:50%;border:1px solid var(--ink);background:var(--c)}
+  .kp-dots em.far::before{border-style:dashed;opacity:.6}
+  .kcol{width:100%;max-width:760px}
+  .kp-name{font-size:26px;font-weight:800;letter-spacing:.02em;line-height:1.2;font-family:${JPF}}
+  .kp-name small{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;margin-top:3px;font-family:ui-monospace,Menlo,monospace}
+  .kp-name small span{font-family:${JPF};letter-spacing:.02em}
+  .kp-sum{font-size:12.5px;line-height:1.55;margin:8px 0 14px}
+  .kp-strip{list-style:none;margin:0 0 4px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+  .kp-strip button{display:flex;align-items:center;gap:5px;border-radius:8px;padding:3px 9px 3px 4px;font-size:12px;background:transparent;border:1.2px solid var(--rule)}
+  .kp-strip button b{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;border:1.2px solid var(--ink);font-size:10px;flex:none}
+  .kp-strip button i{font-style:normal;color:var(--muted);font-size:10.5px;font-family:${JPF}}
+  .kp-strip button.on{border-color:var(--ink);font-weight:700} .kp-strip button.on b{background:var(--accent)}
+  .kp-tip{min-height:3.2em;font-size:13px;line-height:1.55;margin:14px 0 0}
+  .kp-tip b{margin-right:8px} .kp-tip b span{font-family:${JPF}}
+  .kbottom{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+  .kbottom .controls{display:flex;flex-direction:column;gap:10px;border:0;padding:0;max-width:none;width:200px}
+  .kbottom .controls label{font-size:10px} .kbottom .sw{width:18px;height:18px} .kbottom .row{gap:5px}
+  .kbottom .ksrc{margin-top:4px} .kbottom .made-with{margin-top:14px;font-size:10px;max-width:none;text-align:left}
+  @media (min-width:900px){
+    body{height:100vh;padding:14px 22px;overflow:hidden}
+    .klayout{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:56px;width:100%;flex:1;min-height:0;margin-top:30px}
+    .klayout .stage{max-width:none;height:100%;min-height:0;display:flex;flex-direction:column}
+    .klayout #fig{max-width:none;width:100%;height:auto;flex:1;min-height:0;margin:0}
+    .kcol{display:flex;flex-direction:column;min-height:0;overflow-y:auto;max-width:none;padding:2px 4px 2px 0}
+  }
+  @media (max-width:899px){
+    .klayout{width:100%;max-width:760px;margin-top:30px} .ktricks{margin:10px 0 0;justify-content:flex-start} .kmeta{margin:0}
+    .kmeta{flex-direction:column;align-items:stretch;gap:12px}
+    .km-view{display:grid;grid-template-columns:96px 1fr;column-gap:14px} .km-view svg{justify-self:center}
+    .kp-sum{margin-bottom:12px} .kp-tip{min-height:7.8em}
+    .stage{position:relative;margin-top:8px} .stage #fig{max-height:46vh;margin:0 auto}
+    .stage .stats, .stats{position:absolute;right:0;bottom:0;top:auto;display:flex;flex-direction:row;align-items:flex-end;gap:10px;margin:0}
+    .stats .stat{display:flex;align-items:baseline;gap:8px} .stats .stat .v{font-size:30px;line-height:1}
+  }
+  html{background:var(--paper)}`;
+document.head.appendChild(css);
+const headerEl = document.querySelector('header');
+document.documentElement.style.background = getComputedStyle(document.body).background;
+const tricksBar = document.createElement('nav'); tricksBar.className = 'ktricks'; headerEl.appendChild(tricksBar);
+{ const CL = { '3級':'3rd', '2級':'2nd', '1級':'1st' };
+  const heads = LEVELS.map(lv => { const n = GROUPS.filter(g => g[0] === lv).reduce((a, g) => a + g[2].length, 0);
+    return `<button class="klh" data-l="${lv}" ${n ? '' : 'disabled'} aria-expanded="false">${lv}<i>${n ? n + (n > 1 ? ' tricks' : ' trick') : 'soon'}</i><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 L5 6.5 L8 3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`; }).join('');
+  const bodies = LEVELS.map(lv => `<div class="klb" data-l="${lv}" hidden>${GROUPS.filter(g => g[0] === lv).map(([, gr, ids]) =>
+    `<div class="kgrp"><span class="kgl"><b>${gr}</b>${CL[gr]} class</span>${ids.map(id => `<button data-t="${id}" title="${TR[id].en}">${TR[id].chip || TR[id].name}</button>`).join('')}</div>`).join('')}</div>`).join('');
+  tricksBar.innerHTML = `<div class="klhs">${heads}</div>${bodies}`; }
+// tap a level to open it, tap it again to fold it away; one level open at a time
+function openLevel(lv){ tricksBar.querySelectorAll('.klh').forEach(h => { const on = h.dataset.l === lv; h.classList.toggle('open', on); h.setAttribute('aria-expanded', on); });
+  tricksBar.querySelectorAll('.klb').forEach(b => b.hidden = b.dataset.l !== lv); }
+tricksBar.querySelectorAll('.klh').forEach(h => h.onclick = () => openLevel(h.classList.contains('open') ? null : h.dataset.l));
+tricksBar.querySelectorAll('button[data-t]').forEach(b => b.onclick = () => { st.trick = b.dataset.t; st.t = 0; st.seg = null; buildPanel(); reframe(); turnTo(yawFor(TR[st.trick], TR[st.trick].view || 'behind')); play(ui); ui.render(); });
+// view buttons sit with the playback controls
+const kviews = document.createElement('div'); kviews.className = 'kviews';
+kviews.innerHTML = ['behind', 'side', 'front'].map(v => `<button class="kvbtn" data-v="${v}">${v[0].toUpperCase() + v.slice(1)}</button>`).join('');
+document.getElementById('btns').appendChild(kviews);
+kviews.querySelectorAll('button').forEach(b => b.onclick = () => turnTo(yawFor(TR[st.trick], b.dataset.v)));
+let turnTimer = 0;
+function turnTo(target){ clearTimeout(turnTimer); const from = YAWD, d = ((target - from) % 360 + 540) % 360 - 180, t0 = performance.now();
+  const stepTurn = () => { const k = Math.min(1, (performance.now() - t0) / 450); setYaw(from + d * ease(k)); ui.render(); if (k < 1) turnTimer = setTimeout(stepTurn, 16); };
+  stepTurn(); }
+{ const fig = document.getElementById('fig'); let drag = null;
+  fig.addEventListener('pointerdown', e => { if (e.button) return; drag = { x:e.clientX, y0:YAWD }; clearTimeout(turnTimer); fig.setPointerCapture(e.pointerId); fig.classList.add('turning'); });
+  fig.addEventListener('pointermove', e => { if (!drag) return; setYaw(drag.y0 - (e.clientX - drag.x) * .45); ui.render(); });
+  const up = () => { drag = null; fig.classList.remove('turning'); };
+  fig.addEventListener('pointerup', up); fig.addEventListener('pointercancel', up); }
+// which way the player faces on screen, and which named view (if any) we are at
+function viewState(){ const tr = TR[st.trick], F = tr.fwd === 'u' ? [1, 0, 0] : [0, 0, -1];
+  const a = P(...W3(0, 0, 0)), b = P(...W3(F[0]*10, F[1]*10, F[2]*10)), deg = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI - 90;
+  let name = null; for (const v of ['behind', 'side', 'front']){ const dd = Math.abs(((yawFor(tr, v) - YAWD) % 360 + 540) % 360 - 180); if (dd < 12) name = v; }
+  return { deg, name }; }
+const lay = document.createElement('div'); lay.className = 'klayout';
+const stageEl = document.querySelector('.stage'); stageEl.before(lay); lay.appendChild(stageEl);
+// one footer under both columns: playback + view + grip on the left, the look settings stacked on the right
+const kfoot = document.createElement('div'); kfoot.className = 'kfoot'; lay.after(kfoot);
+const kbar = document.createElement('div'); kbar.className = 'kbar'; kfoot.appendChild(kbar);
+stageEl.appendChild(document.getElementById('btns'));
+const meta = document.createElement('div'); meta.className = 'kmeta'; kbar.appendChild(meta);
+const col = document.createElement('div'); col.className = 'kcol'; lay.prepend(col);
+const panel = document.createElement('section'); panel.className = 'kp'; col.appendChild(panel);
+const bottom = document.createElement('div'); bottom.className = 'kbottom'; kfoot.appendChild(bottom);
+bottom.appendChild(document.querySelector('.controls'));
+{ const c = document.createElement('div'); c.className = 'ctl'; c.innerHTML = '<label>Sound</label><div class="row"><button id="snd" aria-pressed="true">On</button></div>';
+  document.querySelector('.controls').appendChild(c);
+  const b = c.querySelector('#snd'); b.onclick = () => { st.sound = !st.sound; b.textContent = st.sound ? 'On' : 'Off'; b.setAttribute('aria-pressed', st.sound); if (st.sound) ensureAC(); }; }
+const credit = document.querySelector('.made-with'); if (credit) bottom.appendChild(credit);
+{ const src = document.createElement('div'); src.className = 'made-with ksrc'; src.innerHTML = '<a href="https://kendamakentei.com/en/trick-en" target="_blank" rel="noopener">Trick list: Kendama Kentei ↗</a>'; bottom.appendChild(src); }
+function buildPanel(){
+  const tr = TR[st.trick], view = tr.view || 'behind', ball = tr.hold === 'ball', g = GRIPDEF[GRIP_OF[tr.id]];
+  tricksBar.querySelectorAll('button[data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === st.trick));
+  tricksBar.querySelectorAll('.klh').forEach(h => h.classList.toggle('has', h.dataset.l === (tr.grade || '').split(' ')[0]));
+  meta.innerHTML = `<div class="km-view">${facingIcon(view)}<span class="kv-lbl"></span></div>
+    <div class="km-grip">${gripCardSVG(tr)}<b>${g.name}<i>${g.jp}</i></b><p>${g.text}</p>
+      <div class="kp-dots">${g.fingers.map(i => { const [c, n] = FING[i], far = g.far.includes(i); return `<em class="${far ? 'far' : ''}" style="--c:${c}">${n}${far ? ' (far side)' : ''}</em>`; }).join('')}</div></div>`;
+  panel.innerHTML = `<div class="kp-grade">${tr.grade || ''}</div><div class="kp-name">${tr.name}<small><span>${tr.kana}</span> · ${tr.romaji.toUpperCase()} · ${tr.en.toUpperCase()}</small></div>
+    <p class="kp-sum">${tr.sum}</p>
+    <ol class="kp-strip">${tr.ph.map((p, i) => `<li><button data-i="${i}"><b>${i + 1}</b>${p.name}<i>${p.jp}</i></button></li>`).join('')}</ol>
+    <p class="kp-tip"></p>`;
+  panel.querySelectorAll('.kp-strip button').forEach(b => b.onclick = () => playStep(+b.dataset.i));
+  panel._tip = panel.querySelector('.kp-tip'); panel._btns = [...panel.querySelectorAll('.kp-strip button')]; panel._last = -1;
+}
+st.onRender = () => {
+  if (!panel._tip) return;
+  { const vs = viewState(), g = meta.querySelector('.kv-rot'), l = meta.querySelector('.kv-lbl');
+    if (g) g.setAttribute('transform', `rotate(${vs.deg.toFixed(1)} 20 20)`);
+    const txt = vs.name === 'behind' ? 'From behind · right hand' : vs.name === 'side' ? 'Side view · player faces right' : vs.name === 'front' ? 'From the front · right hand' : 'Drag to turn';
+    if (l && l.textContent !== txt) l.textContent = txt;
+    kviews.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === vs.name)); }
+  const ab = document.querySelectorAll('#btns .act');
+  if (ab.length === 3){ const pi = st.playing ? 'pause' : 'play';
+    if (ab[0].dataset.k !== pi){ ab[0].dataset.k = pi; ab[0].innerHTML = st.playing ? ICON_PAUSE : ICON_PLAY; ab[0].title = st.playing ? 'Pause' : 'Play'; }
+    ab[1].title = 'Next step'; const sl = SPEED_LBL(st.speed); if (ab[2].textContent !== sl){ ab[2].textContent = sl; ab[2].title = 'Speed (tap to change)'; } }
+  const tr = TR[st.trick], t = Math.min(st.t, tr.T), i = phaseIdx(tr, t);
+  if (panel._last !== i){ panel._last = i; panel._btns.forEach((b, j) => b.classList.toggle('on', j === i));
+    panel._tip.innerHTML = `<b>${i + 1}. ${tr.ph[i].name} <span style="color:var(--muted);font-weight:600">${tr.ph[i].jp}</span></b>${tr.ph[i].tip}`; }
+};
+buildPanel();
+openLevel((TR[st.trick].grade || 'Basic').split(' ')[0]);
+reframe();
+ui.render();
+if (st.playing) play(ui);
+})();
+</script>
+<script>
+(() => {
+  const css = document.createElement('style');
+  css.textContent = `
+  .xy-bar{width:100%;max-width:none;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    font-family:Arial,Helvetica,sans-serif;color:#202020;padding:6px 0 18px;border-bottom:1px solid var(--rule);margin-bottom:14px}
+  .xy-bar a{color:#202020;text-decoration:none}
+  .xy-logo{font-size:22px;font-weight:700;letter-spacing:2.25px;text-transform:uppercase;white-space:nowrap}
+  .xy-nav{display:flex;gap:26px;font-size:14px;font-weight:700;letter-spacing:.5px}
+  .xy-nav a:hover,.xy-logo a:hover{background:#ff5e00;color:#fff}
+  .ktricks button.on{background:#ff5e00!important;border-color:#ff5e00!important;color:#fff!important}
+  .ktricks button.on i{color:#ffe1cc!important}
+  .kvbtn.on{background:#ff5e00!important;color:#fff!important}
+  .ktricks .klh.open{border-bottom-color:#ff5e00!important}
+  @media (min-width:900px){ .xy-bar{padding-top:2px;margin-bottom:0} .klayout{margin-top:22px!important} }
+  @media (max-width:560px){ .xy-bar{gap:10px;padding-bottom:14px} .xy-logo{font-size:18px;letter-spacing:1.5px} .xy-nav{gap:12px;font-size:12.5px;letter-spacing:.2px} }
+  @media (max-width:360px){ .xy-nav{gap:9px;font-size:11.5px} }`;
+  document.head.appendChild(css);
+  const bar = document.createElement('div'); bar.className = 'xy-bar';
+  bar.innerHTML = `<div class="xy-logo"><a href="index.html">(x,y)</a></div>
+    <nav class="xy-nav"><a href="about.html">xyxy</a><a href="works.html">Works</a><a href="concept.html">For dreams,</a><a href="contact.html">High five?</a></nav>`;
+  document.body.prepend(bar);
+  document.title = 'Kendama Tricks · xyxy';
+})();
+</script>
+</body>
+</html>

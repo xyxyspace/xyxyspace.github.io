@@ -1,162 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
-
-
-<url>
-  <loc>https://xyxy.space/</loc>
-  <lastmod>2019-09-19T11:05:28+00:00</lastmod>
-  <priority>1.00</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/index.html</loc>
-  <lastmod>2019-09-19T11:05:28+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/about.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/works.html</loc>
-  <lastmod>2019-09-19T11:05:28+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/concept.html</loc>
-  <lastmod>2019-09-19T11:05:28+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/contact.html</loc>
-  <lastmod>2019-09-19T11:05:28+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/acmi.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/PostDigitalBook.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/SAC.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/ProgramRecords.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/assets/Encyclopedia%20of%20xyxy.pdf</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/assets/xyxy-resume.pdf</loc>
-  <lastmod>2019-09-19T11:05:28+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/GraphicDesign.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/ArtDirection.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/CreativeDirection.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/CampaignDesign.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/CuratingDesign.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/UIUXDesign.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/BrandingDesign.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/BookDesign.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/InstallationDesign.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/ServiceDesign.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/FeelTheSame.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/Shareorg.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/SaveSpaceshipEarth.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/PlaceBook.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/assets/xyxy-My%20journey%20to%20the%20centre%20of%20Google%20Earth.pdf</loc>
-  <lastmod>2019-09-19T11:05:28+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/acmidata.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/signal.html</loc>
-  <lastmod>2019-09-19T11:05:28+00:00</lastmod>
-  <priority>0.51</priority>
-</url>
-<url>
-  <loc>https://xyxy.space/WasteMaster.html</loc>
-  <lastmod>2019-09-19T11:05:27+00:00</lastmod>
-  <priority>0.41</priority>
-</url>
-
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://xyxyspace.github.io/</loc><priority>1.0</priority></url>
+  <url><loc>https://xyxyspace.github.io/works.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/about.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/contact.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/concept.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/evoto.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/vivo.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/liene.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/latrobe-students.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/latrobe-campus.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/slim.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/Fly-lineBangs.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/Porsche911.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/YYF.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/elephant.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/vans.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/tiger.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/summer.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/2501.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/moon.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/Happiness.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/TheWorstIntern.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/FlyTheKiteHigh.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/DBGH.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/FeelTheSame.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/SaveSpaceshipEarth.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/SAC.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/PostDigitalBook.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/acmi.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/signal.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/DigitalD.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/PlaceBook.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/ProgramRecords.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/Shareorg.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/kendama.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/type_instrument.html</loc></url>
+  <url><loc>https://xyxyspace.github.io/swim.html</loc></url>
 </urlset>

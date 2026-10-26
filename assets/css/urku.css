@@ -2720,6 +2720,7 @@ video { height: auto; }
 .item-inside-41 { background-image: url("../img/latrobe-billboard.jpg"); background-position: 50% 40%; background-size: cover; }
 .item-inside-42 { background-image: url("../img/latrobe-cover.jpg"); background-position: 50% 50%; background-size: contain; background-repeat: no-repeat; }
 .item-inside-43 { background-image: url("../img/liene-kv.jpg"); background-position: 50% 50%; background-size: cover; }
+.item-inside-44 { background-image: url("../img/vivo-kv.jpg"); background-position: 50% 50%; background-size: cover; }
 
 /* project cover v2 (2026): the title sits on white above the picture; the picture is never covered */
 .rk-portfolio-cover{
